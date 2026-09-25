@@ -4,6 +4,7 @@ import eventValue from '@shared/values/events/event.vo';
 
 import userEvents from '@domain/user/events/user.events';
 import IUserRepo from '@domain/user/repos/user.repo';
+import IActorService from '@domain/user/types/actor.service.types';
 import emailValue from '@domain/user/values/email.vo';
 
 import { EAuthStrategy } from '@app/auth/contracts/auth.types';
@@ -18,6 +19,7 @@ import authError from '@app/auth/errors/auth.error';
 import IAppContext from '@app/context/contracts/app-context.contract';
 
 interface IDependencies {
+  actorService: IActorService;
   reqContext: IAppContext;
   userRepo: IUserRepo;
   passwordService: IPasswordService;
@@ -99,6 +101,7 @@ export default function makeLoginWithEmailUseCase(deps: IDependencies) {
     const events = eventValue.enrich(userEvents.loggedIn(user), {
       correlationId,
     });
+    await deps.actorService.resolveUser(user, { correlationId });
     const preparedSession = await deps.userSessionService.prepare(
       user,
       clientSession.getRefreshToken()

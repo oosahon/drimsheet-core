@@ -1,3 +1,4 @@
+import { TEntityId } from '@shared/types/uuid';
 import generateUUID from '@shared/utils/uuid-generator';
 
 import {
@@ -122,6 +123,7 @@ describe('makeFxCostBasisLotService', () => {
       attachments: [],
       lines: [
         {
+          createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
           id: generateUUID(),
           entryId: id,
           accountId,
@@ -157,6 +159,7 @@ describe('makeFxCostBasisLotService', () => {
       type: EExchangeRateType.Official,
     };
     const result = service.acquire({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       journalEntry,
       account,
       officialRate,
@@ -181,6 +184,7 @@ describe('makeFxCostBasisLotService', () => {
     } as ILedgerAccount;
 
     const result = service.acquire({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       journalEntry: makeJournal(EJournalSide.Debit),
       account: pettyCashAccount,
       officialRate: null,
@@ -196,6 +200,7 @@ describe('makeFxCostBasisLotService', () => {
   ])('rejects a direct acquisition for a %s journal', (status) => {
     expect(() =>
       service.acquire({
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         journalEntry: makeJournal(EJournalSide.Debit, status),
         account,
         officialRate: null,
@@ -214,6 +219,7 @@ describe('makeFxCostBasisLotService', () => {
       await expect(
         service.dispose(
           {
+            createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
             journalEntry: makeJournal(EJournalSide.Credit, status),
             account,
             officialRate: null,
@@ -255,7 +261,12 @@ describe('makeFxCostBasisLotService', () => {
     }
 
     const result = await service.dispose(
-      { journalEntry, account: candidate, officialRate: null },
+      {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        journalEntry,
+        account: candidate,
+        officialRate: null,
+      },
       { correlationId: 'corr-id' }
     );
 
@@ -270,6 +281,7 @@ describe('makeFxCostBasisLotService', () => {
     } as ILedgerAccount;
 
     const result = service.acquire({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       journalEntry: makeJournal(EJournalSide.Debit),
       account: functionalAccount,
       officialRate: null,
@@ -281,6 +293,7 @@ describe('makeFxCostBasisLotService', () => {
   it('rejects the wrong journal side for the requested FX operation', () => {
     expect(() =>
       service.acquire({
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         journalEntry: makeJournal(EJournalSide.Credit),
         account,
         officialRate: null,
@@ -303,13 +316,19 @@ describe('makeFxCostBasisLotService', () => {
     journalEntry.lines[0] = { ...journalEntry.lines[0], exchangeRate };
 
     expect(() =>
-      service.acquire({ journalEntry, account, officialRate: null })
+      service.acquire({
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        journalEntry,
+        account,
+        officialRate: null,
+      })
     ).toThrow(fxCostBasisLotError.InvalidTransactionRate);
   });
 
   it('rejects an official rate for a different currency pair', () => {
     expect(() =>
       service.acquire({
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         journalEntry: makeJournal(EJournalSide.Debit),
         account,
         officialRate: {
@@ -324,6 +343,7 @@ describe('makeFxCostBasisLotService', () => {
 
   it('consumes lots in FIFO order and derives disposition totals', async () => {
     const [firstLot] = fxCostBasisLotEntity.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       ledgerAccountId: accountId,
       accountingEntityId: entityId,
       status: EFxCostBasisLotStatus.Open,
@@ -335,6 +355,7 @@ describe('makeFxCostBasisLotService', () => {
       acquisitionDate: new Date('2026-07-01T00:00:00.000Z'),
     });
     const [secondLot] = fxCostBasisLotEntity.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       ledgerAccountId: accountId,
       accountingEntityId: entityId,
       status: EFxCostBasisLotStatus.Open,
@@ -352,7 +373,12 @@ describe('makeFxCostBasisLotService', () => {
     const journalEntry = makeJournal(EJournalSide.Credit);
 
     const result = await service.dispose(
-      { journalEntry, account, officialRate: null },
+      {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        journalEntry,
+        account,
+        officialRate: null,
+      },
       { correlationId: 'corr-id' }
     );
 
@@ -375,6 +401,7 @@ describe('makeFxCostBasisLotService', () => {
     await expect(
       service.dispose(
         {
+          createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
           journalEntry: makeJournal(EJournalSide.Credit),
           account,
           officialRate: null,
@@ -387,6 +414,7 @@ describe('makeFxCostBasisLotService', () => {
   it('reverses the acquisition created by a journal entry', async () => {
     const journalEntry = makeJournal(EJournalSide.Debit);
     const [lot] = fxCostBasisLotEntity.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       ledgerAccountId: accountId,
       accountingEntityId: entityId,
       status: EFxCostBasisLotStatus.Open,
@@ -398,6 +426,7 @@ describe('makeFxCostBasisLotService', () => {
       acquisitionDate: date,
     });
     const [acquisition] = fxCostBasisLotAcquisitionEntity.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       ledgerAccountId: accountId,
       accountingEntityId: entityId,
       lotId: lot.id,
@@ -431,6 +460,7 @@ describe('makeFxCostBasisLotService', () => {
     const quantity = journalEntry.lines[0].amount;
     const costBasis = journalEntry.lines[0].functionalAmount;
     const [openLot] = fxCostBasisLotEntity.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       ledgerAccountId: accountId,
       accountingEntityId: entityId,
       status: EFxCostBasisLotStatus.Open,
@@ -447,6 +477,7 @@ describe('makeFxCostBasisLotService', () => {
       costBasis
     );
     const [disposition] = fxCostBasisLotDispositionEntity.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       ledgerAccountId: accountId,
       accountingEntityId: entityId,
       journalEntryId: journalEntry.id,
@@ -459,6 +490,7 @@ describe('makeFxCostBasisLotService', () => {
       dispositionDate: date,
     });
     const allocation = fxCostBasisLotDispositionAllocationEntity.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       dispositionId: disposition.id,
       lotId: closedLot.id,
       quantity,
@@ -490,6 +522,7 @@ describe('makeFxCostBasisLotService', () => {
     const journalEntry = makeJournal(EJournalSide.Debit);
     const lotId = generateUUID();
     const [acquisition] = fxCostBasisLotAcquisitionEntity.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       ledgerAccountId: accountId,
       accountingEntityId: entityId,
       lotId,
@@ -528,6 +561,7 @@ describe('makeFxCostBasisLotService', () => {
     const costBasis = journalEntry.lines[0].functionalAmount;
     const realizedGainLoss = moneyValue.makeZeroAmount(SYSTEM_CURRENCIES.NGN);
     const [disposition] = fxCostBasisLotDispositionEntity.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       ledgerAccountId: accountId,
       accountingEntityId: entityId,
       journalEntryId: journalEntry.id,
@@ -540,6 +574,7 @@ describe('makeFxCostBasisLotService', () => {
       dispositionDate: date,
     });
     const allocation = fxCostBasisLotDispositionAllocationEntity.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       dispositionId: disposition.id,
       lotId: generateUUID(),
       quantity,

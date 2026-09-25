@@ -17,9 +17,10 @@ describe('journalLineRepo', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    jest
-      .mocked(journalLineMapper.toRepo)
-      .mockReturnValue({ id: lineId } as never);
+    jest.mocked(journalLineMapper.toRepo).mockReturnValue({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      id: lineId,
+    } as never);
   });
 
   it('creates, updates, and deletes lines', async () => {
@@ -38,22 +39,44 @@ describe('journalLineRepo', () => {
       insert: jest.fn().mockReturnValue({ values }),
     } as never);
 
-    await journalLineRepo.create({ id: lineId } as never, {
-      ...options,
-      accountingEntityId: accountId,
-      history: { entityId: lineId } as never,
-    });
+    await journalLineRepo.create(
+      {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        id: lineId,
+      } as never,
+      {
+        ...options,
+        accountingEntityId: accountId,
+        history: {
+          actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+          onBehalfOf: null,
+          entityId: lineId,
+        } as never,
+      }
+    );
     await journalLineRepo.create([{ id: lineId }] as never, {
       ...options,
       accountingEntityId: accountId,
       history: [{ entityId: lineId }] as never,
     });
-    await journalLineRepo.update({ id: lineId, version: 2 } as never, {
-      ...options,
-      accountingEntityId: accountId,
-      expectedVersion: 1,
-      history: { entityId: lineId, entityVersion: 2 } as never,
-    });
+    await journalLineRepo.update(
+      {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        id: lineId,
+        version: 2,
+      } as never,
+      {
+        ...options,
+        accountingEntityId: accountId,
+        expectedVersion: 1,
+        history: {
+          actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+          onBehalfOf: null,
+          entityId: lineId,
+          entityVersion: 2,
+        } as never,
+      }
+    );
     await journalLineRepo.delete([lineId], options);
     await journalLineRepo.delete([], options);
 
@@ -75,12 +98,24 @@ describe('journalLineRepo', () => {
     } as never);
 
     await expect(
-      journalLineRepo.update({ id: lineId, version: 2 } as never, {
-        ...options,
-        accountingEntityId: accountId,
-        expectedVersion: 1,
-        history: { entityId: lineId, entityVersion: 2 } as never,
-      })
+      journalLineRepo.update(
+        {
+          createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+          id: lineId,
+          version: 2,
+        } as never,
+        {
+          ...options,
+          accountingEntityId: accountId,
+          expectedVersion: 1,
+          history: {
+            actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+            onBehalfOf: null,
+            entityId: lineId,
+            entityVersion: 2,
+          } as never,
+        }
+      )
     ).rejects.toBeInstanceOf(repoError.VersionNotFound);
   });
 
@@ -112,9 +147,10 @@ describe('journalLineRepo', () => {
       args.length > 0 ? { from: countFrom } : { from: resultFrom }
     );
     jest.mocked(getDbQuery).mockReturnValue({ select } as never);
-    jest
-      .mocked(journalLineMapper.toDomain)
-      .mockReturnValue({ id: lineId } as never);
+    jest.mocked(journalLineMapper.toDomain).mockReturnValue({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      id: lineId,
+    } as never);
 
     for (const orderBy of ['amount', 'sequenceOrder', 'createdAt'] as const) {
       await journalLineRepo.findAllByAccountId(accountId, {

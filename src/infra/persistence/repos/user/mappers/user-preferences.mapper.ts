@@ -22,6 +22,7 @@ const userPreferencesMapper = {
     preferences: IUserPreferences
   ): typeof userPreferencesInCore.$inferInsert {
     return Object.freeze({
+      createdBy: preferences.createdBy as TEntityId,
       id: preferences.userId,
       lastActiveAccountingEntityId: preferences.lastActiveAccountingEntityId,
       appPreferences: {
@@ -38,6 +39,7 @@ const userPreferencesMapper = {
       {}) as IUserAppPreferences;
 
     return Object.freeze({
+      createdBy: payload.createdBy as TEntityId,
       userId: payload.id as TEntityId,
       lastActiveAccountingEntityId:
         payload.lastActiveAccountingEntityId as TEntityId | null,

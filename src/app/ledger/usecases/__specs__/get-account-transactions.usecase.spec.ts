@@ -1,3 +1,4 @@
+import { TEntityId } from '@shared/types/uuid';
 import appError from '@shared/values/errors/app.error';
 import { IPaginationDto } from '@shared/values/pagination/dto/pagination.dto';
 import { EPaginationSortDirection } from '@shared/values/pagination/types/pagination.types';
@@ -21,6 +22,7 @@ import moneyValue from '@domain/money/values/money.vo';
 import userEntity from '@domain/user/entities/user.entity';
 import { IUser } from '@domain/user/types/user.types';
 
+import { mockAccountingEntityService } from '@app/accounting/contracts/__mocks__/accounting.domain.services.mock';
 import mockAppContext, {
   mockClientSession,
 } from '@app/context/contracts/__mocks__/app-context.mock';
@@ -50,6 +52,7 @@ describe('getAccountTransactionsUseCase', () => {
 
   const getUseCase = () =>
     makeGetAccountTransactionsUseCase({
+      accountingEntityService: mockAccountingEntityService,
       appContext: mockAppContext,
       ledgerAccountRepo: mockLedgerAccountRepo,
       accountTransactionQueryRepo: mockAccountTransactionQueryRepo,
@@ -61,12 +64,15 @@ describe('getAccountTransactionsUseCase', () => {
     jest.clearAllMocks();
 
     [user] = userEntity.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       email: 'owner@example.com',
       emailVerified: true,
       firstName: 'Account',
       lastName: 'Owner',
     });
     [accountingEntity] = accountingEntityEntity.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       name: 'Owner Business',
       ownerId: user.id,
       type: EAccountingEntityType.Individual,
@@ -78,7 +84,7 @@ describe('getAccountTransactionsUseCase', () => {
       {
         name: 'Main Cash',
         accountingEntity,
-        userId: user.id,
+        createdBy: user.actorId,
       },
       { correlationId }
     );
@@ -91,7 +97,7 @@ describe('getAccountTransactionsUseCase', () => {
       postedAt: new Date('2026-05-01T00:00:00.000Z'),
       memo: 'Cash transfer',
       functionalCurrency: SYSTEM_CURRENCIES.NGN,
-      createdBy: user.id,
+      createdBy: user.actorId,
       lines: [
         {
           accountId: ledgerAccount.id,
@@ -178,6 +184,7 @@ describe('getAccountTransactionsUseCase', () => {
     expect(result).toEqual({
       data: [
         {
+          createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
           id: journalEntry.lines[0].id,
           entryId: journalEntry.id,
           accountId: ledgerAccount.id,
@@ -238,8 +245,13 @@ describe('getAccountTransactionsUseCase', () => {
   });
 
   it('throws Forbidden when the user cannot access the account', async () => {
+    mockAccountingEntityService.validateAccess.mockImplementationOnce(() => {
+      throw new appError.Forbidden();
+    });
     const useCase = getUseCase();
     const [differentUser] = userEntity.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       email: 'different-owner@example.com',
       emailVerified: true,
       firstName: 'Different',

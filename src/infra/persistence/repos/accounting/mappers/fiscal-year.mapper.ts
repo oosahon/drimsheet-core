@@ -16,6 +16,7 @@ const fiscalYearMapper = {
   toRepo(domain: IFiscalYear): IFiscalYearRepoModel {
     return {
       id: domain.id,
+      createdBy: domain.createdBy,
       name: domain.name,
       accountingEntityId: domain.accountingEntityId,
       unit: 'month',

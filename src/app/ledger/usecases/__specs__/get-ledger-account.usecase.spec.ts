@@ -1,5 +1,8 @@
 import { TEntityId } from '@shared/types/uuid';
+import appError from '@shared/values/errors/app.error';
 
+import accountingEntityError from '@domain/accounting/errors/accounting-entity.error';
+import makeAccountingEntityService from '@domain/accounting/services/accounting-entity.service';
 import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
 import ledgerAccountEntity from '@domain/ledger/entities/ledger-account.entity';
 import {
@@ -13,6 +16,8 @@ import {
 import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
 import { IUser } from '@domain/user/types/user.types';
 
+import { mockAccountingEntityService } from '@app/accounting/contracts/__mocks__/accounting.domain.services.mock';
+import { mockAccountingEntityRepo } from '@app/accounting/contracts/__mocks__/accounting.repos.mock';
 import mockAppContext from '@app/context/contracts/__mocks__/app-context.mock';
 import mockLedgerAccountBalanceEnrichmentService from '@app/ledger/contracts/__mocks__/ledger-account-balance-enrichment.service.mock';
 import { mockLedgerAccountRepo } from '@app/ledger/contracts/__mocks__/ledger.repos.mock';
@@ -27,6 +32,7 @@ describe('getLedgerAccountUseCase', () => {
   const correlationId = 'test-corr-id';
 
   const useCase = makeGetLedgerAccountUseCase({
+    accountingEntityService: mockAccountingEntityService,
     appContext: mockAppContext,
     ledgerAccountRepo: mockLedgerAccountRepo,
     balanceEnrichmentService: mockLedgerAccountBalanceEnrichmentService,
@@ -61,6 +67,7 @@ describe('getLedgerAccountUseCase', () => {
     ledgerAccountEntity.make<ILedgerAccount>(validAccountData);
   const accountWithId = { ...mockLedgerAccount, id: mockAccountId };
   const enrichedDto = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     id: mockAccountId,
     balance: {
       amount: 10000,
@@ -122,6 +129,9 @@ describe('getLedgerAccountUseCase', () => {
   });
 
   it('throws app_error_forbidden if the user does not own the account', async () => {
+    mockAccountingEntityService.validateAccess.mockImplementationOnce(() => {
+      throw new appError.Forbidden();
+    });
     mockLedgerAccountRepo.findById.mockResolvedValue({
       ...accountWithId,
       createdBy: 'different-user-id' as TEntityId,
@@ -150,5 +160,47 @@ describe('getLedgerAccountUseCase', () => {
         .invocationCallOrder[0]
     );
     expect(result).toBe(enrichedDto);
+  });
+  it('allows the accounting owner to read a record created by another actor', async () => {
+    const service = makeAccountingEntityService({
+      accountingEntityRepo: mockAccountingEntityRepo,
+    });
+    mockAccountingEntityService.validateAccess.mockImplementationOnce(
+      service.validateAccess
+    );
+    mockAppContext.get.mockReturnValue({
+      correlationId,
+      user: mockUser,
+      accountingEntity: { ...mockAccountingEntity, ownerId: mockUser.id },
+    });
+    mockLedgerAccountRepo.findById.mockResolvedValue({
+      ...accountWithId,
+      createdBy: 'b2222222-2222-4222-8222-222222222222' as TEntityId,
+    });
+    await expect(useCase(mockAccountId)).resolves.toBe(enrichedDto);
+  });
+
+  it('rejects a creator who does not own the accounting entity', async () => {
+    const service = makeAccountingEntityService({
+      accountingEntityRepo: mockAccountingEntityRepo,
+    });
+    mockAccountingEntityService.validateAccess.mockImplementationOnce(
+      service.validateAccess
+    );
+    mockAppContext.get.mockReturnValue({
+      correlationId,
+      user: mockUser,
+      accountingEntity: {
+        ...mockAccountingEntity,
+        ownerId: 'c3333333-3333-4333-8333-333333333333' as TEntityId,
+      },
+    });
+    mockLedgerAccountRepo.findById.mockResolvedValue(accountWithId);
+    await expect(useCase(mockAccountId)).rejects.toThrow(
+      accountingEntityError.Unauthorized
+    );
+    expect(
+      mockLedgerAccountBalanceEnrichmentService.enrich
+    ).not.toHaveBeenCalled();
   });
 });

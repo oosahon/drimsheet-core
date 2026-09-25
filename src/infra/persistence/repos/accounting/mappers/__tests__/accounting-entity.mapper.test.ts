@@ -11,6 +11,7 @@ describe('Accounting Entity Mapper', () => {
   const updatedAt = new Date('2026-04-10T12:30:00Z');
 
   const domainEntity: IAccountingEntity = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     id: 'entity-1' as TEntityId,
     ownerId: 'user-1' as TEntityId,
     name: 'Drimsheet Corp',
@@ -22,6 +23,7 @@ describe('Accounting Entity Mapper', () => {
   };
 
   const repoModel: IAccountingEntityModel = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     id: 'entity-1',
     ownerId: 'user-1',
     name: 'Drimsheet Corp',

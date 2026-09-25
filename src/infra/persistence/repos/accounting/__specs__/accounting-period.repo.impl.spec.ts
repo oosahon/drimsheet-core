@@ -15,7 +15,10 @@ describe('accountingPeriodRepoImpl', () => {
     '123e4567-e89b-12d3-a456-426614174001' as TEntityId;
   const date = new Date('2026-01-31T23:59:59.999Z');
   const row = { id: 'period-row' };
-  const period = { id: 'period-domain' } as IAccountingPeriod;
+  const period = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+    id: 'period-domain',
+  } as IAccountingPeriod;
 
   function mockRead(results: unknown[]) {
     const baseQuery = {

@@ -21,12 +21,14 @@ export default interface ICounterpartyAppService {
   findOrCreate(
     payload: ICounterpartyFindOrCreatePayload,
     accountingEntityId: TEntityId,
+    createdBy: TEntityId,
     repoOptions: IReadRepoOptions
   ): Promise<ICounterpartyFindOrCreateRes>;
 
   findOrCreateMany(
     payload: ICounterpartyFindOrCreatePayload[],
     accountingEntityId: TEntityId,
+    createdBy: TEntityId,
     repoOptions: IReadRepoOptions
   ): Promise<Map<string, ICounterpartyFindOrCreateRes>>;
 

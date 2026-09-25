@@ -1,5 +1,5 @@
+import { TEntityId } from '@shared/types/uuid';
 import { IEvent } from '@shared/values/events/types/event.types';
-import { IUserHistoryActor } from '@shared/values/history/types/history.types';
 
 import { IJournalEntry } from '@domain/journal-entry/types/journal-entry.types';
 import { ILedgerAccount } from '@domain/ledger/types/ledger.types';
@@ -13,7 +13,7 @@ import {
 export interface IFxLotAppOperationPayload {
   journalEntry: IJournalEntry;
   account: ILedgerAccount;
-  actor: IUserHistoryActor;
+  actor: TEntityId;
 }
 
 interface IFxLotAppResult<TRecords> {

@@ -1,6 +1,7 @@
 import { ColumnDefinitions, MigrationBuilder } from 'node-pg-migrate';
 
 import { accountingEntitiesTable } from '../config/accounting-entity';
+import { actorsTable } from '../config/actors';
 import { currenciesTable } from '../config/currencies';
 import {
   adjunctAccountRule,
@@ -10,7 +11,6 @@ import {
   ledgerType,
   normalBalanceType,
 } from '../config/ledger-accounts';
-import { usersTable } from '../config/users';
 import toSchemaString from '../utils/to-schema-string';
 
 export const shorthands: ColumnDefinitions | undefined = undefined;
@@ -41,6 +41,12 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
   pgm.createTable(
     ledgerAccountsTable,
     {
+      created_by: {
+        type: 'uuid',
+        notNull: true,
+        references: actorsTable,
+        onDelete: 'RESTRICT',
+      },
       id: {
         type: 'uuid',
         primaryKey: true,
@@ -118,12 +124,7 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
         type: 'integer',
         notNull: true,
       },
-      created_by: {
-        type: 'uuid',
-        references: usersTable,
-        notNull: true,
-        onDelete: 'CASCADE',
-      },
+
       created_at: {
         type: 'timestamptz',
         notNull: true,

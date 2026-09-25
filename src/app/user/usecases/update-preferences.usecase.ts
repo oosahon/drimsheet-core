@@ -21,6 +21,7 @@ export default function makeUpdateUserPreferencesUsecase(deps: IDependencies) {
 
     const updatePayload = {
       userId: user.id,
+      createdBy: user.actorId,
       appPreferences: payload,
     };
 

@@ -68,6 +68,7 @@ describe('Ledger Account Mapper', () => {
   };
 
   const currencyRepoModel = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     code: 'USD',
     symbol: '$',
     name: 'US Dollar',
@@ -76,6 +77,27 @@ describe('Ledger Account Mapper', () => {
     updatedAt: updatedAt.toISOString(),
     deletedAt: null,
   };
+
+  it.each([
+    '123e4567-e89b-42d3-a456-426614174000' as TEntityId,
+    '123e4567-e89b-42d3-a456-426614174001' as TEntityId,
+    'b2222222-2222-4222-8222-222222222222' as TEntityId,
+    'c3333333-3333-4333-8333-333333333333' as TEntityId,
+  ])(
+    'round-trips complete $type attribution through JSON storage',
+    async (createdBy) => {
+      const model = ledgerAccountMapper.toRepo({
+        ...domainLedgerAccount,
+        createdBy,
+      });
+      const restored = ledgerAccountMapper.toDomain({
+        ...model,
+        currency: currencyRepoModel,
+        createdBy: JSON.parse(JSON.stringify(model.createdBy)),
+      });
+      expect(restored.createdBy).toEqual(createdBy);
+    }
+  );
 
   describe('toRepo', () => {
     it('should map a domain ledger account to a repo model', () => {

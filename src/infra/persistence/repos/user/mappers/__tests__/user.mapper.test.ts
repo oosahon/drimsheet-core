@@ -12,6 +12,8 @@ describe('User Mapper', () => {
   const deletedAt = new Date('2026-04-10T13:00:00Z');
 
   const domainUser: IUser = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+    actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     id: 'user-1' as TEntityId,
     version: 1,
     firstName: 'John',
@@ -24,6 +26,8 @@ describe('User Mapper', () => {
   };
 
   const repoModel: Parameters<typeof userMapper.toDomain>[0] = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+    actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     id: 'user-1',
     version: 1,
     firstName: 'John',

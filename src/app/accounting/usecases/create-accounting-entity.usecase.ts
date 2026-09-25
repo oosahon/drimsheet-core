@@ -58,6 +58,7 @@ export default function createAccountingEntityUseCase(deps: IDependencies) {
         name: payload.name,
         type: payload.entityType,
         ownerId: user.id,
+        createdBy: user.actorId,
         functionalCurrencyCode: payload.functionalCurrencyCode,
         reportingCurrencyCode: payload.reportingCurrencyCode,
         jurisdictionCode: payload.jurisdictionCode,
@@ -93,7 +94,7 @@ export default function createAccountingEntityUseCase(deps: IDependencies) {
     const accountingPeriods = accountingPeriodData.map(([entity]) => entity);
     const reportingPeriods = reportingPeriodData.map(([entity]) => entity);
 
-    const actor = historyValue.getUserActor(user.id);
+    const actor = user.actorId;
 
     const accountingEntityHistory = historyValue.make(
       accountingEntityAudit,
@@ -144,6 +145,7 @@ export default function createAccountingEntityUseCase(deps: IDependencies) {
 
     const userPreferencesPayload = {
       userId: user.id,
+      createdBy: user.actorId,
       lastActiveAccountingEntityId: accountingEntity.id,
       appPreferences: {
         appUsageMode: EAppUsageModePreference.NonPowerUser,
@@ -191,6 +193,7 @@ export default function createAccountingEntityUseCase(deps: IDependencies) {
       const headerBootstrap =
         await deps.headerAccountsBootstrapService.bootstrap(
           accountingEntity,
+          user.actorId,
           writeRepoOptions
         );
 
@@ -203,6 +206,7 @@ export default function createAccountingEntityUseCase(deps: IDependencies) {
       const postingBootstrap =
         await deps.postingAccountBootstrapService.bootstrap(
           accountingEntity,
+          user.actorId,
           writeRepoOptions
         );
 
@@ -211,6 +215,7 @@ export default function createAccountingEntityUseCase(deps: IDependencies) {
       const suspenseBootstrap =
         await deps.suspenseAccountBootstrapService.bootstrap(
           accountingEntity,
+          user.actorId,
           writeRepoOptions
         );
 

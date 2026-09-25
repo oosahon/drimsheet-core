@@ -1,5 +1,5 @@
+import { TEntityId } from '@shared/types/uuid';
 import generateUUID from '@shared/utils/uuid-generator';
-import historyValue from '@shared/values/history/history.vo';
 
 import {
   EJournalEntrySourceType,
@@ -41,7 +41,7 @@ describe('fxLotAppService', () => {
   const accountingEntityId = generateUUID();
   const accountId = generateUUID();
   const userId = generateUUID();
-  const actor = historyValue.getUserActor(userId);
+  const actor = userId;
   const transactionRate: IExchangeRate = {
     currencyPair: 'USD/NGN',
     baseCurrencyCode: 'USD',
@@ -109,6 +109,7 @@ describe('fxLotAppService', () => {
       attachments: [],
       lines: [
         {
+          createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
           id: generateUUID(),
           entryId: id,
           accountId,
@@ -137,6 +138,7 @@ describe('fxLotAppService', () => {
     rate: IExchangeRate | null
   ) {
     const lot = fxCostBasisLotEntity.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       ledgerAccountId: accountId,
       accountingEntityId,
       status: EFxCostBasisLotStatus.Open,
@@ -148,6 +150,7 @@ describe('fxLotAppService', () => {
       acquisitionDate: date,
     });
     const acquisition = fxCostBasisLotAcquisitionEntity.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       ledgerAccountId: accountId,
       accountingEntityId,
       lotId: lot[0].id,
@@ -173,6 +176,7 @@ describe('fxLotAppService', () => {
       lot.remainingCostBasis
     );
     const disposition = fxCostBasisLotDispositionEntity.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       ledgerAccountId: accountId,
       accountingEntityId,
       journalEntryId: journalEntry.id,
@@ -224,7 +228,7 @@ describe('fxLotAppService', () => {
     expect(result?.records.lots[0]).toMatchObject({
       lot: reversedLot[0],
       expectedVersion: lot.version,
-      history: { actor, correlationId, action: 'reversed' },
+      history: { actorId: actor, correlationId, action: 'reversed' },
     });
     expect(result?.events).toEqual(reversedLot[1]);
   });
@@ -286,6 +290,7 @@ describe('fxLotAppService', () => {
       transactionRate
     );
     expect(mockFxCostBasisLotDomainService.acquire).toHaveBeenCalledWith({
+      createdBy: actor,
       journalEntry,
       account,
       officialRate,
@@ -293,8 +298,8 @@ describe('fxLotAppService', () => {
     expect(result?.records).toMatchObject({
       lot: domainResult.lot[0],
       acquisition: domainResult.acquisition[0],
-      lotHistory: { actor, correlationId },
-      acquisitionHistory: { actor, correlationId },
+      lotHistory: { actorId: actor, correlationId },
+      acquisitionHistory: { actorId: actor, correlationId },
       missingOfficialRateOutbox: null,
     });
     expect(result?.events).toEqual([
@@ -303,35 +308,43 @@ describe('fxLotAppService', () => {
     ]);
   });
 
-  it('prepares an acquisition missing-rate outbox from the domain effect', async () => {
-    const journalEntry = makeJournal(
-      EJournalEntryStatus.Posted,
-      EJournalSide.Debit,
-      null
-    );
-    const domainResult = makeAcquisitionResult(journalEntry, null);
-    mockExchangeRateService.getOfficialRate.mockResolvedValue(null);
-    mockFxCostBasisLotDomainService.acquire.mockReturnValue(domainResult);
+  it.each([
+    actor,
+    accountingEntityId,
+    'b2222222-2222-4222-8222-222222222222' as TEntityId,
+    'c3333333-3333-4333-8333-333333333333' as TEntityId,
+  ])(
+    'preserves the $type actor in the missing-rate outbox and histories',
+    async (actor) => {
+      const journalEntry = makeJournal(
+        EJournalEntryStatus.Posted,
+        EJournalSide.Debit,
+        null
+      );
+      const domainResult = makeAcquisitionResult(journalEntry, null);
+      mockExchangeRateService.getOfficialRate.mockResolvedValue(null);
+      mockFxCostBasisLotDomainService.acquire.mockReturnValue(domainResult);
 
-    const result = await service.acquire(
-      { journalEntry, account, actor },
-      { correlationId }
-    );
+      const result = await service.acquire(
+        { journalEntry, account, actor },
+        { correlationId }
+      );
 
-    expect(mockExchangeRateService.getOfficialRate).not.toHaveBeenCalled();
-    expect(result?.records.missingOfficialRateOutbox).toEqual({
-      id: domainResult.acquisition[0].id,
-      correlationId,
-      type: 'missing_official_fx_rate',
-      data: {
-        effectKind: EMissingOfficialFxRateEffectKind.Acquisition,
-        journalEntryId: journalEntry.id,
-        accountingEntityId,
-        createdBy: userId,
-        effectiveDate: date,
-      },
-    });
-  });
+      expect(mockExchangeRateService.getOfficialRate).not.toHaveBeenCalled();
+      expect(result?.records.missingOfficialRateOutbox).toEqual({
+        id: domainResult.acquisition[0].id,
+        correlationId,
+        type: 'missing_official_fx_rate',
+        data: {
+          effectKind: EMissingOfficialFxRateEffectKind.Acquisition,
+          journalEntryId: journalEntry.id,
+          accountingEntityId,
+          createdBy: actor,
+          effectiveDate: date,
+        },
+      });
+    }
+  );
 
   it('passes through a posted no-effect acquisition result', async () => {
     const journalEntry = makeJournal(
@@ -361,6 +374,7 @@ describe('fxLotAppService', () => {
 
     expect(mockExchangeRateService.getOfficialRate).not.toHaveBeenCalled();
     expect(mockFxCostBasisLotDomainService.acquire).toHaveBeenCalledWith({
+      createdBy: actor,
       journalEntry,
       account,
       officialRate: null,
@@ -383,15 +397,15 @@ describe('fxLotAppService', () => {
     );
 
     expect(mockFxCostBasisLotDomainService.dispose).toHaveBeenCalledWith(
-      { journalEntry, account, officialRate: null },
+      { journalEntry, account, officialRate: null, createdBy: actor },
       repoOptions
     );
     expect(result?.records.lots[0]).toMatchObject({
       lot: domainResult.lots[0][0],
-      history: { actor, correlationId },
+      history: { actorId: actor, correlationId },
     });
     expect(result?.records.dispositionHistory).toMatchObject({
-      actor,
+      actorId: actor,
       correlationId,
     });
     expect(result?.records.missingOfficialRateOutbox).toMatchObject({

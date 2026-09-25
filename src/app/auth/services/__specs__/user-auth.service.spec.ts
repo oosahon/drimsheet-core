@@ -18,12 +18,14 @@ describe('userAuthService', () => {
     const service = makeUserAuthService();
 
     const userAuth = service.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       userId,
       password: 'password-hash',
       strategy: EAuthStrategy.Email,
     });
 
     expect(userAuth).toEqual({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       userId,
       password: 'password-hash',
       failedLoginAttempts: 0,
@@ -39,6 +41,7 @@ describe('userAuthService', () => {
   it('adds a strategy and advances the version', () => {
     const service = makeUserAuthService();
     const userAuth = service.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       userId,
       password: 'password-hash',
       strategy: EAuthStrategy.Email,
@@ -59,6 +62,7 @@ describe('userAuthService', () => {
   it('replaces the password, restores email strategy, and advances the version', () => {
     const service = makeUserAuthService();
     const userAuth = service.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       userId,
       password: null,
       strategy: EAuthStrategy.Google,
@@ -78,6 +82,7 @@ describe('userAuthService', () => {
   it('preserves an existing email strategy when replacing the password', () => {
     const service = makeUserAuthService();
     const userAuth = service.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       userId,
       password: 'old-hash',
       strategy: EAuthStrategy.Email,
@@ -92,6 +97,7 @@ describe('userAuthService', () => {
   it('records and resets failed login attempts through separate versions', () => {
     const service = makeUserAuthService();
     const userAuth = service.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       userId,
       password: 'password-hash',
       strategy: EAuthStrategy.Email,
@@ -109,6 +115,7 @@ describe('userAuthService', () => {
   it('preserves identity for unchanged transitions', () => {
     const service = makeUserAuthService();
     const userAuth = service.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       userId,
       password: 'password-hash',
       strategy: EAuthStrategy.Email,

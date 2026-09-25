@@ -29,6 +29,7 @@ function toLineDetails(payload: IJournalLineDetailsModel): IJournalLineDetails {
   const line = journalLineMapper.toDomain(payload);
 
   return {
+    createdBy: line.createdBy as TEntityId,
     id: line.id,
     entryId: line.entryId,
     accountId: line.accountId,

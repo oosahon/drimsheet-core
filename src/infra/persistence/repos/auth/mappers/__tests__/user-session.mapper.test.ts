@@ -24,6 +24,7 @@ describe('User Session Mapper', () => {
   describe('toRepo', () => {
     it('maps a user session to a repo model', () => {
       const session: IUserSession = {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         id,
         userId,
         refreshToken: 'refresh-token',
@@ -32,6 +33,7 @@ describe('User Session Mapper', () => {
       };
 
       expect(userSessionMapper.toRepo(session)).toEqual({
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         id,
         userId,
         refreshToken: 'refresh-token',
@@ -42,6 +44,7 @@ describe('User Session Mapper', () => {
 
     it('maps a missing last login to repo null', () => {
       const session: IUserSession = {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         id,
         userId,
         refreshToken: 'refresh-token',
@@ -56,6 +59,7 @@ describe('User Session Mapper', () => {
   describe('toDomain', () => {
     it('maps a repo model to a user session', () => {
       const model: IUserSessionModel = {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         id,
         userId,
         refreshToken: 'refresh-token',
@@ -64,6 +68,7 @@ describe('User Session Mapper', () => {
       };
 
       expect(userSessionMapper.toDomain(model)).toEqual({
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         id,
         userId,
         refreshToken: 'refresh-token',
@@ -74,6 +79,7 @@ describe('User Session Mapper', () => {
 
     it('defaults missing repo last login to the current time', () => {
       const model: IUserSessionModel = {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         id,
         userId,
         refreshToken: 'refresh-token',

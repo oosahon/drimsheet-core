@@ -1,4 +1,5 @@
 import { TCreationOmits } from '@shared/types/creation-omits.types';
+import { TEntityId } from '@shared/types/uuid';
 import generateUUID from '@shared/utils/uuid-generator';
 
 import accountingEntityEntity from '@domain/accounting/entities/accounting-entity.entity';
@@ -21,6 +22,7 @@ describe('accountingEntityEntity', () => {
     jest.setSystemTime(MOCK_DATE);
 
     validPayload = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       name: 'Test Accounting Entity',
       type: EAccountingEntityType.Individual,
       ownerId: generateUUID(),

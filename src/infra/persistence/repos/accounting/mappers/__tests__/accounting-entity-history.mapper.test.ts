@@ -1,5 +1,4 @@
 import { TEntityId } from '@shared/types/uuid';
-import { EHistoryActorType } from '@shared/values/history/types/history.types';
 
 import { IAccountingEntityAuditHistory } from '@domain/accounting/types/accounting-entity-audit.types';
 
@@ -18,21 +17,21 @@ describe('accountingEntityHistoryMapper', () => {
       action: 'created',
       diff: {
         before: null,
-        after: {} as any,
+        after: {
+          createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        } as any,
       },
       occurredAt,
-      actor: {
-        type: EHistoryActorType.User,
-        userId,
-      },
+      actorId: userId,
+      onBehalfOf: null,
       correlationId: 'correlation-id-mno',
     };
 
     expect(accountingEntityHistoryMapper.toRepo(history)).toEqual({
       accountingEntityId,
-      actorType: EHistoryActorType.User,
+      actorId: userId,
+      onBehalfOf: null,
       action: 'created',
-      userId,
       diff: history.diff,
       correlationId: 'correlation-id-mno',
       occurredAt: toRepoDate(occurredAt),

@@ -22,7 +22,7 @@ describe('journalEntryMutationPolicy', () => {
       id: entry.id,
       entry: candidate,
       accountingEntityId,
-      userId,
+
       expectedVersion: entry.version,
     });
 
@@ -45,17 +45,28 @@ describe('journalEntryMutationPolicy', () => {
     expect(() => validate(candidate)).toThrow(appError.ResourceNotFound);
   });
 
-  it('rejects another creator before checking the version', () => {
+  it('checks versions independently of the original creator', () => {
     expect(() =>
       journalEntryMutationPolicy.validate({
         id: entry.id,
         entry: { ...entry, createdBy: otherUserId },
         accountingEntityId,
-        userId,
+
         expectedVersion: entry.version + 1,
       })
-    ).toThrow(appError.Forbidden);
+    ).toThrow(appError.Conflict);
   });
+
+  it.each([
+    userId,
+    'b2222222-2222-4222-8222-222222222222' as TEntityId,
+    'c3333333-3333-4333-8333-333333333333' as TEntityId,
+  ])(
+    'allows any creator UUID after accounting ownership has been checked',
+    (createdBy) => {
+      expect(validate({ ...entry, createdBy }).createdBy).toBe(createdBy);
+    }
+  );
 
   it('rejects a stale expected version', () => {
     expect(() =>
@@ -63,7 +74,7 @@ describe('journalEntryMutationPolicy', () => {
         id: entry.id,
         entry,
         accountingEntityId,
-        userId,
+
         expectedVersion: entry.version - 1,
       })
     ).toThrow(appError.Conflict);

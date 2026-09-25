@@ -1,5 +1,4 @@
 import { TEntityId } from '@shared/types/uuid';
-import { EHistoryActorType } from '@shared/values/history/types/history.types';
 
 import { ILedgerAccountHistory } from '@domain/ledger/types/ledger-account-audit.types';
 import { ILedgerAccount } from '@domain/ledger/types/ledger.types';
@@ -15,6 +14,7 @@ describe('ledgerAccountHistoryMapper', () => {
     const occurredAt = new Date('2026-06-14T00:00:00.000Z');
 
     const ledgerAccount = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: ledgerAccountId,
       accountingEntityId,
     } as ILedgerAccount;
@@ -28,19 +28,17 @@ describe('ledgerAccountHistoryMapper', () => {
         after: ledgerAccount,
       },
       occurredAt,
-      actor: {
-        type: EHistoryActorType.User,
-        userId,
-      },
+      actorId: userId,
+      onBehalfOf: null,
       correlationId: 'correlation-id',
     };
 
     expect(ledgerAccountHistoryMapper.toRepo(history)).toEqual({
       ledgerAccountId,
       accountingEntityId,
-      actorType: EHistoryActorType.User,
+      actorId: userId,
+      onBehalfOf: null,
       action: history.action,
-      userId,
       diff: history.diff,
       correlationId: history.correlationId,
       occurredAt: occurredAt.toISOString(),
@@ -54,6 +52,7 @@ describe('ledgerAccountHistoryMapper', () => {
     const occurredAt = new Date('2026-06-14T00:00:00.000Z');
 
     const ledgerAccount = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: ledgerAccountId,
       accountingEntityId,
     } as ILedgerAccount;
@@ -67,19 +66,17 @@ describe('ledgerAccountHistoryMapper', () => {
         after: ledgerAccount,
       },
       occurredAt,
-      actor: {
-        type: EHistoryActorType.System,
-        userId: null,
-      },
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      onBehalfOf: null,
       correlationId: 'correlation-id',
     };
 
     expect(ledgerAccountHistoryMapper.toRepo(history)).toEqual({
       ledgerAccountId,
       accountingEntityId,
-      actorType: EHistoryActorType.System,
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      onBehalfOf: null,
       action: history.action,
-      userId: null,
       diff: history.diff,
       correlationId: history.correlationId,
       occurredAt: occurredAt.toISOString(),

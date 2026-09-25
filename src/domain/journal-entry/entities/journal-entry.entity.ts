@@ -49,7 +49,10 @@ function make(payload: IJournalEntryMakePayload): TAuditedJournalEntry {
   journalEntryValidation.validatePostedAt(payload.postedAt);
 
   const linesWithEvents = payload.lines.map((item) =>
-    journalLineEntity.make({ id, memo, createdAt: timestamp }, item)
+    journalLineEntity.make(
+      { id, memo, createdBy: payload.createdBy, createdAt: timestamp },
+      item
+    )
   );
 
   const lines = linesWithEvents.map(([item]) => item);
@@ -106,9 +109,11 @@ function make(payload: IJournalEntryMakePayload): TAuditedJournalEntry {
 
 function update(
   entry: IJournalEntry,
-  newEntry: Partial<IJournalEntry> & { id: IJournalEntry['id'] }
+  newEntry: Partial<IJournalEntry> & { id: IJournalEntry['id'] },
+  actorId: IJournalEntry['createdBy']
 ): TAuditedJournalEntryUpdate {
   journalEntryValidation.validateUpdate(entry, newEntry);
+  stringUtils.validateUUID(actorId, journalEntryError.InvalidCreatedBy);
 
   const timestamp = new Date();
   const memo =
@@ -124,6 +129,7 @@ function update(
     events: lineEvents,
     audits: lineAudits,
   } = updateJournalEntryLines({
+    createdBy: actorId,
     entry,
     lines: newEntry.lines ?? entry.lines,
     memo,

@@ -1,5 +1,5 @@
+import { TEntityId } from '@shared/types/uuid';
 import historyValue from '@shared/values/history/history.vo';
-import { IUserHistoryActor } from '@shared/values/history/types/history.types';
 
 import {
   IJournalEntryRectificationResult,
@@ -19,7 +19,7 @@ type TJournalEntryPersistencePreparation = Pick<
  */
 export default function getJournalEntryPersistencePayloadHelper(
   preparation: TJournalEntryPersistencePreparation,
-  actor: IUserHistoryActor,
+  actor: TEntityId,
   correlationId: string
 ): IJournalEntryRectificationPersistencePayload {
   const entriesToCreate = preparation.entriesToCreate.map(

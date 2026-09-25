@@ -1,3 +1,4 @@
+import { TEntityId } from '@shared/types/uuid';
 import generateUUID from '@shared/utils/uuid-generator';
 import addressValue from '@shared/values/contact-details/address.vo';
 
@@ -5,6 +6,7 @@ import makeCounterpartyService from '@domain/counterparty/services/counterparty.
 
 const service = makeCounterpartyService();
 const payload = {
+  createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
   accountingEntityId: generateUUID(),
   name: 'Example',
   type: 'organization' as const,
@@ -31,7 +33,10 @@ describe('Counterparty service', () => {
     (role) => {
       const creation =
         role === 'vendor'
-          ? service.create({ ...payload, meta: { vendor: { address } } })
+          ? service.create({
+              ...payload,
+              meta: { vendor: { address } },
+            })
           : role === 'employer'
             ? service.create({
                 ...payload,
@@ -42,7 +47,10 @@ describe('Counterparty service', () => {
                   },
                 },
               })
-            : service.create({ ...payload, meta: { contractor: { address } } });
+            : service.create({
+                ...payload,
+                meta: { contractor: { address } },
+              });
       const [counterparty, events, audit] = creation;
       expect(counterparty.roles).toEqual([role]);
       expect(counterparty.meta[role]?.address).toEqual(address);
@@ -74,7 +82,10 @@ describe('metadata-driven creation', () => {
   };
 
   it('accepts empty metadata without assigning a role', () => {
-    const [counterparty, events] = service.create({ ...payload, meta: {} });
+    const [counterparty, events] = service.create({
+      ...payload,
+      meta: {},
+    });
     expect(counterparty.roles).toEqual([]);
     expect(counterparty.status).toBe('active');
     expect(events).toHaveLength(1);
@@ -152,9 +163,10 @@ describe('metadata-driven creation', () => {
     },
   ])('rejects the entire creation for invalid raw metadata %j', (meta) => {
     expect(() =>
-      service.create({ ...payload, meta } as unknown as Parameters<
-        typeof service.create
-      >[0])
+      service.create({
+        ...payload,
+        meta,
+      } as unknown as Parameters<typeof service.create>[0])
     ).toThrow();
   });
 });

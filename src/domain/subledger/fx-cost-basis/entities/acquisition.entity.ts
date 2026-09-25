@@ -48,10 +48,16 @@ function make(
     FxCostBasisLotAcquisitionError.InvalidAcquisitionDate
   );
 
+  stringUtils.validateUUID(
+    payload.createdBy,
+    FxCostBasisLotAcquisitionError.InvalidCreatedBy
+  );
+
   const timestamp = new Date();
 
   const entity: IFxCostBasisLotAcquisition = Object.freeze({
     id: generateUUID(),
+    createdBy: payload.createdBy,
     ledgerAccountId: payload.ledgerAccountId,
     accountingEntityId: payload.accountingEntityId,
     lotId: payload.lotId,

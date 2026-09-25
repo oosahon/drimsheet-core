@@ -67,7 +67,7 @@ export default function makeCreateReceiptUsecase(deps: IDependencies) {
       effectiveDate: payload.effectiveDate,
       postedAt: payload.postedAt,
       functionalCurrencyCode: accountingEntity.functionalCurrencyCode,
-      createdBy: user.id,
+      createdBy: user.actorId,
     };
 
     const sourceAccounts: ILedgerAccount[] = [];
@@ -97,6 +97,7 @@ export default function makeCreateReceiptUsecase(deps: IDependencies) {
       await deps.counterpartyAppService.findOrCreateMany(
         allCounterpartiesPayload,
         accountingEntity.id,
+        user.actorId,
         repoOptions
       );
 
@@ -172,7 +173,7 @@ export default function makeCreateReceiptUsecase(deps: IDependencies) {
     const [journalEntry, journalEntryEvents, journalEntryAudit] =
       await deps.journalEntryService.createReceipt(receiptPayload, repoOptions);
 
-    const userActor = historyValue.getUserActor(user.id);
+    const userActor = user.actorId;
 
     const journalHeaderHistory = historyValue.make(
       journalEntryAudit.header,

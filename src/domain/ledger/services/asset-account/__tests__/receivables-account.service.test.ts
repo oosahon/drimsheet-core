@@ -1,4 +1,5 @@
 import { IReadRepoOptions } from '@shared/types/repo.types';
+import { TEntityId } from '@shared/types/uuid';
 import generateUUID from '@shared/utils/uuid-generator';
 
 import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
@@ -34,6 +35,7 @@ describe('receivablesAccountService', () => {
   const service = makeReceivablesAccountService({ ledgerAccountRepo });
   const userId = generateUUID();
   const accountingEntity = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     id: generateUUID(),
     ownerId: userId,
     functionalCurrencyCode: SYSTEM_CURRENCIES.USD.code,
@@ -42,6 +44,7 @@ describe('receivablesAccountService', () => {
     correlationId: 'test-correlation-id',
   };
   const receivablesHeader = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     id: generateUUID(),
     code: ASSET_LEDGER_CODES.RECEIVABLES.HEADER,
     materializedPath: ASSET_LEDGER_CODES.RECEIVABLES.HEADER,
@@ -70,7 +73,7 @@ describe('receivablesAccountService', () => {
     const [account, events, audit] = await service.createHeader(
       {
         name: 'Receivables',
-        userId,
+        createdBy: userId,
         accountingEntity,
       },
       repoOptions
@@ -108,7 +111,7 @@ describe('receivablesAccountService', () => {
       service.createHeader(
         {
           name: 'Receivables',
-          userId,
+          createdBy: userId,
           accountingEntity,
         },
         repoOptions
@@ -131,7 +134,7 @@ describe('receivablesAccountService', () => {
       await service.createTradeReceivableSubAccount(
         {
           name: 'Trade Receivables',
-          userId,
+          createdBy: userId,
           accountingEntity,
           currency: SYSTEM_CURRENCIES.USD,
           isControlAccount: true,
@@ -164,7 +167,7 @@ describe('receivablesAccountService', () => {
     const [account] = await service.createStatutoryReceivableSubAccount(
       {
         name: 'Statutory Receivables',
-        userId,
+        createdBy: userId,
         accountingEntity,
         currency: SYSTEM_CURRENCIES.USD,
         isControlAccount: true,
@@ -191,7 +194,7 @@ describe('receivablesAccountService', () => {
       service.createTradeReceivableSubAccount(
         {
           name: 'Trade Receivables',
-          userId,
+          createdBy: userId,
           accountingEntity,
           currency: SYSTEM_CURRENCIES.USD,
           isControlAccount: false,
@@ -223,7 +226,7 @@ describe('receivablesAccountService', () => {
         service.createTradeReceivableSubAccount(
           {
             name: 'Trade Receivables',
-            userId,
+            createdBy: userId,
             accountingEntity,
             currency: SYSTEM_CURRENCIES.USD,
             isControlAccount: false,
@@ -255,7 +258,7 @@ describe('receivablesAccountService', () => {
         service.createStatutoryReceivableSubAccount(
           {
             name: 'Statutory Receivables',
-            userId,
+            createdBy: userId,
             accountingEntity,
             currency: SYSTEM_CURRENCIES.USD,
             isControlAccount: false,

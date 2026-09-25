@@ -38,6 +38,8 @@ describe('createOpeningBalanceUseCase', () => {
   const correlationId = 'test-corr-id';
 
   const mockUser: IUser = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+    actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     id: '123e4567-e89b-12d3-a456-426614174001' as TEntityId,
     version: 1,
     email: 'test@example.com',
@@ -50,6 +52,7 @@ describe('createOpeningBalanceUseCase', () => {
   };
 
   const [mockAccountingEntity] = accountingEntityEntity.make({
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     name: 'Test Accounting Entity',
     ownerId: mockUser.id,
     type: EAccountingEntityType.Individual,
@@ -71,7 +74,7 @@ describe('createOpeningBalanceUseCase', () => {
       {
         name: 'Cash and Cash Equivalents',
         accountingEntity: mockAccountingEntity,
-        userId: mockUser.id,
+        createdBy: mockUser.id,
       },
       { correlationId }
     );
@@ -84,7 +87,7 @@ describe('createOpeningBalanceUseCase', () => {
         isControlAccount: false,
         controlAccountCode: controlAccount.code,
         accountingEntity: mockAccountingEntity,
-        userId: mockUser.id,
+        createdBy: mockUser.id,
       },
       { correlationId }
     );
@@ -189,7 +192,7 @@ describe('createOpeningBalanceUseCase', () => {
       {
         journalEntry: expect.anything(),
         account: mockAssetAccount,
-        actor: expect.objectContaining({ userId: mockUser.id }),
+        actor: mockUser.actorId,
       },
       { correlationId }
     );
@@ -349,7 +352,7 @@ describe('createOpeningBalanceUseCase', () => {
           status: EJournalEntryStatus.Draft,
         }),
         account: mockAssetAccount,
-        actor: expect.objectContaining({ userId: mockUser.id }),
+        actor: mockUser.actorId,
       },
       { correlationId }
     );

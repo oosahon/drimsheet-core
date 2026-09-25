@@ -1,5 +1,5 @@
+import { TEntityId } from '@shared/types/uuid';
 import generateUUID from '@shared/utils/uuid-generator';
-import historyValue from '@shared/values/history/history.vo';
 
 import journalEntryEntity from '@domain/journal-entry/entities/journal-entry.entity';
 import makeJournalEntryRectificationService from '@domain/journal-entry/services/journal-entry-rectification.service';
@@ -16,7 +16,7 @@ import getJournalEntryPersistencePayloadHelper from '@app/journal-entry/usecases
 import helpers from '@app/journal-entry/usecases/helpers/rectify-journal-entry.usecase.helpers';
 
 describe('rectifyJournalEntryUseCaseHelpers', () => {
-  const actor = historyValue.getUserActor(generateUUID());
+  const actor = generateUUID();
   const correlationId = 'correlation-id';
 
   function makeEntry(amountValue = 100, postedAt: Date | null = null) {
@@ -28,7 +28,7 @@ describe('rectifyJournalEntryUseCaseHelpers', () => {
       effectiveDate: new Date('2026-09-01T00:00:00.000Z'),
       postedAt,
       memo: 'Memo',
-      createdBy: actor.userId,
+      createdBy: actor,
       functionalCurrency: SYSTEM_CURRENCIES.USD,
       lines: [
         {
@@ -57,6 +57,7 @@ describe('rectifyJournalEntryUseCaseHelpers', () => {
     const [originalEntry] = makeEntry();
     const [newEntry] = makeEntry(125);
     const rectification = makeJournalEntryRectificationService().rectify({
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       originalEntry,
       newEntry: {
         ...newEntry,
@@ -77,7 +78,7 @@ describe('rectifyJournalEntryUseCaseHelpers', () => {
     );
 
     expect(payload.entriesToCreate).toEqual([]);
-    expect(payload.entryUpdate?.headerHistory.actor).toEqual(actor);
+    expect(payload.entryUpdate?.headerHistory.actorId).toEqual(actor);
     expect(payload.entryUpdate?.lineHistories).toHaveLength(2);
   });
 

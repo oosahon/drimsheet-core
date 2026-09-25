@@ -54,6 +54,7 @@ describe('periodEntity', () => {
 
   describe('makeReportingPeriod', () => {
     const validPayload = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       name: 'Q1 2026',
       accountingEntityId: validUUID,
       fiscalYearId: '12302eb7-ec79-436f-b258-00a4fb9a5123' as TEntityId,
@@ -116,13 +117,19 @@ describe('periodEntity', () => {
 
     it('throws InvalidName if name is invalid', () => {
       expect(() =>
-        periodEntity.makeReportingPeriod({ ...validPayload, name: '' })
+        periodEntity.makeReportingPeriod({
+          ...validPayload,
+          name: '',
+        })
       ).toThrow(periodError.InvalidName);
     });
 
     it('throws InvalidCount if count is invalid', () => {
       expect(() =>
-        periodEntity.makeReportingPeriod({ ...validPayload, count: 0 })
+        periodEntity.makeReportingPeriod({
+          ...validPayload,
+          count: 0,
+        })
       ).toThrow(periodError.InvalidCount);
     });
 

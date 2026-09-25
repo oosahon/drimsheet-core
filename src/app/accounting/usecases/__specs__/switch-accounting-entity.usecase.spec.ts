@@ -14,6 +14,7 @@ describe('switchAccountingEntityUsecase', () => {
   const correlationId = 'test-correlation-id';
   const userId = '123e4567-e89b-12d3-a456-426614174000' as TEntityId;
   const currentAccountingEntity: IAccountingEntity = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     id: '123e4567-e89b-12d3-a456-426614174001' as TEntityId,
     ownerId: userId,
     name: 'Current Entity',
@@ -40,7 +41,11 @@ describe('switchAccountingEntityUsecase', () => {
     jest.clearAllMocks();
 
     mockAppContext.get.mockReset().mockReturnValue({
-      user: { id: userId } as IUser,
+      user: {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        id: userId,
+      } as IUser,
       accountingEntity: currentAccountingEntity,
       correlationId,
     } as ReturnType<typeof mockAppContext.get>);
@@ -49,6 +54,7 @@ describe('switchAccountingEntityUsecase', () => {
       .mockReset()
       .mockResolvedValue(targetAccountingEntity);
     mockUserPreferencesService.update.mockReset().mockResolvedValue({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       userId,
       lastActiveAccountingEntityId: targetAccountingEntity.id,
       appPreferences: { appUsageMode: 'non_power_user' },
@@ -71,6 +77,7 @@ describe('switchAccountingEntityUsecase', () => {
     expect(mockUserPreferencesService.update).toHaveBeenCalledWith(
       {
         userId,
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         lastActiveAccountingEntityId: targetAccountingEntity.id,
       },
       { correlationId }
@@ -85,7 +92,11 @@ describe('switchAccountingEntityUsecase', () => {
 
   it('resolves and sets an entity that is already current', async () => {
     mockAppContext.get.mockReturnValue({
-      user: { id: userId } as IUser,
+      user: {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        id: userId,
+      } as IUser,
       accountingEntity: targetAccountingEntity,
       correlationId,
     } as ReturnType<typeof mockAppContext.get>);

@@ -14,9 +14,11 @@ describe('journalEntryHistoryRepo', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    jest
-      .mocked(journalEntryHistoryMapper.toRepo)
-      .mockReturnValue({ id: entryId } as never);
+    jest.mocked(journalEntryHistoryMapper.toRepo).mockReturnValue({
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      onBehalfOf: null,
+      id: entryId,
+    } as never);
   });
 
   it('creates history for single and multiple entries', async () => {
@@ -25,8 +27,15 @@ describe('journalEntryHistoryRepo', () => {
     jest.mocked(getDbQuery).mockReturnValue({ insert } as never);
 
     await journalEntryHistoryRepo.create(
-      { id: entryId } as never,
-      { entityId: entryId } as never,
+      {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        id: entryId,
+      } as never,
+      {
+        actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        onBehalfOf: null,
+        entityId: entryId,
+      } as never,
       options
     );
     await journalEntryHistoryRepo.create(

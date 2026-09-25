@@ -23,6 +23,7 @@ describe('accountingContextEntity', () => {
   });
 
   const validPayload = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     name: 'Primary Ledger',
     description: 'The primary US GAAP ledger',
     accountingEntityId: '123e4567-e89b-12d3-a456-426614174000' as TEntityId,
@@ -183,6 +184,7 @@ describe('accountingContextEntity', () => {
         accountingContextEntity.make(validPayload);
 
       expect(entity).toEqual({
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         id: expect.any(String),
         name: validPayload.name,
         description: validPayload.description,

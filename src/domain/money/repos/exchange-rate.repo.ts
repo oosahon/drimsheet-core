@@ -3,6 +3,7 @@ import {
   IReadRepoOptions,
   IWriteRepoOptions,
 } from '@shared/types/repo.types';
+import { TEntityId } from '@shared/types/uuid';
 
 import {
   IExchangeRate,
@@ -22,6 +23,7 @@ interface IFindRepoOptions extends IPaginatedReadRepoOptions {
 export default interface IExchangeRateRepo {
   create(
     exchangeRate: IExchangeRate[],
+    createdBy: TEntityId,
     option: IWriteRepoOptions
   ): Promise<void>;
 

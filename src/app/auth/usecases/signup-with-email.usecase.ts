@@ -7,8 +7,10 @@ import zodValidationRunner from '@shared/utils/zod-validation-runner';
 import eventValue from '@shared/values/events/event.vo';
 import historyValue from '@shared/values/history/history.vo';
 
-import userEntity from '@domain/user/entities/user.entity';
+import IActorRepo from '@domain/user/repos/actor.repo';
 import IUserRepo from '@domain/user/repos/user.repo';
+import IActorService from '@domain/user/types/actor.service.types';
+import IUserIdentityService from '@domain/user/types/user-identity.service.types';
 import emailValue from '@domain/user/values/email.vo';
 
 import { EAuthStrategy } from '@app/auth/contracts/auth.types';
@@ -21,6 +23,9 @@ import { userSignupReqValidation } from '@app/auth/dtos/auth/auth.dto.validation
 import IAppContext from '@app/context/contracts/app-context.contract';
 
 interface IDependencies {
+  actorRepo: IActorRepo;
+  actorService: IActorService;
+  userIdentityService: IUserIdentityService;
   appContext: IAppContext;
   userRepo: IUserRepo;
   passwordService: IPasswordService;
@@ -47,38 +52,45 @@ export default function makeSignupWithEmailUsecase(deps: IDependencies) {
     });
 
     if (existingUser) {
+      await deps.actorService.resolveUser(existingUser, { correlationId });
       await deps.emailVerificationService.send(existingUser, correlationId);
       return;
     }
 
-    const [user, userEvents, userAudit] = userEntity.make({
+    const identity = deps.userIdentityService.create({
       firstName: payload.firstName,
       lastName: payload.lastName,
       email,
       emailVerified: false,
     });
 
-    const history = historyValue.make(
-      userAudit,
-      historyValue.getUserActor(user.id),
-      correlationId
-    );
+    const [actor, actorEvents, actorAudit] = identity.actor;
+    const [user, userEvents, userAudit] = identity.user;
+    const actorHistory = historyValue.make(actorAudit, actor.id, correlationId);
+
+    const history = historyValue.make(userAudit, user.actorId, correlationId);
 
     const userAuth = deps.userAuthService.make({
       userId: user.id,
+      createdBy: actor.id,
       password: passwordHash,
       strategy: EAuthStrategy.Email,
     });
 
     const repoTransaction: TRepoTransactionFn = async (tx) => {
+      await deps.actorRepo.create(actor, {
+        correlationId,
+        tx,
+        history: actorHistory,
+      });
       await deps.userRepo.create(user, { correlationId, tx, history });
       await deps.userAuthRepo.create(userAuth, { correlationId, tx });
     };
 
     await deps.repoService.runInTransaction(repoTransaction);
 
-    const enrichedUserEvents = userEvents.map((e) =>
-      eventValue.enrich(e, { correlationId, idempotencyKey })
+    const enrichedUserEvents = [...actorEvents, ...userEvents].map((e) =>
+      eventValue.enrich<unknown>(e, { correlationId, idempotencyKey })
     );
 
     await deps.eventBus.publish(enrichedUserEvents);

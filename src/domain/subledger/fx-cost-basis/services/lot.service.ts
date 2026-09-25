@@ -53,6 +53,7 @@ function makeAcquire(): IFxCostBasisLotDomainService['acquire'] {
     );
 
     const lotPayload: TCreationOmits<IFxCostBasisLot, 'version'> = {
+      createdBy: payload.createdBy,
       ledgerAccountId: journalLine.accountId,
       accountingEntityId: payload.journalEntry.accountingEntityId,
       status: EFxCostBasisLotStatus.Open,
@@ -69,6 +70,7 @@ function makeAcquire(): IFxCostBasisLotDomainService['acquire'] {
       IFxCostBasisLotAcquisition,
       'lotId'
     > = {
+      createdBy: payload.createdBy,
       ledgerAccountId: journalLine.accountId,
       accountingEntityId: payload.journalEntry.accountingEntityId,
       journalEntryId: payload.journalEntry.id,
@@ -124,6 +126,7 @@ function makeDispose(
     );
 
     const disposition = fxCostBasisLotDispositionEntity.make({
+      createdBy: payload.createdBy,
       ledgerAccountId: journalLine.accountId,
       accountingEntityId: payload.journalEntry.accountingEntityId,
       journalEntryId: payload.journalEntry.id,
@@ -138,6 +141,7 @@ function makeDispose(
     const allocations = allocationSegments.map((segment) =>
       fxCostBasisLotDispositionAllocationEntity.make({
         ...segment,
+        createdBy: payload.createdBy,
         dispositionId: disposition[0].id,
       })
     );

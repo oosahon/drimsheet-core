@@ -23,7 +23,7 @@ import journalLineAudit from '@domain/journal-entry/values/journal-line-audit.vo
 import moneyValue from '@domain/money/values/money.vo';
 
 function make(
-  entryPayload: Pick<IJournalEntry, 'id' | 'memo' | 'createdAt'>,
+  entryPayload: Pick<IJournalEntry, 'id' | 'memo' | 'createdAt' | 'createdBy'>,
   payload: IJournalLineMakePayload
 ): [IJournalLine, IEvent<IJournalLine>[], IJournalLineAudit] {
   stringUtils.validateUUID(
@@ -59,12 +59,18 @@ function make(
     payload.description ?? entryPayload.memo
   );
 
+  stringUtils.validateUUID(
+    entryPayload.createdBy,
+    journalLineError.InvalidCreatedBy
+  );
+
   const id = payload.id ?? generateUUID();
 
   stringUtils.validateUUID(id, journalLineError.InvalidId);
 
   const lineItem: IJournalLine = {
     id,
+    createdBy: entryPayload.createdBy,
     entryId: entryPayload.id,
     accountId: payload.accountId,
     counterpartyId: payload.counterpartyId ?? null,
@@ -134,6 +140,7 @@ function update(
 
   const updatedLine: IJournalLine = Object.freeze({
     id: line.id,
+    createdBy: line.createdBy,
     entryId: line.entryId,
     accountId: payload.accountId,
     counterpartyId: payload.counterpartyId,

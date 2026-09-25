@@ -1,5 +1,4 @@
 import { TEntityId } from '@shared/types/uuid';
-import { EHistoryActorType } from '@shared/values/history/types/history.types';
 
 import { IAccountingPeriodHistory } from '@domain/accounting/types/period-audit.types';
 import { IAccountingPeriod } from '@domain/accounting/types/period.types';
@@ -15,6 +14,7 @@ describe('accountingPeriodHistoryMapper', () => {
     const occurredAt = new Date('2026-07-25T12:00:00.000Z');
 
     const period: IAccountingPeriod = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       accountingEntityId,
     } as IAccountingPeriod;
 
@@ -27,19 +27,17 @@ describe('accountingPeriodHistoryMapper', () => {
         after: period,
       },
       occurredAt,
-      actor: {
-        type: EHistoryActorType.User,
-        userId,
-      },
+      actorId: userId,
+      onBehalfOf: null,
       correlationId: 'correlation-id-jkl',
     };
 
     expect(accountingPeriodHistoryMapper.toRepo(period, history)).toEqual({
       accountingPeriodId,
       accountingEntityId,
-      actorType: EHistoryActorType.User,
+      actorId: userId,
+      onBehalfOf: null,
       action: 'created',
-      userId,
       diff: history.diff,
       correlationId: 'correlation-id-jkl',
       occurredAt: toRepoDate(occurredAt),

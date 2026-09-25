@@ -17,6 +17,7 @@ describe('Account Transaction DTO Mapper', () => {
       );
 
       const mockTransaction: IAccountTransaction = {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         id: 'tx-id-123' as unknown as TEntityId,
         entryId: 'entry-id-456' as unknown as TEntityId,
         accountId: 'account-id-789' as unknown as TEntityId,
@@ -49,6 +50,7 @@ describe('Account Transaction DTO Mapper', () => {
       const dto = accountTransactionMapper.toDto(mockTransaction);
 
       expect(dto).toEqual({
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         id: 'tx-id-123',
         entryId: 'entry-id-456',
         accountId: 'account-id-789',

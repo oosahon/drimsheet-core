@@ -35,6 +35,7 @@ describe('makeLedgerBalancePropagationPreparationService', () => {
   };
 
   const childAccount = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     id: childAccountId,
     accountingEntityId,
     materializedPath: '100000.100001',
@@ -63,6 +64,7 @@ describe('makeLedgerBalancePropagationPreparationService', () => {
     lines: [journalLine, journalLine],
   } as IJournalEntry;
   const childBalance = ledgerAccountBalanceEntity.make({
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     ledgerAccountId: childAccountId,
     accountingEntityId,
     accountMaterializedPath: childAccount.materializedPath,
@@ -70,6 +72,7 @@ describe('makeLedgerBalancePropagationPreparationService', () => {
     functionalCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
   });
   const parentBalance = ledgerAccountBalanceEntity.make({
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     ledgerAccountId: parentAccountId,
     accountingEntityId,
     accountMaterializedPath: parentAccount.materializedPath,
@@ -228,6 +231,7 @@ describe('makeLedgerBalancePropagationPreparationService', () => {
 
   it('rejects when a required balance is replaced by an unrelated row', async () => {
     const unrelatedBalance = ledgerAccountBalanceEntity.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       ledgerAccountId: unrelatedAccountId,
       accountingEntityId,
       accountMaterializedPath: '100002',

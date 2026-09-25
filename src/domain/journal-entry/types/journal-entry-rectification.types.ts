@@ -20,6 +20,7 @@ export type UJournalEntryRectificationMode =
   (typeof EJournalEntryRectificationMode)[keyof typeof EJournalEntryRectificationMode];
 
 export interface IJournalEntryRectificationPayload {
+  actorId: TEntityId;
   originalEntry: IJournalEntry;
   newEntry: Partial<IJournalEntry> & { id: TEntityId };
 }
@@ -57,5 +58,8 @@ export interface IJournalEntryRectificationService {
     payload: IJournalEntryRectificationPayload
   ): IJournalEntryRectificationResult;
 
-  reverse(originalEntry: IJournalEntry): IJournalEntryReversalResult;
+  reverse(
+    originalEntry: IJournalEntry,
+    actorId: TEntityId
+  ): IJournalEntryReversalResult;
 }

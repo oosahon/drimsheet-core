@@ -1,3 +1,4 @@
+import { TEntityId } from '@shared/types/uuid';
 import generateUUID from '@shared/utils/uuid-generator';
 
 import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
@@ -15,6 +16,7 @@ import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
 describe('journalEntryRuleValidator', () => {
   const userId = generateUUID();
   const accountingEntity = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     id: generateUUID(),
     ownerId: userId,
     functionalCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
@@ -38,7 +40,7 @@ describe('journalEntryRuleValidator', () => {
     [account] = await cashAccountService.createHeader(
       {
         name: 'Cash on Hand',
-        userId,
+        createdBy: userId,
         accountingEntity,
       },
       { correlationId: 'test-correlation-id' }

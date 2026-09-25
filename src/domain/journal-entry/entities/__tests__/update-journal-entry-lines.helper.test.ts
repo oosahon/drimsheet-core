@@ -1,3 +1,4 @@
+import { TEntityId } from '@shared/types/uuid';
 import generateUUID from '@shared/utils/uuid-generator';
 
 import updateJournalEntryLines from '@domain/journal-entry/entities/helpers/update-journal-entry-lines.helper';
@@ -41,7 +42,12 @@ describe('updateJournalEntryLines', () => {
       ],
     });
     const [newLine] = journalLineEntity.make(
-      { id: entry.id, memo: entry.memo, createdAt: entry.updatedAt },
+      {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        id: entry.id,
+        memo: entry.memo,
+        createdAt: entry.updatedAt,
+      },
       {
         accountId: generateUUID(),
         sequenceOrder: 3,
@@ -54,6 +60,7 @@ describe('updateJournalEntryLines', () => {
     );
 
     const result = updateJournalEntryLines({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       entry,
       lines: [entry.lines[0], newLine],
       memo: entry.memo,

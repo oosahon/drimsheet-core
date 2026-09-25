@@ -19,6 +19,7 @@ describe('counterpartyAuditValue', () => {
   const accountingEntityId = generateUUID();
 
   const mockCounterparty: ICounterparty = Object.freeze({
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     id: counterpartyId,
     accountingEntityId,
     name: 'Acme Corp',
@@ -70,6 +71,7 @@ describe('counterpartyAuditValue', () => {
 
     it('should throw InvalidCounterpartyId if after entity has invalid id', () => {
       const invalidEntity: ICounterparty = Object.freeze({
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         id: 'invalid-id' as TEntityId,
         accountingEntityId: mockCounterparty.accountingEntityId,
         name: mockCounterparty.name,

@@ -1,5 +1,4 @@
 import { TEntityId } from '@shared/types/uuid';
-import { EHistoryActorType } from '@shared/values/history/types/history.types';
 
 import { IFiscalYear } from '@domain/accounting/types/fiscal-year.types';
 import { IFiscalYearHistory } from '@domain/accounting/types/period-audit.types';
@@ -15,6 +14,7 @@ describe('fiscalYearHistoryMapper', () => {
     const occurredAt = new Date('2026-07-25T12:00:00.000Z');
 
     const fiscalYear: IFiscalYear = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       accountingEntityId,
     } as IFiscalYear;
 
@@ -27,19 +27,17 @@ describe('fiscalYearHistoryMapper', () => {
         after: fiscalYear,
       },
       occurredAt,
-      actor: {
-        type: EHistoryActorType.User,
-        userId,
-      },
+      actorId: userId,
+      onBehalfOf: null,
       correlationId: 'correlation-id-ghi',
     };
 
     expect(fiscalYearHistoryMapper.toRepo(fiscalYear, history)).toEqual({
       fiscalYearId,
       accountingEntityId,
-      actorType: EHistoryActorType.User,
+      actorId: userId,
+      onBehalfOf: null,
       action: 'created',
-      userId,
       diff: history.diff,
       correlationId: 'correlation-id-ghi',
       occurredAt: toRepoDate(occurredAt),

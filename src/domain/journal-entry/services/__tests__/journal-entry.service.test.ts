@@ -95,6 +95,7 @@ describe('journalEntryService', () => {
     correlationId: 'journal-entry-service-test',
   };
   const openPeriod: IAccountingPeriod = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     id: generateUUID(),
     name: 'August 2026',
     accountingEntityId: generateUUID(),
@@ -127,12 +128,15 @@ describe('journalEntryService', () => {
 
   async function makeReceiptFixture(postedAt: Date | null = null) {
     const [user] = userEntity.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       email: 'receipt@example.com',
       emailVerified: true,
       firstName: 'Receipt',
       lastName: 'Maker',
     });
     const [accountingEntity] = accountingEntityEntity.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       name: 'Receipt LLC',
       type: EAccountingEntityType.PrivateCompany,
       ownerId: user.id,
@@ -140,11 +144,13 @@ describe('journalEntryService', () => {
       jurisdictionCode: 'NG',
     });
     const [counterparty] = counterpartyEntity.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       accountingEntityId: accountingEntity.id,
       name: 'Receipt Customer',
       type: ECounterpartyType.Organization,
     });
     const [taxAuthority] = counterpartyEntity.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       accountingEntityId: accountingEntity.id,
       name: 'Tax Authority',
       type: ECounterpartyType.Organization,
@@ -153,7 +159,7 @@ describe('journalEntryService', () => {
     const [servicesHeader] = await servicesAccountService.createHeader(
       {
         name: 'Services',
-        createdBy: user.id,
+        createdBy: user.actorId,
         accountingEntity,
       },
       repoOptions
@@ -167,7 +173,7 @@ describe('journalEntryService', () => {
           accountingEntityId: accountingEntity.id,
           isControlAccount: false,
           controlAccountCode: servicesHeader.code,
-          createdBy: user.id,
+          createdBy: user.actorId,
         },
         repoOptions
       );
@@ -175,7 +181,7 @@ describe('journalEntryService', () => {
     const [payablesHeader] = await payablesAccountService.createHeader(
       {
         name: 'Payables',
-        createdBy: user.id,
+        createdBy: user.actorId,
         accountingEntity,
       },
       repoOptions
@@ -186,7 +192,7 @@ describe('journalEntryService', () => {
       await payablesAccountService.createStatutoryPayableSubAccount(
         {
           name: 'VAT Payable',
-          createdBy: user.id,
+          createdBy: user.actorId,
           accountingEntity,
           currency: SYSTEM_CURRENCIES.NGN,
           isControlAccount: false,
@@ -203,7 +209,7 @@ describe('journalEntryService', () => {
       {
         name: 'Cash and Cash Equivalents',
         accountingEntity,
-        userId: user.id,
+        createdBy: user.actorId,
       },
       repoOptions
     );
@@ -217,7 +223,7 @@ describe('journalEntryService', () => {
           isControlAccount: false,
           controlAccountCode: cashHeader.code,
           accountingEntity,
-          userId: user.id,
+          createdBy: user.actorId,
         },
         repoOptions
       );
@@ -252,7 +258,7 @@ describe('journalEntryService', () => {
         effectiveDate,
         postedAt,
         functionalCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
-        createdBy: user.id,
+        createdBy: user.actorId,
       },
       sourceLines: [
         {
@@ -332,6 +338,7 @@ describe('journalEntryService', () => {
     amount: bigint
   ) {
     const balance = ledgerAccountBalanceEntity.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       ledgerAccountId,
       accountingEntityId,
       accountMaterializedPath: '100001',
@@ -350,12 +357,15 @@ describe('journalEntryService', () => {
 
   function makePaymentFixture(postedAt: Date | null = null) {
     const [user] = userEntity.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       email: 'payment@example.com',
       emailVerified: true,
       firstName: 'Payment',
       lastName: 'Maker',
     });
     const [accountingEntity] = accountingEntityEntity.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       name: 'Payment LLC',
       type: EAccountingEntityType.PrivateCompany,
       ownerId: user.id,
@@ -363,27 +373,28 @@ describe('journalEntryService', () => {
       jurisdictionCode: 'NG',
     });
     const [counterparty] = counterpartyEntity.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       accountingEntityId: accountingEntity.id,
       name: 'Payment Vendor',
       type: ECounterpartyType.Organization,
     });
     const sourceAccount = makePaymentAccount({
       accountingEntityId: accountingEntity.id,
-      createdBy: user.id,
+      createdBy: user.actorId,
       code: '100001',
     });
     const rentAccount = makePaymentAccount({
       accountingEntityId: accountingEntity.id,
       behavior: EExpenseAccountBehavior.RentAndUtilities,
       code: '502001',
-      createdBy: user.id,
+      createdBy: user.actorId,
       subType: EExpenseSubType.RentAndUtilities,
       type: ELedgerType.Expense,
     });
     const payableAccount = makePaymentAccount({
       accountingEntityId: accountingEntity.id,
       code: '201001',
-      createdBy: user.id,
+      createdBy: user.actorId,
       subType: 'payable',
       type: ELedgerType.Liability,
     });
@@ -403,7 +414,7 @@ describe('journalEntryService', () => {
         effectiveDate,
         postedAt,
         functionalCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
-        createdBy: user.id,
+        createdBy: user.actorId,
       },
       sourceLine: {
         account: sourceAccount,
@@ -483,12 +494,15 @@ describe('journalEntryService', () => {
 
   function makeTransferFixture(postedAt: Date | null = null) {
     const [user] = userEntity.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       email: 'transfer@example.com',
       emailVerified: true,
       firstName: 'Transfer',
       lastName: 'Maker',
     });
     const [accountingEntity] = accountingEntityEntity.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       name: 'Transfer LLC',
       type: EAccountingEntityType.PrivateCompany,
       ownerId: user.id,
@@ -496,6 +510,7 @@ describe('journalEntryService', () => {
       jurisdictionCode: 'NG',
     });
     const [bankCounterparty] = counterpartyEntity.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       accountingEntityId: accountingEntity.id,
       name: 'Transfer provider',
       type: ECounterpartyType.Organization,
@@ -504,21 +519,21 @@ describe('journalEntryService', () => {
       accountingEntityId: accountingEntity.id,
       behavior: EAssetAccountBehavior.Bank,
       code: '100001',
-      createdBy: user.id,
+      createdBy: user.actorId,
       name: 'Operating bank',
     });
     const destinationAccount = makePaymentAccount({
       accountingEntityId: accountingEntity.id,
       behavior: EAssetAccountBehavior.PettyCash,
       code: '100002',
-      createdBy: user.id,
+      createdBy: user.actorId,
       name: 'Petty cash',
     });
     const bankChargeAccount = makePaymentAccount({
       accountingEntityId: accountingEntity.id,
       behavior: EExpenseAccountBehavior.BankCharge,
       code: '507001',
-      createdBy: user.id,
+      createdBy: user.actorId,
       name: 'Bank charges',
       subType: EExpenseSubType.BankCharge,
       type: ELedgerType.Expense,
@@ -538,7 +553,7 @@ describe('journalEntryService', () => {
         effectiveDate,
         postedAt,
         functionalCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
-        createdBy: user.id,
+        createdBy: user.actorId,
       },
       sourceLine: {
         account: sourceAccount,
@@ -719,6 +734,7 @@ describe('journalEntryService', () => {
   it('rejects an account belonging to another accounting entity', async () => {
     const { payload, user } = await makeReceiptFixture();
     const [otherAccountingEntity] = accountingEntityEntity.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       name: 'Other Entity',
       type: EAccountingEntityType.PrivateCompany,
       ownerId: user.id,
@@ -729,7 +745,7 @@ describe('journalEntryService', () => {
       {
         name: 'Other Entity Cash Header',
         accountingEntity: otherAccountingEntity,
-        userId: user.id,
+        createdBy: user.actorId,
       },
       repoOptions
     );
@@ -742,7 +758,7 @@ describe('journalEntryService', () => {
         isControlAccount: false,
         controlAccountCode: otherCashHeader.code,
         accountingEntity: otherAccountingEntity,
-        userId: user.id,
+        createdBy: user.actorId,
       },
       repoOptions
     );
@@ -762,7 +778,7 @@ describe('journalEntryService', () => {
       {
         name: 'Cash Control',
         accountingEntity,
-        userId: user.id,
+        createdBy: user.actorId,
       },
       repoOptions
     );
@@ -870,6 +886,7 @@ describe('journalEntryService', () => {
   it('rejects a counterparty belonging to another accounting entity after validating the posting period', async () => {
     const { payload } = await makeReceiptFixture();
     const [invalidCounterparty] = counterpartyEntity.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       accountingEntityId: generateUUID(),
       name: 'Other Customer',
       type: ECounterpartyType.Organization,
@@ -1537,12 +1554,15 @@ describe('journalEntryService', () => {
       postingCurrency: ICurrency = SYSTEM_CURRENCIES.NGN
     ) {
       const [user] = userEntity.make({
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         email: 'opening.balance@example.com',
         emailVerified: true,
         firstName: 'Opening',
         lastName: 'Balance',
       });
       const [accountingEntity] = accountingEntityEntity.make({
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         name: 'Opening Balance LLC',
         type: EAccountingEntityType.PrivateCompany,
         ownerId: user.id,
@@ -1553,7 +1573,7 @@ describe('journalEntryService', () => {
         {
           name: 'Cash and Cash Equivalents',
           accountingEntity,
-          userId: user.id,
+          createdBy: user.actorId,
         },
         repoOptions
       );
@@ -1567,7 +1587,7 @@ describe('journalEntryService', () => {
             isControlAccount: false,
             controlAccountCode: controlAccount.code,
             accountingEntity,
-            userId: user.id,
+            createdBy: user.actorId,
           },
           repoOptions
         );
@@ -1575,7 +1595,7 @@ describe('journalEntryService', () => {
         await equityAccountService.createOpeningBalanceAccount(
           {
             name: 'Opening Balance Equity',
-            createdBy: user.id,
+            createdBy: user.actorId,
             accountingEntity,
           },
           repoOptions
@@ -1601,7 +1621,7 @@ describe('journalEntryService', () => {
         amount: fixture.amount,
         effectiveDate: timestamp,
         exchangeRate: null,
-        createdBy: fixture.user.id,
+        createdBy: fixture.user.actorId,
       };
     }
 
@@ -1624,7 +1644,7 @@ describe('journalEntryService', () => {
           effectiveDate: timestamp,
           postedAt: timestamp,
           memo: 'Opening balance',
-          createdBy: fixture.user.id,
+          createdBy: fixture.user.actorId,
         })
       );
       expect(entry.lines).toEqual([
@@ -1746,6 +1766,7 @@ describe('journalEntryService', () => {
     it('rejects an account with an existing balance adjustment', async () => {
       const fixture = await makeOpeningBalanceFixture();
       const balance = ledgerAccountBalanceEntity.make({
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         ledgerAccountId: fixture.postingAccount.id,
         accountingEntityId: fixture.accountingEntity.id,
         accountMaterializedPath: fixture.postingAccount.materializedPath,
@@ -1757,7 +1778,7 @@ describe('journalEntryService', () => {
         amount: fixture.amount,
         functionalAmount: fixture.amount,
         journalEntryId: generateUUID(),
-        createdBy: fixture.user.id,
+        createdBy: fixture.user.actorId,
       });
       mockLedgerAccountBalanceRepo.findAdjustmentsByAccountId.mockResolvedValue(
         [adjustment]

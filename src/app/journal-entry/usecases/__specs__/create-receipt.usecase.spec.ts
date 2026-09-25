@@ -48,6 +48,8 @@ describe('makeCreateReceiptUsecase', () => {
   const idempotencyKey = 'test-idempotency-key';
 
   const user: IUser = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+    actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     id: generateUUID(),
     version: 1,
     email: 'user@example.com',
@@ -60,6 +62,7 @@ describe('makeCreateReceiptUsecase', () => {
   };
 
   const [accountingEntity] = accountingEntityEntity.make({
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     name: 'Test Entity',
     ownerId: user.id,
     type: EAccountingEntityType.Individual,
@@ -78,12 +81,14 @@ describe('makeCreateReceiptUsecase', () => {
 
   const counterpartyService = makeCounterpartyService();
   const newCounterparty = counterpartyService.create({
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     accountingEntityId: accountingEntity.id,
     name: 'Jane Doe',
     type: ECounterpartyType.Individual,
   });
 
   const existingCounterparty = counterpartyService.create({
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     accountingEntityId: accountingEntity.id,
     name: 'Jane Doe',
     type: ECounterpartyType.Individual,
@@ -110,7 +115,7 @@ describe('makeCreateReceiptUsecase', () => {
       {
         name: 'Services',
         accountingEntity,
-        createdBy: user.id,
+        createdBy: user.actorId,
       },
       { correlationId }
     );
@@ -122,7 +127,7 @@ describe('makeCreateReceiptUsecase', () => {
         accountingEntityId: accountingEntity.id,
         isControlAccount: false,
         controlAccountCode: servicesHeader.code,
-        createdBy: user.id,
+        createdBy: user.actorId,
       },
       { correlationId }
     );
@@ -131,7 +136,7 @@ describe('makeCreateReceiptUsecase', () => {
       {
         name: 'Cash',
         accountingEntity,
-        userId: user.id,
+        createdBy: user.actorId,
       },
       { correlationId }
     );
@@ -142,7 +147,7 @@ describe('makeCreateReceiptUsecase', () => {
         effectiveDate: new Date('2026-08-06T00:00:00.000Z'),
         postedAt: new Date('2026-08-06T00:00:00.000Z'),
         memo: 'Receipt',
-        createdBy: user.id,
+        createdBy: user.actorId,
         functionalCurrency: SYSTEM_CURRENCIES.NGN,
         lines: [
           {
@@ -285,7 +290,7 @@ describe('makeCreateReceiptUsecase', () => {
       {
         journalEntry,
         account: destinationAccount,
-        actor: expect.objectContaining({ userId: user.id }),
+        actor: user.actorId,
       },
       { correlationId, idempotencyKey }
     );
@@ -311,6 +316,7 @@ describe('makeCreateReceiptUsecase', () => {
         payload.destinationLine.counterparty,
       ]),
       accountingEntity.id,
+      'a1111111-1111-4111-8111-111111111111' as TEntityId,
       repoOptions
     );
 
@@ -786,7 +792,7 @@ describe('makeCreateReceiptUsecase', () => {
       {
         journalEntry: draftJournalEntry,
         account: destinationAccount,
-        actor: expect.objectContaining({ userId: user.id }),
+        actor: user.actorId,
       },
       { correlationId, idempotencyKey }
     );

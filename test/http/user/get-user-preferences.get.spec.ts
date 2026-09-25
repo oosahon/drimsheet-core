@@ -13,6 +13,13 @@ import { tokenService } from '@infra/ioc/services/auth';
 import userRepos from '@infra/persistence/repos/user';
 import { createApplication } from '@infra/server';
 
+jest.mock('@infra/ioc/services/user', () => ({
+  ...jest.requireActual('@infra/ioc/services/user'),
+  actorService: jest.requireActual(
+    '@app/user/contracts/__mocks__/actor.services.mock'
+  ).mockActorService,
+}));
+
 jest.mock(
   '@infra/integrations/launchdarkly/launchdarkly-feature-flag.service',
   () => ({
@@ -59,6 +66,8 @@ describe('GET /users/preferences', () => {
   const mockFindPreferences = userRepos.userPreferences.findById as jest.Mock;
 
   const mockUser: IUser = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+    actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     id: '123e4567-e89b-12d3-a456-426614174000' as TEntityId,
     version: 1,
     email: 'user@example.com',
@@ -71,6 +80,7 @@ describe('GET /users/preferences', () => {
   };
 
   const mockPreferences: IUserPreferences = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     userId: '123e4567-e89b-12d3-a456-426614174000' as TEntityId,
     lastActiveAccountingEntityId:
       '123e4567-e89b-12d3-a456-426614174001' as TEntityId,
@@ -99,6 +109,7 @@ describe('GET /users/preferences', () => {
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual({
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         userId: mockPreferences.userId,
         lastActiveAccountingEntityId:
           mockPreferences.lastActiveAccountingEntityId,

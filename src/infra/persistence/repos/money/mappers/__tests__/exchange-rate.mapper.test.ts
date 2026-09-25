@@ -1,3 +1,5 @@
+import { TEntityId } from '@shared/types/uuid';
+
 import { EExchangeRateType } from '@domain/money/types/exchange-rate.types';
 
 import exchangeRateMapper, {
@@ -11,17 +13,21 @@ describe('Exchange Rate Mapper', () => {
   describe('toRepo', () => {
     it('maps an exchange rate to a repo model', () => {
       expect(
-        exchangeRateMapper.toRepo({
-          currencyPair: 'USDNGN',
-          baseCurrencyCode: 'USD',
-          targetCurrencyCode: 'NGN',
-          rate: 1500.25,
-          type: EExchangeRateType.Official,
-          asOf,
-          source: 'Central Bank',
-          createdAt,
-        })
+        exchangeRateMapper.toRepo(
+          {
+            currencyPair: 'USDNGN',
+            baseCurrencyCode: 'USD',
+            targetCurrencyCode: 'NGN',
+            rate: 1500.25,
+            type: EExchangeRateType.Official,
+            asOf,
+            source: 'Central Bank',
+            createdAt,
+          },
+          'a1111111-1111-4111-8111-111111111111' as TEntityId
+        )
       ).toEqual({
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         currencyPair: 'USDNGN',
         baseCurrencyCode: 'USD',
         targetCurrencyCode: 'NGN',
@@ -37,6 +43,7 @@ describe('Exchange Rate Mapper', () => {
   describe('toDomain', () => {
     it('maps an exchange rate repo model to the domain shape', () => {
       const model: IExchangeRateModel = {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         id: 1n,
         currencyPair: 'USDNGN',
         baseCurrencyCode: 'USD',

@@ -30,12 +30,13 @@ export default function makeCreateCounterpartyUsecase(deps: IDependencies) {
 
     const creationPayload = counterpartyDtoMapper.fromDto(
       payload,
-      accountingEntity.id
+      accountingEntity.id,
+      user.actorId
     );
     const creation = deps.counterpartyService.create(creationPayload);
     const [counterparty, events, audit] = creation;
 
-    const actor = historyValue.getUserActor(user.id);
+    const actor = user.actorId;
     const history = historyValue.make(audit, actor, correlationId);
 
     await deps.counterpartyRepo.create(counterparty, {

@@ -16,6 +16,7 @@ import mockAppContext, {
   mockClientSession,
 } from '@app/context/contracts/__mocks__/app-context.mock';
 import { IAppContextData } from '@app/context/contracts/app-context.contract';
+import { mockActorService } from '@app/user/contracts/__mocks__/actor.services.mock';
 import { mockUserRepo } from '@app/user/contracts/__mocks__/user.repos.mock';
 
 describe('makeVerifyEmailAddressUseCase', () => {
@@ -24,6 +25,7 @@ describe('makeVerifyEmailAddressUseCase', () => {
 
   const getUseCase = () =>
     makeVerifyEmailAddressUseCase({
+      actorService: mockActorService,
       tokenService: mockTokenService,
       userRepo: mockUserRepo,
       appContext: mockAppContext,
@@ -38,6 +40,7 @@ describe('makeVerifyEmailAddressUseCase', () => {
       accessToken: 'new-auth-token',
       refreshToken: 'new-refresh-token',
       userSession: {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         id: '123e4567-e89b-42d3-a456-426614174003' as TEntityId,
         userId: user.id,
         refreshToken: 'new-refresh-token',
@@ -75,6 +78,8 @@ describe('makeVerifyEmailAddressUseCase', () => {
   it('verifies the user, replaces the client session in the outer transaction, and exposes credentials after commit', async () => {
     const token = 'valid-token';
     const [user] = userEntity.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       email: 'johndoe@example.com',
       emailVerified: false,
       firstName: 'John',
@@ -121,6 +126,8 @@ describe('makeVerifyEmailAddressUseCase', () => {
 
   it('creates a session without updating or publishing when email is already verified', async () => {
     const [user] = userEntity.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       email: 'johndoe@example.com',
       emailVerified: true,
       firstName: 'John',
@@ -139,6 +146,8 @@ describe('makeVerifyEmailAddressUseCase', () => {
 
   it('does not mutate the client or publish if the outer transaction fails after session persistence', async () => {
     const [user] = userEntity.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       email: 'johndoe@example.com',
       emailVerified: false,
       firstName: 'John',

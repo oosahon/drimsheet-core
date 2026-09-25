@@ -1,4 +1,5 @@
 import { IReadRepoOptions } from '@shared/types/repo.types';
+import { TEntityId } from '@shared/types/uuid';
 import generateUUID from '@shared/utils/uuid-generator';
 
 import { ASSET_LEDGER_CODES } from '@domain/ledger/config/asset-codes.config';
@@ -45,7 +46,7 @@ describe('suspenseAccountService', () => {
   };
   const payload = {
     accountingEntityId,
-    createdBy,
+    createdBy: createdBy,
     currency: SYSTEM_CURRENCIES.USD,
   };
 
@@ -78,7 +79,7 @@ describe('suspenseAccountService', () => {
       code: ASSET_LEDGER_CODES.SUSPENSE_ACCOUNT.INITIAL,
       materializedPath: ASSET_LEDGER_CODES.SUSPENSE_ACCOUNT.INITIAL,
       accountingEntityId,
-      createdBy,
+      createdBy: createdBy,
       currency: SYSTEM_CURRENCIES.USD,
       type: ELedgerType.Asset,
       normalBalance: ENormalBalance.Debit,
@@ -98,6 +99,7 @@ describe('suspenseAccountService', () => {
 
   it('increments the latest asset suspense code', async () => {
     ledgerAccountRepo.findLatestBySubType.mockResolvedValueOnce({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       code: '199099',
     } as ILedgerAccount);
 
@@ -129,7 +131,7 @@ describe('suspenseAccountService', () => {
       code: LIABILITY_LEDGER_CODES.SUSPENSE_ACCOUNTS.INITIAL,
       materializedPath: LIABILITY_LEDGER_CODES.SUSPENSE_ACCOUNTS.INITIAL,
       accountingEntityId,
-      createdBy,
+      createdBy: createdBy,
       currency: SYSTEM_CURRENCIES.USD,
       type: ELedgerType.Liability,
       normalBalance: ENormalBalance.Credit,
@@ -148,6 +150,7 @@ describe('suspenseAccountService', () => {
 
   it('increments the latest liability suspense code', async () => {
     ledgerAccountRepo.findLatestBySubType.mockResolvedValueOnce({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       code: '299099',
     } as ILedgerAccount);
 

@@ -28,9 +28,11 @@ describe('journalEntryRepo', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    jest
-      .mocked(journalEntryHistoryMapper.toRepo)
-      .mockReturnValue({ id: journalEntryId } as never);
+    jest.mocked(journalEntryHistoryMapper.toRepo).mockReturnValue({
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      onBehalfOf: null,
+      id: journalEntryId,
+    } as never);
     jest
       .mocked(getDbQuery)
       .mockReturnValue(query as unknown as ReturnType<typeof getDbQuery>);
@@ -38,7 +40,10 @@ describe('journalEntryRepo', () => {
 
   it('loads lines and the attachment collection before mapping', async () => {
     const repoResult = { id: journalEntryId };
-    const entry = { id: journalEntryId };
+    const entry = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      id: journalEntryId,
+    };
     findFirst.mockResolvedValue(repoResult);
     jest
       .mocked(journalEntryMapper.toDomain)
@@ -76,10 +81,20 @@ describe('journalEntryRepo', () => {
       insert,
     } as never);
 
-    await journalEntryRepo.create({ id: journalEntryId } as never, {
-      ...options,
-      history: { entityId: journalEntryId } as never,
-    });
+    await journalEntryRepo.create(
+      {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        id: journalEntryId,
+      } as never,
+      {
+        ...options,
+        history: {
+          actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+          onBehalfOf: null,
+          entityId: journalEntryId,
+        } as never,
+      }
+    );
     await journalEntryRepo.create([{ id: journalEntryId }] as never, {
       ...options,
       history: [{ entityId: journalEntryId }] as never,
@@ -101,19 +116,43 @@ describe('journalEntryRepo', () => {
       insert: jest.fn().mockReturnValue({ values }),
     } as never);
 
-    await journalEntryRepo.update({ id: journalEntryId, version: 2 } as never, {
-      ...options,
-      expectedVersion: 1,
-      history: { entityId: journalEntryId, entityVersion: 2 } as never,
-    });
+    await journalEntryRepo.update(
+      {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        id: journalEntryId,
+        version: 2,
+      } as never,
+      {
+        ...options,
+        expectedVersion: 1,
+        history: {
+          actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+          onBehalfOf: null,
+          entityId: journalEntryId,
+          entityVersion: 2,
+        } as never,
+      }
+    );
 
     where.mockResolvedValue({ rowCount: 0 });
     await expect(
-      journalEntryRepo.update({ id: journalEntryId, version: 2 } as never, {
-        ...options,
-        expectedVersion: 1,
-        history: { entityId: journalEntryId, entityVersion: 2 } as never,
-      })
+      journalEntryRepo.update(
+        {
+          createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+          id: journalEntryId,
+          version: 2,
+        } as never,
+        {
+          ...options,
+          expectedVersion: 1,
+          history: {
+            actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+            onBehalfOf: null,
+            entityId: journalEntryId,
+            entityVersion: 2,
+          } as never,
+        }
+      )
     ).rejects.toBeInstanceOf(repoError.VersionNotFound);
   });
 

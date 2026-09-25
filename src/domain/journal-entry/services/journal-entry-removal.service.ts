@@ -17,7 +17,7 @@ interface IDependencies {
 function makePrepare(
   deps: IDependencies
 ): IJournalEntryRemovalService['prepare'] {
-  return (entry) => {
+  return (entry, actorId) => {
     journalEntryRemovalValidation.validateSourceType(entry);
     journalEntryRemovalValidation.validateState(entry);
 
@@ -29,7 +29,7 @@ function makePrepare(
     if (shouldReverse) {
       return Object.freeze({
         mode: EJournalEntryRemovalMode.Reverse,
-        ...deps.journalEntryRectificationService.reverse(entry),
+        ...deps.journalEntryRectificationService.reverse(entry, actorId),
       });
     }
 

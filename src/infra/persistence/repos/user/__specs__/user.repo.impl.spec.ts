@@ -1,5 +1,6 @@
 import { eq } from 'drizzle-orm';
 
+import { TEntityId } from '@shared/types/uuid';
 import generateUUID from '@shared/utils/uuid-generator';
 import repoError from '@shared/values/errors/repo.error';
 
@@ -22,9 +23,19 @@ jest.mock('drizzle-orm', () => {
 });
 
 describe('userRepo strict updates', () => {
-  const user = { id: generateUUID(), version: 2 } as IUser;
+  const user = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+    actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+    id: generateUUID(),
+    version: 2,
+  } as IUser;
   const history = { entityId: user.id, entityVersion: 2 } as never;
-  const repoModel = { id: user.id, version: user.version } as never;
+  const repoModel = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+    actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+    id: user.id,
+    version: user.version,
+  } as never;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -79,7 +90,12 @@ describe('userRepo strict updates', () => {
       userRepo.update(user, {
         correlationId: 'correlation-id',
         expectedVersion: 1,
-        history: { entityId: user.id, entityVersion: 3 } as never,
+        history: {
+          actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+          onBehalfOf: null,
+          entityId: user.id,
+          entityVersion: 3,
+        } as never,
       })
     ).rejects.toBeInstanceOf(repoError.VersionMismatch);
 

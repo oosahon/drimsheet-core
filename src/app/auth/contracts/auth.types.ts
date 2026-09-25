@@ -8,6 +8,7 @@ export const EAuthStrategy = {
 export type UAuthStrategy = (typeof EAuthStrategy)[keyof typeof EAuthStrategy];
 
 export interface IUserAuth {
+  createdBy: TEntityId;
   userId: TEntityId;
   password: string | null;
   failedLoginAttempts: number;
@@ -18,6 +19,7 @@ export interface IUserAuth {
 }
 
 export interface IUserSession {
+  createdBy: TEntityId;
   id: TEntityId;
   userId: TEntityId;
   refreshToken: string;

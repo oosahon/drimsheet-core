@@ -5,6 +5,7 @@ import {
   accountingEntitiesTable,
   accountingEntityType,
 } from '../config/accounting-entity';
+import { actorsTable } from '../config/actors';
 import { currenciesTable } from '../config/currencies';
 import { usersTable } from '../config/users';
 import toSchemaString from '../utils/to-schema-string';
@@ -13,6 +14,12 @@ export const up = (pgm: MigrationBuilder) => {
   pgm.createTable(
     accountingEntitiesTable,
     {
+      created_by: {
+        type: 'uuid',
+        notNull: true,
+        references: actorsTable,
+        onDelete: 'RESTRICT',
+      },
       id: {
         type: 'uuid',
         primaryKey: true,
@@ -70,6 +77,7 @@ export const up = (pgm: MigrationBuilder) => {
     unique: true,
     where: "type = 'individual'",
   });
+  pgm.createIndex(accountingEntitiesTable, 'created_by');
 };
 
 export const down = (pgm: MigrationBuilder) => {

@@ -10,6 +10,7 @@ describe('FX Cost-Basis Lot Disposition Allocation Mapper', () => {
   it('maps every allocation field to the repository model', () => {
     const createdAt = new Date('2026-08-31T12:00:00.000Z');
     const allocation: IFxCostBasisLotDispositionAllocation = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: 'allocation-1' as TEntityId,
       dispositionId: 'disposition-1' as TEntityId,
       lotId: 'lot-1' as TEntityId,
@@ -23,6 +24,7 @@ describe('FX Cost-Basis Lot Disposition Allocation Mapper', () => {
     expect(
       fxCostBasisLotDispositionAllocationMapper.toRepo(allocation)
     ).toEqual({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: 'allocation-1',
       dispositionId: 'disposition-1',
       lotId: 'lot-1',

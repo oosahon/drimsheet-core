@@ -83,13 +83,13 @@ function getExchangeRate(exchangeRate: IExchangeRateDto | null) {
 function getHeader(
   preparation: IJournalEntryRectificationPreparationPayload
 ): ICreatePaymentEntryPayload['header'] {
-  const { requestedEntry, originalEntry, accountingEntity, createdBy } =
+  const { requestedEntry, originalEntry, accountingEntity, actor } =
     preparation;
 
   return {
     accountingEntityId: accountingEntity.id,
     functionalCurrencyCode: accountingEntity.functionalCurrencyCode,
-    createdBy,
+    createdBy: actor,
     effectiveDate: requestedEntry.effectiveDate,
     postedAt:
       originalEntry.status === EJournalEntryStatus.Posted
@@ -146,6 +146,7 @@ async function preparePayment(
       ...requestedEntry.destinationLines.map((line) => line.counterparty),
     ],
     accountingEntity.id,
+    preparation.actor,
     repoOptions
   );
   const sourceCounterparty =
@@ -230,6 +231,7 @@ async function prepareReceipt(
       requestedEntry.destinationLine.counterparty,
     ],
     accountingEntity.id,
+    preparation.actor,
     repoOptions
   );
   const receiptPayload: ICreateReceiptEntryPayload = {
@@ -314,6 +316,7 @@ async function prepareTransfer(
       line.counterparty ? [line.counterparty] : []
     ),
     accountingEntity.id,
+    preparation.actor,
     repoOptions
   );
   const transferPayload: ICreateTransferEntryPayload = {
@@ -511,9 +514,11 @@ function makePrepare(
       preparation,
       repoOptions
     );
+    const { createdBy: _creator, ...newEntry } = sourcePreparation.journalEntry;
     const rectification = deps.journalEntryRectificationService.rectify({
+      actorId: preparation.actor,
       originalEntry: preparation.originalEntry,
-      newEntry: sourcePreparation.journalEntry,
+      newEntry,
     });
     const fxRectification = await prepareFxRectification(
       deps,

@@ -1,3 +1,4 @@
+import { TEntityId } from '@shared/types/uuid';
 import generateUUID from '@shared/utils/uuid-generator';
 
 import accountingEntityEntity from '@domain/accounting/entities/accounting-entity.entity';
@@ -27,6 +28,7 @@ describe('makeGetLedgerAccountsUsecase', () => {
   const usdCurrency = currencyEntity.getByCode('USD');
 
   const [accountingEntity] = accountingEntityEntity.make({
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     name: 'Test Business',
     type: EAccountingEntityType.Individual,
     ownerId: generateUUID(),
@@ -48,7 +50,7 @@ describe('makeGetLedgerAccountsUsecase', () => {
       {
         name: 'Cash and Cash Equivalents',
         accountingEntity,
-        userId,
+        createdBy: userId,
       },
       { correlationId }
     );
@@ -60,7 +62,7 @@ describe('makeGetLedgerAccountsUsecase', () => {
         isControlAccount: false,
         controlAccountCode: cashHeader.code,
         currency: usdCurrency,
-        userId,
+        createdBy: userId,
         accountingEntity,
         bankDetails: {
           countryCode: 'US',
@@ -128,8 +130,14 @@ describe('makeGetLedgerAccountsUsecase', () => {
       meta: { page: 1, limit: 10, total: 2, totalPages: 1 },
     });
     const enrichedDtos = [
-      { id: ledgerAccount.id },
-      { id: controlAccount.id },
+      {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        id: ledgerAccount.id,
+      },
+      {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        id: controlAccount.id,
+      },
     ] as ILedgerAccountDto[];
     mockLedgerAccountBalanceEnrichmentService.enrich.mockResolvedValue(
       enrichedDtos

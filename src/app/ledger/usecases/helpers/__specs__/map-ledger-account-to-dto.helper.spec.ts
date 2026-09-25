@@ -18,6 +18,7 @@ import mapLedgerAccountToDto from '@app/ledger/usecases/helpers/ledger-account-t
 describe('mapLedgerAccountToDto', () => {
   const mockUser = '123e4567-e89b-12d3-a456-426614174001' as TEntityId;
   const accountingEntity = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     id: '123e4567-e89b-12d3-a456-426614174002' as TEntityId,
     ownerId: mockUser,
     functionalCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
@@ -33,7 +34,7 @@ describe('mapLedgerAccountToDto', () => {
       {
         name: 'Cash',
         accountingEntity,
-        userId: mockUser,
+        createdBy: mockUser,
       },
       { correlationId: 'test-correlation-id' }
     );
@@ -44,7 +45,7 @@ describe('mapLedgerAccountToDto', () => {
         name: 'Petty Cash',
         currency: SYSTEM_CURRENCIES.NGN,
         isControlAccount: false,
-        userId: mockUser,
+        createdBy: mockUser,
         accountingEntity,
         controlAccountCode: ASSET_LEDGER_CODES.CASH_AND_EQUIVALENTS.HEADER,
       },

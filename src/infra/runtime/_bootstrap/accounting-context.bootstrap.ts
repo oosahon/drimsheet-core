@@ -3,6 +3,7 @@ import { SYSTEM_JURISDICTIONS } from '@domain/accounting/config/jurisdictions.co
 import { IJurisdictionAccountingStandard } from '@domain/accounting/types/jurisdiction.types';
 
 import { repoService } from '@infra/ioc/services/repo';
+import { actorService } from '@infra/ioc/services/user';
 import observability from '@infra/observability';
 import accountingRepos from '@infra/persistence/repos/accounting';
 
@@ -31,13 +32,22 @@ export async function bootstrapAccountingContext() {
     .flat(10);
 
   await repoService.runInTransaction(async (tx) => {
-    const repoOptions = { correlationId: 'accounting-context-bootstrap' };
+    const repoOptions = { correlationId: 'accounting-context-bootstrap', tx };
+    const actor = await actorService.resolveByUsername(
+      'drimsheet-core',
+      repoOptions
+    );
 
     await accountingRepos.accountingStandards.create(
       accountingStandards,
+      actor.id,
       repoOptions
     );
-    await accountingRepos.jurisdiction.create(jurisdictions, repoOptions);
+    await accountingRepos.jurisdiction.create(
+      jurisdictions,
+      actor.id,
+      repoOptions
+    );
     await accountingRepos.jurisdictionAccountingStandard.create(
       allJurisdictionStandards,
       repoOptions

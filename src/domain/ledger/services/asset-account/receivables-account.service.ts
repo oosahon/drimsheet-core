@@ -72,7 +72,7 @@ function makeCreateHeader(
       status: ELedgerAccountStatus.Active,
       contraAccountRule: EContraAccountRule.ContraPermitted,
       adjunctAccountRule: EAdjunctAccountRule.AdjunctPermitted,
-      createdBy: payload.userId,
+      createdBy: payload.createdBy,
     });
   };
 }
@@ -140,7 +140,7 @@ function makeCreateStatutoryReceivableSubAccount(
       status: ELedgerAccountStatus.Active,
       contraAccountRule: EContraAccountRule.ContraNotPermitted,
       adjunctAccountRule: EAdjunctAccountRule.AdjunctNotPermitted,
-      createdBy: payload.userId,
+      createdBy: payload.createdBy,
     });
   };
 }
@@ -208,7 +208,7 @@ function makeCreateTradeReceivableSubAccount(
       status: ELedgerAccountStatus.Active,
       contraAccountRule: EContraAccountRule.ContraPermitted,
       adjunctAccountRule: EAdjunctAccountRule.AdjunctPermitted,
-      createdBy: payload.userId,
+      createdBy: payload.createdBy,
     });
   };
 }

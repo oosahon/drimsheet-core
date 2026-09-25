@@ -1,3 +1,4 @@
+import { TEntityId } from '@shared/types/uuid';
 import generateUUID from '@shared/utils/uuid-generator';
 
 import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
@@ -19,6 +20,7 @@ describe('fxCostBasisLotDispositionAudit', () => {
 
   it('creates an immutable disposition audit from the resulting entity', () => {
     const [disposition] = fxCostBasisLotDispositionEntity.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       ledgerAccountId: generateUUID(),
       accountingEntityId: generateUUID(),
       journalEntryId: generateUUID(),

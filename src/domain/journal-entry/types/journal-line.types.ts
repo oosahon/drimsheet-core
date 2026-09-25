@@ -17,6 +17,7 @@ export interface IJournalLineMeta extends Record<
 > {}
 
 export interface IJournalLine {
+  createdBy: TEntityId;
   id: TEntityId;
   entryId: TEntityId;
   accountId: TEntityId;

@@ -44,6 +44,7 @@ const ledgerAccountBalanceMapper = {
       moneyMapper.toDto(payload.functionalAmount);
 
     return {
+      createdBy: payload.createdBy as TEntityId,
       ledgerAccountId: payload.ledgerAccountId,
       accountingEntityId: payload.accountingEntityId,
       accountMaterializedPath: payload.accountMaterializedPath,
@@ -66,6 +67,7 @@ const ledgerAccountBalanceMapper = {
     );
 
     return {
+      createdBy: payload.createdBy as TEntityId,
       ledgerAccountId: payload.ledgerAccountId as TEntityId,
       accountingEntityId: payload.accountingEntityId as TEntityId,
       accountMaterializedPath: payload.accountMaterializedPath,
@@ -100,6 +102,7 @@ const ledgerAccountBalanceMapper = {
 
   fromRepo(payload: ILedgerAccountBalanceModel): ILedgerAccountBalance {
     return {
+      createdBy: payload.createdBy as TEntityId,
       ledgerAccountId: payload.ledgerAccountId as TEntityId,
       accountingEntityId: payload.accountingEntityId as TEntityId,
       accountMaterializedPath: payload.accountMaterializedPath,

@@ -14,9 +14,11 @@ describe('journalLineHistoryRepo', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    jest
-      .mocked(journalLineHistoryMapper.toRepo)
-      .mockReturnValue({ id: lineId } as never);
+    jest.mocked(journalLineHistoryMapper.toRepo).mockReturnValue({
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      onBehalfOf: null,
+      id: lineId,
+    } as never);
   });
 
   it('rejects a line without matching history', async () => {
@@ -24,8 +26,15 @@ describe('journalLineHistoryRepo', () => {
 
     await expect(
       journalLineHistoryRepo.create(
-        { id: lineId } as never,
-        { entityId: '123e4567-e89b-12d3-a456-426614174002' } as never,
+        {
+          createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+          id: lineId,
+        } as never,
+        {
+          actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+          onBehalfOf: null,
+          entityId: '123e4567-e89b-12d3-a456-426614174002',
+        } as never,
         lineId,
         options
       )
@@ -38,8 +47,15 @@ describe('journalLineHistoryRepo', () => {
     jest.mocked(getDbQuery).mockReturnValue({ insert } as never);
 
     await journalLineHistoryRepo.create(
-      { id: lineId } as never,
-      { entityId: lineId } as never,
+      {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        id: lineId,
+      } as never,
+      {
+        actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        onBehalfOf: null,
+        entityId: lineId,
+      } as never,
       lineId,
       options
     );

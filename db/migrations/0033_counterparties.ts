@@ -1,6 +1,7 @@
 import { ColumnDefinitions, MigrationBuilder } from 'node-pg-migrate';
 
 import { accountingEntitiesTable } from '../config/accounting-entity';
+import { actorsTable } from '../config/actors';
 import {
   counterpartiesTable,
   counterpartyStatus,
@@ -15,6 +16,12 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
   pgm.createType(counterpartyType, ['individual', 'organization']);
 
   pgm.createTable(counterpartiesTable, {
+    created_by: {
+      type: 'uuid',
+      notNull: true,
+      references: actorsTable,
+      onDelete: 'RESTRICT',
+    },
     id: {
       type: 'uuid',
       primaryKey: true,

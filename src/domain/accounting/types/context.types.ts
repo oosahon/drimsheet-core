@@ -4,6 +4,7 @@ import { UAccountingStandardCode } from '@domain/accounting/config/accounting-st
 import { UCurrencyCode } from '@domain/money/config/currencies.config';
 
 export interface IAccountingContext {
+  createdBy: TEntityId;
   id: TEntityId;
   name: string;
   description: string | null;
@@ -17,6 +18,7 @@ export interface IAccountingContext {
 }
 
 export interface IReportingContext {
+  createdBy: TEntityId;
   id: TEntityId;
   name: string;
   description: string | null;

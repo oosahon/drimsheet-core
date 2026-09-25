@@ -41,11 +41,14 @@ describe('createPettyCashSubAccountUseCase', () => {
   const correlationId = 'test-corr-id';
 
   const mockUser = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+    actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     id: '123e4567-e89b-12d3-a456-426614174001' as TEntityId,
     email: 'test@example.com',
   } as IUser;
 
   const [mockAccountingEntity] = accountingEntityEntity.make({
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     name: 'Test Accounting Entity',
     ownerId: mockUser.id,
     type: EAccountingEntityType.Individual,
@@ -87,7 +90,7 @@ describe('createPettyCashSubAccountUseCase', () => {
       {
         name: 'Cash and Equivalents',
         accountingEntity: mockAccountingEntity,
-        userId: mockUser.id,
+        createdBy: mockUser.actorId,
       },
       { correlationId }
     );
@@ -99,7 +102,7 @@ describe('createPettyCashSubAccountUseCase', () => {
           name: validPayload.name,
           currency: SYSTEM_CURRENCIES.NGN,
           isControlAccount: false,
-          userId: mockUser.id,
+          createdBy: mockUser.actorId,
           controlAccountCode: mockControlAccount.code,
           accountingEntity: mockAccountingEntity,
         },
@@ -115,7 +118,7 @@ describe('createPettyCashSubAccountUseCase', () => {
       effectiveDate: validOpeningBalance.date,
       postedAt: validOpeningBalance.date,
       memo: 'Opening balance',
-      createdBy: mockUser.id,
+      createdBy: mockUser.actorId,
       functionalCurrency: SYSTEM_CURRENCIES.NGN,
       lines: [
         {
@@ -222,7 +225,7 @@ describe('createPettyCashSubAccountUseCase', () => {
         name: validPayload.name,
         currency: SYSTEM_CURRENCIES.NGN,
         isControlAccount: false,
-        userId: mockUser.id,
+        createdBy: mockUser.actorId,
         accountingEntity: mockAccountingEntity,
         controlAccountCode: mockControlAccount.code,
       }),
@@ -485,7 +488,7 @@ describe('createPettyCashSubAccountUseCase', () => {
           name: foreignPayload.name,
           currency: SYSTEM_CURRENCIES.USD,
           isControlAccount: false,
-          userId: mockUser.id,
+          createdBy: mockUser.actorId,
           controlAccountCode: mockControlAccount.code,
           accountingEntity: mockAccountingEntity,
         },
@@ -585,7 +588,7 @@ describe('createPettyCashSubAccountUseCase', () => {
       {
         journalEntry: expect.anything(),
         account: expect.objectContaining({ currency: SYSTEM_CURRENCIES.USD }),
-        actor: expect.objectContaining({ userId: mockUser.id }),
+        actor: mockUser.actorId,
       },
       { correlationId }
     );

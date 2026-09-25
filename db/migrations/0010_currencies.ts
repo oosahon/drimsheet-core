@@ -1,11 +1,18 @@
 import { MigrationBuilder } from 'node-pg-migrate';
 
+import { actorsTable } from '../config/actors';
 import { currenciesTable } from '../config/currencies';
 
 export async function up(pgm: MigrationBuilder): Promise<void> {
   pgm.createTable(
     currenciesTable,
     {
+      created_by: {
+        type: 'uuid',
+        notNull: true,
+        references: actorsTable,
+        onDelete: 'RESTRICT',
+      },
       code: {
         type: 'varchar(3)',
         primaryKey: true,

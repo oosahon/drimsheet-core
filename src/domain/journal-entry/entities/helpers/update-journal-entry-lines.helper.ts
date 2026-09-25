@@ -6,6 +6,7 @@ import { IJournalEntry } from '@domain/journal-entry/types/journal-entry.types';
 import { IJournalLine } from '@domain/journal-entry/types/journal-line.types';
 
 interface IPayload {
+  createdBy: IJournalEntry['createdBy'];
   entry: IJournalEntry;
   lines: IJournalLine[];
   memo: IJournalEntry['memo'];
@@ -41,6 +42,7 @@ export default function updateJournalEntryLines(payload: IPayload): IResult {
     const [line, lineEvents, audit] = journalLineEntity.make(
       {
         id: payload.entry.id,
+        createdBy: payload.createdBy,
         memo: payload.memo,
         createdAt: payload.updatedAt,
       },

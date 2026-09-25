@@ -33,6 +33,7 @@ export default function makeSwitchAccountingEntityUsecase(deps: IDependencies) {
 
     const updatePayload = {
       userId: user.id,
+      createdBy: user.actorId,
       lastActiveAccountingEntityId: accountingEntity.id,
     };
 

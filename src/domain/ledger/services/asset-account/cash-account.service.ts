@@ -72,7 +72,7 @@ function makeCreateHeader(
       status: ELedgerAccountStatus.Active,
       contraAccountRule: EContraAccountRule.ContraPermitted,
       adjunctAccountRule: EAdjunctAccountRule.AdjunctPermitted,
-      createdBy: payload.userId,
+      createdBy: payload.createdBy,
     });
   };
 }
@@ -139,7 +139,7 @@ function makeCreatePettyCashSubAccount(
       status: ELedgerAccountStatus.Active,
       contraAccountRule: EContraAccountRule.ContraPermitted,
       adjunctAccountRule: EAdjunctAccountRule.AdjunctPermitted,
-      createdBy: payload.userId,
+      createdBy: payload.createdBy,
     });
   };
 }
@@ -206,7 +206,7 @@ function makeCreateBankSubAccount(
       status: ELedgerAccountStatus.Active,
       contraAccountRule: EContraAccountRule.ContraPermitted,
       adjunctAccountRule: EAdjunctAccountRule.AdjunctPermitted,
-      createdBy: payload.userId,
+      createdBy: payload.createdBy,
     });
   };
 }

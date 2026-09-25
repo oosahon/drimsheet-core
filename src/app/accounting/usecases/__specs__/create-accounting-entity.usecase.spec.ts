@@ -95,6 +95,7 @@ describe('createAccountingEntityUseCase', () => {
       accountingEntityRepo: mockAccountingEntityRepo,
     }).create(
       {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         name: validPayload.name,
         type: validPayload.entityType,
         ownerId: userId,
@@ -115,7 +116,7 @@ describe('createAccountingEntityUseCase', () => {
       {
         name: 'Cash',
         accountingEntity,
-        userId,
+        createdBy: userId,
       },
       { correlationId }
     );
@@ -132,12 +133,17 @@ describe('createAccountingEntityUseCase', () => {
       );
     mockAppContext.get.mockReturnValue({
       correlationId,
-      user: { id: userId } as IUser,
+      user: {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        id: userId,
+      } as IUser,
     } as ReturnType<typeof mockAppContext.get>);
     mockAccountingDomainServices.accountingEntity.create.mockResolvedValue(
       accounting
     );
     mockUserPreferencesService.update.mockResolvedValue({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       userId,
       lastActiveAccountingEntityId: accountingEntity.id,
       appPreferences: validPayload.appPreferences,
@@ -166,6 +172,7 @@ describe('createAccountingEntityUseCase', () => {
       accountingEntityRepo: mockAccountingEntityRepo,
     }).create(
       {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         name: privateCompanyPayload.name,
         type: privateCompanyPayload.entityType,
         ownerId: userId,
@@ -201,6 +208,7 @@ describe('createAccountingEntityUseCase', () => {
     expect(mockRepoService.runInTransaction).toHaveBeenCalledTimes(1);
     expect(mockHeaderAccountsBootstrapService.bootstrap).toHaveBeenCalledWith(
       privateCompanyEntity,
+      'a1111111-1111-4111-8111-111111111111' as TEntityId,
       { correlationId, tx: 'mock-tx' }
     );
     expect(mockAppContext.set).toHaveBeenCalledWith({
@@ -231,20 +239,24 @@ describe('createAccountingEntityUseCase', () => {
     });
     expect(mockHeaderAccountsBootstrapService.bootstrap).toHaveBeenCalledWith(
       accountingEntity,
+      'a1111111-1111-4111-8111-111111111111' as TEntityId,
       { correlationId, tx: 'mock-tx' }
     );
     expect(mockPostingAccountBootstrapService.bootstrap).toHaveBeenCalledWith(
       accountingEntity,
+      'a1111111-1111-4111-8111-111111111111' as TEntityId,
       { correlationId, tx: 'mock-tx' }
     );
     expect(mockSuspenseAccountBootstrapService.bootstrap).toHaveBeenCalledWith(
       accountingEntity,
+      'a1111111-1111-4111-8111-111111111111' as TEntityId,
       { correlationId, tx: 'mock-tx' }
     );
     expect(mockRepoService.runInTransaction).toHaveBeenCalledTimes(1);
     expect(mockAccountingEntityRepo.create).toHaveBeenCalled();
     expect(mockUserPreferencesService.update).toHaveBeenCalledWith(
       {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         userId,
         lastActiveAccountingEntityId: accountingEntity.id,
         appPreferences: {

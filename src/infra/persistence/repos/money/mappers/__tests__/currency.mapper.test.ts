@@ -1,3 +1,5 @@
+import { TEntityId } from '@shared/types/uuid';
+
 import currencyError from '@domain/money/errors/currency.error';
 import { ICurrency } from '@domain/money/types/currency.types';
 
@@ -16,19 +18,32 @@ describe('Currency Mapper', () => {
       };
 
       const expectedRepoModel = {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        createdAt: expect.any(String),
+        updatedAt: expect.any(String),
+        deletedAt: null,
         code: 'USD',
         symbol: '$',
         name: 'US Dollar',
         minorUnit: 2,
       };
 
-      expect(currencyMapper.toRepo(domainCurrency)).toEqual(expectedRepoModel);
+      expect(
+        currencyMapper.toRepo(
+          domainCurrency,
+          'a1111111-1111-4111-8111-111111111111' as TEntityId
+        )
+      ).toEqual(expectedRepoModel);
     });
   });
 
   describe('toDomain', () => {
     it('should map a repo model to a domain currency', () => {
       const repoModel = {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        deletedAt: null,
         code: 'NGN',
         symbol: '₦',
         name: 'Nigerian Naira',

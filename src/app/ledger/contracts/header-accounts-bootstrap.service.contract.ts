@@ -1,4 +1,5 @@
 import { IReadRepoOptions } from '@shared/types/repo.types';
+import { TEntityId } from '@shared/types/uuid';
 
 import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
 
@@ -8,6 +9,7 @@ export default interface IHeaderAccountsBootstrapService {
   /** Rejects immediately when any domain account creation rejects. */
   bootstrap(
     accountingEntity: IAccountingEntity,
+    createdBy: TEntityId,
     repoOptions: IReadRepoOptions
   ): Promise<ILedgerAccountBootstrapResult>;
 }

@@ -97,6 +97,7 @@ const models: TsoaRoute.Models = {
   IUserPreferences: {
     dataType: 'refObject',
     properties: {
+      createdBy: { ref: 'TEntityId', required: true },
       userId: { ref: 'TEntityId', required: true },
       lastActiveAccountingEntityId: {
         dataType: 'union',
@@ -644,7 +645,7 @@ const models: TsoaRoute.Models = {
         required: true,
       },
       version: { dataType: 'double', required: true },
-      createdBy: { dataType: 'string', required: true },
+      createdBy: { ref: 'TEntityId', required: true },
       createdAt: { dataType: 'datetime', required: true },
       updatedAt: { dataType: 'datetime', required: true },
     },
@@ -681,6 +682,7 @@ const models: TsoaRoute.Models = {
   IAccountTransactionRes: {
     dataType: 'refObject',
     properties: {
+      createdBy: { ref: 'TEntityId', required: true },
       id: { dataType: 'string', required: true },
       entryId: { dataType: 'string', required: true },
       accountId: { dataType: 'string', required: true },
@@ -850,7 +852,7 @@ const models: TsoaRoute.Models = {
         required: true,
       },
       version: { dataType: 'double', required: true },
-      createdBy: { dataType: 'string', required: true },
+      createdBy: { ref: 'TEntityId', required: true },
       createdAt: { dataType: 'datetime', required: true },
       updatedAt: { dataType: 'datetime', required: true },
       id: { dataType: 'string', required: true },
@@ -918,6 +920,7 @@ const models: TsoaRoute.Models = {
   IJournalLineDto: {
     dataType: 'refObject',
     properties: {
+      createdBy: { ref: 'TEntityId', required: true },
       id: { dataType: 'string', required: true },
       entryId: { dataType: 'string', required: true },
       accountId: { dataType: 'string', required: true },
@@ -995,7 +998,7 @@ const models: TsoaRoute.Models = {
         required: true,
       },
       version: { dataType: 'double', required: true },
-      createdBy: { dataType: 'string', required: true },
+      createdBy: { ref: 'TEntityId', required: true },
       createdAt: { dataType: 'datetime', required: true },
       updatedAt: { dataType: 'datetime', required: true },
       id: { dataType: 'string', required: true },
@@ -1694,6 +1697,7 @@ const models: TsoaRoute.Models = {
   ICounterpartyDto: {
     dataType: 'refObject',
     properties: {
+      createdBy: { dataType: 'string', required: true },
       id: { dataType: 'string', required: true },
       accountingEntityId: { dataType: 'string', required: true },
       name: { dataType: 'string', required: true },
@@ -2064,6 +2068,7 @@ const models: TsoaRoute.Models = {
   IAccountingEntity: {
     dataType: 'refObject',
     properties: {
+      createdBy: { ref: 'TEntityId', required: true },
       id: { ref: 'TEntityId', required: true },
       name: { dataType: 'string', required: true },
       type: { ref: 'UAccountingEntityType', required: true },

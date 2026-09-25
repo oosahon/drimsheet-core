@@ -1,4 +1,5 @@
 import mockEventBus from '@shared/contracts/__mocks__/event-bus.mock';
+import { TEntityId } from '@shared/types/uuid';
 import generateUUID from '@shared/utils/uuid-generator';
 import appError from '@shared/values/errors/app.error';
 
@@ -13,6 +14,7 @@ import { EJournalSide } from '@domain/journal-entry/types/journal-line.types';
 import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
 import moneyValue from '@domain/money/values/money.vo';
 
+import { mockAccountingEntityService } from '@app/accounting/contracts/__mocks__/accounting.domain.services.mock';
 import mockAppContext, {
   mockClientSession,
 } from '@app/context/contracts/__mocks__/app-context.mock';
@@ -27,6 +29,7 @@ describe('makeArchiveJournalEntryUsecase', () => {
   const userId = generateUUID();
   const now = new Date('2026-09-22T10:00:00.000Z');
   const usecase = makeArchiveJournalEntryUsecase({
+    accountingEntityService: mockAccountingEntityService,
     appContext: mockAppContext,
     eventBus: mockEventBus,
     journalEntryRepo: mockJournalEntryRepo,
@@ -76,7 +79,10 @@ describe('makeArchiveJournalEntryUsecase', () => {
     mockAppContext.get.mockReturnValue({
       correlationId,
       idempotencyKey,
-      user: { id: userId },
+      user: {
+        id: userId,
+        actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      },
       accountingEntity: { id: accountingEntityId },
       clientSession: mockClientSession,
     } as unknown as IAppContextData);
@@ -178,7 +184,10 @@ describe('makeArchiveJournalEntryUsecase', () => {
     expect(mockEventBus.publish).not.toHaveBeenCalled();
   });
 
-  it('rejects another creator before checking the expected version', async () => {
+  it('rejects a user without accounting ownership before checking the expected version', async () => {
+    mockAccountingEntityService.validateAccess.mockImplementationOnce(() => {
+      throw new appError.Forbidden();
+    });
     const entry = {
       ...makeEntry(),
       createdBy: generateUUID(),

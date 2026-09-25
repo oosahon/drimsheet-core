@@ -8,8 +8,8 @@ import stringUtils from '@shared/utils/string';
 import zodValidationRunner from '@shared/utils/zod-validation-runner';
 import eventValue from '@shared/values/events/event.vo';
 import { IEvent } from '@shared/values/events/types/event.types';
-import historyValue from '@shared/values/history/history.vo';
 
+import IAccountingEntityService from '@domain/accounting/types/accounting-entity.service.types';
 import ICounterpartyRepo from '@domain/counterparty/repos/counterparty.repo';
 import journalEntryError from '@domain/journal-entry/errors/journal-entry.error';
 import IJournalEntryRepo from '@domain/journal-entry/repos/journal-entry.repo';
@@ -32,6 +32,7 @@ import IOutboxService from '@app/outbox/contracts/outbox.service.contract';
 import IFxCostBasisPersistenceService from '@app/subledger/fx-cost-basis/contracts/fx-cost-basis-persistence.service.contract';
 
 interface IDependencies {
+  accountingEntityService: IAccountingEntityService;
   appContext: IAppContext;
   counterpartyRepo: ICounterpartyRepo;
   journalEntryRepo: IJournalEntryRepo;
@@ -54,6 +55,8 @@ export default function makeRectifyJournalEntryUsecase(deps: IDependencies) {
 
     const { correlationId, idempotencyKey, accountingEntity, user } =
       deps.appContext.get(['user', 'accountingEntity']);
+    deps.accountingEntityService.validateAccess(accountingEntity, user.id);
+
     const repoOptions = { correlationId, idempotencyKey };
 
     const storedEntry = await deps.journalEntryRepo.findById(
@@ -65,17 +68,15 @@ export default function makeRectifyJournalEntryUsecase(deps: IDependencies) {
       id,
       entry: storedEntry,
       accountingEntityId: accountingEntity.id,
-      userId: user.id,
       expectedVersion: payload.expectedVersion,
     });
 
-    const actor = historyValue.getUserActor(user.id);
+    const actor = user.actorId;
 
     const preparationPayload = {
       originalEntry,
       requestedEntry: payload,
       accountingEntity,
-      createdBy: user.id,
       actor,
     };
     const preparedRectification =

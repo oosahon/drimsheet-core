@@ -60,6 +60,17 @@ describe('Ledger Account Shared Entity', () => {
     jest.clearAllMocks();
   });
 
+  it.each([
+    '123e4567-e89b-42d3-a456-426614174000' as TEntityId,
+    '123e4567-e89b-42d3-a456-426614174001' as TEntityId,
+    'b2222222-2222-4222-8222-222222222222' as TEntityId,
+    'c3333333-3333-4333-8333-333333333333' as TEntityId,
+  ])('preserves immutable $type creation attribution', (createdBy) => {
+    const [entity] = ledgerAccountEntity.make({ ...validPayload, createdBy });
+    expect(entity.createdBy).toBe(createdBy);
+    expect(Object.isFrozen(entity.createdBy)).toBe(true);
+  });
+
   describe('Validation Functions', () => {
     it('validateCode: should not throw for valid ledger codes', () => {
       expect(() =>
@@ -352,10 +363,10 @@ describe('Ledger Account Shared Entity', () => {
       expect(() => ledgerAccountEntity.make(invalidPayload)).toThrow();
     });
 
-    it('should throw if createdBy is invalid UUID', () => {
+    it('should throw if createdBy is an invalid actor', () => {
       const invalidPayload = {
         ...validPayload,
-        createdBy: 'invalid' as TEntityId,
+        createdBy: 'invalid' as unknown as TEntityId,
       };
       expect(() => ledgerAccountEntity.make(invalidPayload)).toThrow();
     });

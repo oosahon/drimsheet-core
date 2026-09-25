@@ -4,6 +4,7 @@ import { ITransactionContext } from '@shared/types/repo.types';
 import { TEntityId } from '@shared/types/uuid';
 import appError from '@shared/values/errors/app.error';
 
+import makeUserIdentityService from '@domain/user/services/user-identity.service';
 import { IUser } from '@domain/user/types/user.types';
 import emailValue from '@domain/user/values/email.vo';
 
@@ -15,17 +16,30 @@ import { IUserSignupReq } from '@app/auth/dtos/auth/auth.dto';
 import makeSignupWithEmailUsecase from '@app/auth/usecases/signup-with-email.usecase';
 import mockAppContext from '@app/context/contracts/__mocks__/app-context.mock';
 import { IAppContextData } from '@app/context/contracts/app-context.contract';
-import { mockUserRepo } from '@app/user/contracts/__mocks__/user.repos.mock';
+import {
+  mockActorService,
+  mockUserIdentityService,
+} from '@app/user/contracts/__mocks__/actor.services.mock';
+import {
+  mockActorRepo,
+  mockUserRepo,
+} from '@app/user/contracts/__mocks__/user.repos.mock';
 
 describe('makeSignupWithEmailUsecase', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockUserIdentityService.create
+      .mockReset()
+      .mockImplementation(makeUserIdentityService().create);
+    mockActorRepo.create.mockReset().mockResolvedValue(undefined);
+    mockActorService.resolveUser.mockReset();
     mockUserRepo.create.mockReset().mockResolvedValue(undefined);
     mockUserAuthRepo.create.mockReset().mockResolvedValue(undefined);
     mockUserAuthService.make.mockReset().mockImplementation((payload) => {
       const timestamp = new Date();
 
       return {
+        createdBy: payload.createdBy,
         userId: payload.userId,
         password: payload.password,
         failedLoginAttempts: 0,
@@ -51,6 +65,9 @@ describe('makeSignupWithEmailUsecase', () => {
 
   it('should throw appError.UnprocessableEntity if payload is invalid', async () => {
     const usecase = makeSignupWithEmailUsecase({
+      actorService: mockActorService,
+      actorRepo: mockActorRepo,
+      userIdentityService: mockUserIdentityService,
       appContext: mockAppContext,
       userRepo: mockUserRepo,
       passwordService: mockPasswordService,
@@ -92,6 +109,9 @@ describe('makeSignupWithEmailUsecase', () => {
     mockPasswordService.hash.mockResolvedValue('hashed-password');
 
     const usecase = makeSignupWithEmailUsecase({
+      actorService: mockActorService,
+      actorRepo: mockActorRepo,
+      userIdentityService: mockUserIdentityService,
       appContext: mockAppContext,
       userRepo: mockUserRepo,
       passwordService: mockPasswordService,
@@ -155,10 +175,15 @@ describe('makeSignupWithEmailUsecase', () => {
     if (!Array.isArray(published)) {
       throw new Error('Expected an event array');
     }
-    expect(published).toHaveLength(1);
+    expect(published).toHaveLength(2);
+    expect(published[0].type).toBe('domain:actor:created');
+    expect(mockActorRepo.create.mock.calls[0][0].id).toBe(savedUser.actorId);
+    expect(mockActorRepo.create.mock.invocationCallOrder[0]).toBeLessThan(
+      mockUserRepo.create.mock.invocationCallOrder[0]
+    );
     expect(published[0].correlationId).toBe(correlationId);
     expect(published[0].idempotencyKey).toBe(idempotencyKey);
-    expect(published[0].data).toBe(savedUser);
+    expect(published[1].data).toBe(savedUser);
   });
 
   it('should wait for event publication to complete', async () => {
@@ -177,6 +202,9 @@ describe('makeSignupWithEmailUsecase', () => {
     mockEventBus.publish.mockReturnValue(publication);
 
     const usecase = makeSignupWithEmailUsecase({
+      actorService: mockActorService,
+      actorRepo: mockActorRepo,
+      userIdentityService: mockUserIdentityService,
       appContext: mockAppContext,
       userRepo: mockUserRepo,
       passwordService: mockPasswordService,
@@ -206,6 +234,41 @@ describe('makeSignupWithEmailUsecase', () => {
     expect(completedBeforePublication).toBe(false);
   });
 
+  it('stops signup before user creation when actor persistence fails', async () => {
+    mockAppContext.get.mockReturnValue({
+      correlationId: '854e4567-e89b-42d3-a456-426614174001',
+    } as IAppContextData);
+    const failure = new Error('actor create failed');
+    mockActorRepo.create.mockRejectedValue(failure);
+    const usecase = makeSignupWithEmailUsecase({
+      actorService: mockActorService,
+      actorRepo: mockActorRepo,
+      userIdentityService: mockUserIdentityService,
+      appContext: mockAppContext,
+      userRepo: mockUserRepo,
+      passwordService: mockPasswordService,
+      eventBus: mockEventBus,
+      userAuthRepo: mockUserAuthRepo,
+      userAuthService: mockUserAuthService,
+      repoService: mockRepoService,
+      emailVerificationService: mockEmailVerificationService,
+    });
+
+    await expect(
+      usecase({
+        firstName: 'John',
+        lastName: 'Doe',
+        email: 'johndoe@example.com',
+        password: 'SecurePassword123!',
+      })
+    ).rejects.toBe(failure);
+
+    expect(mockUserRepo.create).not.toHaveBeenCalled();
+    expect(mockUserAuthRepo.create).not.toHaveBeenCalled();
+    expect(mockEventBus.publish).not.toHaveBeenCalled();
+    expect(mockEmailVerificationService.send).not.toHaveBeenCalled();
+  });
+
   it('should not create auth data or publish when user creation fails', async () => {
     mockAppContext.get.mockReturnValue({
       correlationId: '854e4567-e89b-42d3-a456-426614174001',
@@ -216,6 +279,9 @@ describe('makeSignupWithEmailUsecase', () => {
     mockUserRepo.create.mockRejectedValue(new Error('user create failed'));
 
     const usecase = makeSignupWithEmailUsecase({
+      actorService: mockActorService,
+      actorRepo: mockActorRepo,
+      userIdentityService: mockUserIdentityService,
       appContext: mockAppContext,
       userRepo: mockUserRepo,
       passwordService: mockPasswordService,
@@ -251,6 +317,9 @@ describe('makeSignupWithEmailUsecase', () => {
     );
 
     const usecase = makeSignupWithEmailUsecase({
+      actorService: mockActorService,
+      actorRepo: mockActorRepo,
+      userIdentityService: mockUserIdentityService,
       appContext: mockAppContext,
       userRepo: mockUserRepo,
       passwordService: mockPasswordService,
@@ -288,6 +357,8 @@ describe('makeSignupWithEmailUsecase', () => {
     };
 
     const existingUser: IUser = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: '854e4567-e89b-42d3-a456-426614174002' as TEntityId,
       firstName: 'Existing',
       lastName: 'User',
@@ -301,6 +372,9 @@ describe('makeSignupWithEmailUsecase', () => {
     mockUserRepo.findByEmail.mockResolvedValue(existingUser);
 
     const usecase = makeSignupWithEmailUsecase({
+      actorService: mockActorService,
+      actorRepo: mockActorRepo,
+      userIdentityService: mockUserIdentityService,
       appContext: mockAppContext,
       userRepo: mockUserRepo,
       passwordService: mockPasswordService,
@@ -332,6 +406,9 @@ describe('makeSignupWithEmailUsecase', () => {
     mockRepoService.runInTransaction.mockRejectedValue(persistenceFailure);
 
     const usecase = makeSignupWithEmailUsecase({
+      actorService: mockActorService,
+      actorRepo: mockActorRepo,
+      userIdentityService: mockUserIdentityService,
       appContext: mockAppContext,
       userRepo: mockUserRepo,
       passwordService: mockPasswordService,
@@ -364,6 +441,9 @@ describe('makeSignupWithEmailUsecase', () => {
     mockEventBus.publish.mockRejectedValue(publicationFailure);
 
     const usecase = makeSignupWithEmailUsecase({
+      actorService: mockActorService,
+      actorRepo: mockActorRepo,
+      userIdentityService: mockUserIdentityService,
       appContext: mockAppContext,
       userRepo: mockUserRepo,
       passwordService: mockPasswordService,

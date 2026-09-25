@@ -3,12 +3,12 @@ import errorUtils from '@shared/utils/error';
 import DomainError from '@shared/values/errors/domain.error';
 
 const EErrorKeys = {
+  InvalidCreatedBy: 'ledger_balance_error_created_by_invalid',
   InvalidBalanceEffect: 'ledger_balance_error_balance_effect_invalid',
   InvalidLedgerAccountId: 'ledger_balance_error_ledger_account_id_invalid',
   InvalidAccountingEntityId:
     'ledger_balance_error_accounting_entity_id_invalid',
   InvalidJournalEntryId: 'ledger_balance_error_journal_entry_id_invalid',
-  InvalidCreatorId: 'ledger_balance_error_creator_id_invalid',
 } as const satisfies TErrorKeys<'ledger_balance_error'>;
 
 type ULedgerAccountBalanceError = (typeof EErrorKeys)[keyof typeof EErrorKeys];

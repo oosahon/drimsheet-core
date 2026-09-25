@@ -1,6 +1,6 @@
+import { TEntityId } from '@shared/types/uuid';
 import generateUUID from '@shared/utils/uuid-generator';
 import appError from '@shared/values/errors/app.error';
-import historyValue from '@shared/values/history/history.vo';
 
 import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
 import journalEntryEntity from '@domain/journal-entry/entities/journal-entry.entity';
@@ -36,10 +36,20 @@ import mockFxLotAppService from '@app/subledger/fx-cost-basis/contracts/__mocks_
 describe('makeJournalEntryRectificationPreparationService', () => {
   const accountingEntityId = generateUUID();
   const userId = generateUUID();
-  const sourceAccount = { id: generateUUID() } as ILedgerAccount;
-  const destinationAccount = { id: generateUUID() } as ILedgerAccount;
-  const chargeAccount = { id: generateUUID() } as ILedgerAccount;
+  const sourceAccount = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+    id: generateUUID(),
+  } as ILedgerAccount;
+  const destinationAccount = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+    id: generateUUID(),
+  } as ILedgerAccount;
+  const chargeAccount = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+    id: generateUUID(),
+  } as ILedgerAccount;
   const accountingEntity = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     id: accountingEntityId,
     functionalCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
   } as IAccountingEntity;
@@ -51,7 +61,7 @@ describe('makeJournalEntryRectificationPreparationService', () => {
     isMinorUnit: false,
   };
   const counterparty = { name: 'Counterparty' };
-  const actor = historyValue.getUserActor(userId);
+  const actor = userId;
   const service = makeJournalEntryRectificationPreparationService({
     counterpartyAppService: mockCounterpartyAppService,
     journalEntryService: mockJournalEntryService,
@@ -173,7 +183,7 @@ describe('makeJournalEntryRectificationPreparationService', () => {
         originalEntry,
         requestedEntry,
         accountingEntity,
-        createdBy: userId,
+
         actor,
       },
       repoOptions
@@ -241,7 +251,7 @@ describe('makeJournalEntryRectificationPreparationService', () => {
         originalEntry,
         requestedEntry,
         accountingEntity,
-        createdBy: userId,
+
         actor,
       },
       repoOptions
@@ -319,7 +329,7 @@ describe('makeJournalEntryRectificationPreparationService', () => {
         originalEntry,
         requestedEntry,
         accountingEntity,
-        createdBy: userId,
+
         actor,
       },
       repoOptions
@@ -348,7 +358,7 @@ describe('makeJournalEntryRectificationPreparationService', () => {
           originalEntry,
           requestedEntry,
           accountingEntity,
-          createdBy: userId,
+
           actor,
         },
         repoOptions
@@ -407,7 +417,7 @@ describe('makeJournalEntryRectificationPreparationService', () => {
           originalEntry,
           requestedEntry,
           accountingEntity,
-          createdBy: userId,
+
           actor,
         },
         repoOptions
@@ -482,7 +492,7 @@ describe('makeJournalEntryRectificationPreparationService', () => {
           originalEntry,
           requestedEntry,
           accountingEntity,
-          createdBy: userId,
+
           actor,
         },
         repoOptions
@@ -543,7 +553,7 @@ describe('makeJournalEntryRectificationPreparationService', () => {
         originalEntry,
         requestedEntry,
         accountingEntity,
-        createdBy: userId,
+
         actor,
       },
       repoOptions
@@ -608,7 +618,7 @@ describe('makeJournalEntryRectificationPreparationService', () => {
           originalEntry,
           requestedEntry,
           accountingEntity,
-          createdBy: userId,
+
           actor,
         },
         repoOptions

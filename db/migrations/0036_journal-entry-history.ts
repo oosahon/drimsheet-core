@@ -1,9 +1,7 @@
 import { ColumnDefinitions, MigrationBuilder } from 'node-pg-migrate';
 
-import { historyActorType } from '../config/history';
+import { actorsTable } from '../config/actors';
 import { journalEntryHistoryTable } from '../config/journal-entries';
-import { usersTable } from '../config/users';
-import toSchemaString from '../utils/to-schema-string';
 
 export const shorthands: ColumnDefinitions | undefined = undefined;
 
@@ -21,14 +19,16 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
       type: 'uuid',
       notNull: true,
     },
-    user_id: {
+    actor_id: {
       type: 'uuid',
-      references: usersTable,
-      onDelete: 'SET NULL',
-    },
-    actor_type: {
-      type: toSchemaString(historyActorType),
       notNull: true,
+      references: actorsTable,
+      onDelete: 'RESTRICT',
+    },
+    on_behalf_of: {
+      type: 'uuid',
+      references: actorsTable,
+      onDelete: 'RESTRICT',
     },
     action: {
       type: 'varchar(50)',
@@ -70,20 +70,9 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
       )`,
     }
   );
-  pgm.addConstraint(
-    journalEntryHistoryTable,
-    'journal_entry_history_actor_check',
-    {
-      check: `(
-        (actor_type = 'user' AND user_id IS NOT NULL)
-        OR
-        (
-          actor_type IN ('system', 'migration')
-          AND user_id IS NULL
-        )
-      )`,
-    }
-  );
+
+  pgm.createIndex(journalEntryHistoryTable, 'actor_id');
+  pgm.createIndex(journalEntryHistoryTable, 'on_behalf_of');
 
   pgm.createIndex(
     journalEntryHistoryTable,

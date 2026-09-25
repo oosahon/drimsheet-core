@@ -65,6 +65,8 @@ describe('makeCreatePaymentUsecase', () => {
   const correlationId = 'payment-correlation-id';
   const idempotencyKey = 'payment-idempotency-key';
   const user: IUser = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+    actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     id: generateUUID(),
     version: 1,
     email: 'payment@example.com',
@@ -76,6 +78,7 @@ describe('makeCreatePaymentUsecase', () => {
     deletedAt: null,
   };
   const [accountingEntity] = accountingEntityEntity.make({
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     name: 'Payment Entity',
     ownerId: user.id,
     type: EAccountingEntityType.Individual,
@@ -102,7 +105,7 @@ describe('makeCreatePaymentUsecase', () => {
       contraAccountRule: EContraAccountRule.ContraPermitted,
       adjunctAccountRule: EAdjunctAccountRule.AdjunctPermitted,
       meta: {},
-      createdBy: user.id,
+      createdBy: user.actorId,
       ...overrides,
     });
 
@@ -125,11 +128,13 @@ describe('makeCreatePaymentUsecase', () => {
 
   const counterpartyService = makeCounterpartyService();
   const newCounterparty = counterpartyService.create({
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     accountingEntityId: accountingEntity.id,
     name: 'Payment Vendor',
     type: ECounterpartyType.Organization,
   });
   const existingCounterparty = counterpartyService.create({
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     accountingEntityId: accountingEntity.id,
     name: 'Existing Vendor',
     type: ECounterpartyType.Organization,
@@ -150,7 +155,7 @@ describe('makeCreatePaymentUsecase', () => {
       effectiveDate: new Date('2026-08-30T00:00:00.000Z'),
       postedAt: new Date('2026-08-30T00:00:00.000Z'),
       memo: 'Payment',
-      createdBy: user.id,
+      createdBy: user.actorId,
       functionalCurrency: SYSTEM_CURRENCIES.NGN,
       lines: [
         {
@@ -307,8 +312,16 @@ describe('makeCreatePaymentUsecase', () => {
     const dispositionId = generateUUID();
     const fxRecords = {
       lots: [{ lot: { id: lotId }, history: { entityId: lotId } }],
-      disposition: { id: dispositionId, officialRate: null },
-      dispositionHistory: { entityId: dispositionId },
+      disposition: {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        id: dispositionId,
+        officialRate: null,
+      },
+      dispositionHistory: {
+        actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        onBehalfOf: null,
+        entityId: dispositionId,
+      },
       allocations: [],
       missingOfficialRateOutbox: null,
     } as unknown as TFxLotDispositionAppResult['records'];
@@ -325,7 +338,7 @@ describe('makeCreatePaymentUsecase', () => {
       {
         journalEntry: postedJournalEntry,
         account: sourceAccount,
-        actor: expect.objectContaining({ userId: user.id }),
+        actor: user.actorId,
       },
       { correlationId }
     );
@@ -343,6 +356,7 @@ describe('makeCreatePaymentUsecase', () => {
         payload.destinationLines[1].counterparty,
       ],
       accountingEntity.id,
+      'a1111111-1111-4111-8111-111111111111' as TEntityId,
       repoOptions
     );
     expect(mockFileManagementService.claimUploads).toHaveBeenCalledWith({
@@ -432,7 +446,7 @@ describe('makeCreatePaymentUsecase', () => {
       {
         journalEntry: draftJournalEntry,
         account: sourceAccount,
-        actor: expect.objectContaining({ userId: user.id }),
+        actor: user.actorId,
       },
       { correlationId }
     );

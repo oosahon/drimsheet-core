@@ -15,6 +15,8 @@ describe('userSessionService', () => {
   const userId = '123e4567-e89b-42d3-a456-426614174000' as TEntityId;
   const sessionId = '123e4567-e89b-42d3-a456-426614174001' as TEntityId;
   const user: IUser = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+    actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     id: userId,
     email: 'john@example.com',
     emailVerified: true,
@@ -50,6 +52,7 @@ describe('userSessionService', () => {
       accessToken: 'access-token',
       refreshToken: 'refresh-token',
       userSession: {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         id: sessionId,
         userId,
         refreshToken: 'refresh-token',

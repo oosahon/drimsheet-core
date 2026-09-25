@@ -1,3 +1,4 @@
+import { TEntityId } from '@shared/types/uuid';
 import generateUUID from '@shared/utils/uuid-generator';
 
 import counterpartyError from '@domain/counterparty/errors/counterparty.error';
@@ -32,6 +33,7 @@ describe('makeCounterpartyAppService', () => {
       it('should return existing counterparty if found', async () => {
         const id = generateUUID();
         const mockCounterparty: ICounterparty = {
+          createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
           id,
           accountingEntityId,
           name: 'Jane Doe',
@@ -48,6 +50,7 @@ describe('makeCounterpartyAppService', () => {
         const result = await service.findOrCreate(
           { id, name: 'Jane Doe' },
           accountingEntityId,
+          'a1111111-1111-4111-8111-111111111111' as TEntityId,
           repoOptions
         );
 
@@ -70,6 +73,7 @@ describe('makeCounterpartyAppService', () => {
           service.findOrCreate(
             { id, name: 'Jane Doe' },
             accountingEntityId,
+            'a1111111-1111-4111-8111-111111111111' as TEntityId,
             repoOptions
           )
         ).rejects.toThrow(counterpartyError.InvalidCounterpartyId);
@@ -87,6 +91,7 @@ describe('makeCounterpartyAppService', () => {
         const result = await service.findOrCreate(
           { name: 'John Smith', type: ECounterpartyType.Organization },
           accountingEntityId,
+          'a1111111-1111-4111-8111-111111111111' as TEntityId,
           repoOptions
         );
 
@@ -101,6 +106,7 @@ describe('makeCounterpartyAppService', () => {
         const result = await service.findOrCreate(
           { name: 'John Smith' },
           accountingEntityId,
+          'a1111111-1111-4111-8111-111111111111' as TEntityId,
           repoOptions
         );
 
@@ -116,6 +122,7 @@ describe('makeCounterpartyAppService', () => {
       const result = await service.findOrCreateMany(
         [{ name: 'Jane Doe' }, { name: '  Jane Doe  ' }],
         accountingEntityId,
+        'a1111111-1111-4111-8111-111111111111' as TEntityId,
         repoOptions
       );
 

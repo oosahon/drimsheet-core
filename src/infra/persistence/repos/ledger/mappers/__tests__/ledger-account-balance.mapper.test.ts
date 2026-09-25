@@ -31,12 +31,15 @@ describe('Ledger Account Balance Mapper', () => {
 
   const makeBalanceAndAdjustment = async () => {
     const [user] = userEntity.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       email: 'owner@example.com',
       emailVerified: true,
       firstName: 'Account',
       lastName: 'Owner',
     });
     const [accountingEntity] = accountingEntityEntity.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       name: 'Owner Business',
       ownerId: user.id,
       type: EAccountingEntityType.Individual,
@@ -47,11 +50,12 @@ describe('Ledger Account Balance Mapper', () => {
       {
         name: 'Cash',
         accountingEntity,
-        userId: user.id,
+        createdBy: user.actorId,
       },
       { correlationId: 'test-correlation-id' }
     );
     const balance = ledgerAccountBalanceEntity.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       ledgerAccountId: account.id,
       accountingEntityId: accountingEntity.id,
       accountMaterializedPath: account.materializedPath,
@@ -63,7 +67,7 @@ describe('Ledger Account Balance Mapper', () => {
       amount: moneyValue.make(100_00, SYSTEM_CURRENCIES.NGN, true),
       functionalAmount: moneyValue.make(100_00, SYSTEM_CURRENCIES.NGN, true),
       journalEntryId: '123e4567-e89b-12d3-a456-426614174010' as TEntityId,
-      createdBy: user.id,
+      createdBy: user.actorId,
     });
 
     return adjusted;
@@ -76,6 +80,7 @@ describe('Ledger Account Balance Mapper', () => {
       const repoModel = ledgerAccountBalanceMapper.toRepo(newBalance);
 
       expect(repoModel).toEqual({
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         ledgerAccountId: newBalance.ledgerAccountId,
         accountingEntityId: newBalance.accountingEntityId,
         accountMaterializedPath: newBalance.accountMaterializedPath,
@@ -100,6 +105,7 @@ describe('Ledger Account Balance Mapper', () => {
       >[0] = {
         ...repoModel,
         currency: {
+          createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
           code: SYSTEM_CURRENCIES.NGN.code,
           symbol: SYSTEM_CURRENCIES.NGN.symbol,
           name: SYSTEM_CURRENCIES.NGN.name,
@@ -109,6 +115,7 @@ describe('Ledger Account Balance Mapper', () => {
           deletedAt: null,
         },
         functionalCurrency: {
+          createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
           code: SYSTEM_CURRENCIES.NGN.code,
           symbol: SYSTEM_CURRENCIES.NGN.symbol,
           name: SYSTEM_CURRENCIES.NGN.name,
@@ -124,6 +131,27 @@ describe('Ledger Account Balance Mapper', () => {
       );
     });
   });
+
+  it.each([
+    '123e4567-e89b-42d3-a456-426614174000' as TEntityId,
+    '123e4567-e89b-42d3-a456-426614174001' as TEntityId,
+    'b2222222-2222-4222-8222-222222222222' as TEntityId,
+    'c3333333-3333-4333-8333-333333333333' as TEntityId,
+  ])(
+    'round-trips complete $type attribution through JSON storage',
+    async (createdBy) => {
+      const { adjustment } = await makeBalanceAndAdjustment();
+      const model = ledgerAccountBalanceMapper.toRepoAdjustment({
+        ...adjustment,
+        createdBy,
+      });
+      const restored = ledgerAccountBalanceMapper.fromRepoAdjustment({
+        ...model,
+        createdBy: JSON.parse(JSON.stringify(model.createdBy)),
+      });
+      expect(restored.createdBy).toEqual(createdBy);
+    }
+  );
 
   describe('adjustment mapping', () => {
     it('maps an adjustment to a repo model and back', async () => {

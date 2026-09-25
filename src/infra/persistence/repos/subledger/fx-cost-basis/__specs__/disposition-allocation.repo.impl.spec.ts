@@ -1,4 +1,5 @@
 import { ITransactionContext } from '@shared/types/repo.types';
+import { TEntityId } from '@shared/types/uuid';
 
 import { IFxCostBasisLotDispositionAllocation } from '@domain/subledger/fx-cost-basis/types/disposition.types';
 
@@ -12,6 +13,7 @@ jest.mock('../mappers/disposition-allocation.mapper');
 
 describe('FX Cost-Basis Lot Disposition Allocation Repo', () => {
   const payload = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     id: 'allocation-1',
   } as IFxCostBasisLotDispositionAllocation;
   const outerTx = 'outer-transaction' as unknown as ITransactionContext;
@@ -20,7 +22,10 @@ describe('FX Cost-Basis Lot Disposition Allocation Repo', () => {
   beforeEach(() => jest.clearAllMocks());
 
   it('persists the mapped allocation through the supplied transaction', async () => {
-    const allocationRow = { id: payload.id };
+    const allocationRow = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      id: payload.id,
+    };
     const values = jest.fn().mockResolvedValue(undefined);
     const query = { insert: jest.fn().mockReturnValue({ values }) };
     jest
@@ -58,7 +63,10 @@ describe('FX Cost-Basis Lot Disposition Allocation Repo', () => {
       .mockReturnValue(query as unknown as ReturnType<typeof getDbQuery>);
     jest
       .mocked(fxCostBasisLotDispositionAllocationMapper.toRepo)
-      .mockReturnValue({ id: payload.id } as unknown as ReturnType<
+      .mockReturnValue({
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        id: payload.id,
+      } as unknown as ReturnType<
         typeof fxCostBasisLotDispositionAllocationMapper.toRepo
       >);
 

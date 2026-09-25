@@ -22,6 +22,7 @@ export interface IUserAppPreferences {
 }
 
 export interface IUserPreferences {
+  createdBy: TEntityId;
   userId: TEntityId;
   lastActiveAccountingEntityId: TEntityId | null;
   appPreferences: IUserAppPreferences;
@@ -30,6 +31,7 @@ export interface IUserPreferences {
 }
 
 export interface IUserPreferencesUpdate {
+  createdBy: TEntityId;
   userId: TEntityId;
   appPreferences?: {
     theme?: UAppThemePreference;

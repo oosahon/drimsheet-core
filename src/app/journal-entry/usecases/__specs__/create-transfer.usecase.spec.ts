@@ -61,6 +61,8 @@ describe('makeCreateTransferUsecase', () => {
   const idempotencyKey = 'transfer-idempotency-key';
   const effectiveDate = new Date('2026-08-30T00:00:00.000Z');
   const user: IUser = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+    actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     id: generateUUID(),
     version: 1,
     email: 'transfer@example.com',
@@ -72,6 +74,7 @@ describe('makeCreateTransferUsecase', () => {
     deletedAt: null,
   };
   const [accountingEntity] = accountingEntityEntity.make({
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     name: 'Transfer Entity',
     ownerId: user.id,
     type: EAccountingEntityType.Individual,
@@ -100,7 +103,7 @@ describe('makeCreateTransferUsecase', () => {
       contraAccountRule: EContraAccountRule.ContraPermitted,
       adjunctAccountRule: EAdjunctAccountRule.AdjunctPermitted,
       meta: {},
-      createdBy: user.id,
+      createdBy: user.actorId,
     });
 
     return account;
@@ -137,9 +140,10 @@ describe('makeCreateTransferUsecase', () => {
     contraAccountRule: EContraAccountRule.ContraPermitted,
     adjunctAccountRule: EAdjunctAccountRule.AdjunctPermitted,
     meta: {},
-    createdBy: user.id,
+    createdBy: user.actorId,
   });
   const bankCounterparty = counterpartyEntity.make({
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     accountingEntityId: accountingEntity.id,
     name: 'Transfer provider',
     type: ECounterpartyType.Organization,
@@ -188,7 +192,7 @@ describe('makeCreateTransferUsecase', () => {
       effectiveDate,
       postedAt,
       memo: 'Cash transfer',
-      createdBy: user.id,
+      createdBy: user.actorId,
       functionalCurrency: SYSTEM_CURRENCIES.NGN,
       attachments,
       lines: [
@@ -305,7 +309,7 @@ describe('makeCreateTransferUsecase', () => {
           effectiveDate: payload.effectiveDate,
           postedAt: payload.postedAt,
           functionalCurrencyCode: accountingEntity.functionalCurrencyCode,
-          createdBy: user.id,
+          createdBy: user.actorId,
         },
         sourceLine: expect.objectContaining({
           account: sourceAccount,
@@ -341,7 +345,7 @@ describe('makeCreateTransferUsecase', () => {
       {
         journalEntry: postedJournalEntry[0],
         account: sourceAccount,
-        actor: expect.objectContaining({ userId: user.id }),
+        actor: user.actorId,
       },
       { correlationId, idempotencyKey }
     );
@@ -349,7 +353,7 @@ describe('makeCreateTransferUsecase', () => {
       {
         journalEntry: postedJournalEntry[0],
         account: destinationAccount,
-        actor: expect.objectContaining({ userId: user.id }),
+        actor: user.actorId,
       },
       { correlationId, idempotencyKey }
     );
@@ -418,6 +422,7 @@ describe('makeCreateTransferUsecase', () => {
     expect(mockCounterpartyAppService.findOrCreateMany).toHaveBeenCalledWith(
       [payload.chargeLines[0].counterparty],
       accountingEntity.id,
+      'a1111111-1111-4111-8111-111111111111' as TEntityId,
       { correlationId, idempotencyKey }
     );
     expect(mockJournalEntryService.createTransfer).toHaveBeenCalledWith(
@@ -738,7 +743,7 @@ describe('makeCreateTransferUsecase', () => {
       effectiveDate,
       postedAt: effectiveDate,
       memo: payload.memo,
-      createdBy: user.id,
+      createdBy: user.actorId,
       functionalCurrency: SYSTEM_CURRENCIES.NGN,
       attachments,
       lines: [
@@ -802,7 +807,7 @@ describe('makeCreateTransferUsecase', () => {
       {
         journalEntry: foreignJournalEntry[0],
         account: usdSourceAccount,
-        actor: expect.objectContaining({ userId: user.id }),
+        actor: user.actorId,
       },
       { correlationId, idempotencyKey }
     );
@@ -810,7 +815,7 @@ describe('makeCreateTransferUsecase', () => {
       {
         journalEntry: foreignJournalEntry[0],
         account: usdDestinationAccount,
-        actor: expect.objectContaining({ userId: user.id }),
+        actor: user.actorId,
       },
       { correlationId, idempotencyKey }
     );

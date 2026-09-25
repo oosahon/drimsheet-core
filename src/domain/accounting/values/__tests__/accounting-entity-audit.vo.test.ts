@@ -15,6 +15,7 @@ import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
 describe('accountingEntityAudit', () => {
   const makeAccountingEntity = () =>
     accountingEntityEntity.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       name: 'Test Accounting Entity',
       type: EAccountingEntityType.Individual,
       ownerId: generateUUID(),

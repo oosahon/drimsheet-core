@@ -36,6 +36,7 @@ import { mockLedgerAccountRepo } from '@app/ledger/contracts/__mocks__/ledger.re
 import makePostingAccountBootstrapService from '@app/ledger/services/posting-account-bootstrap.service';
 
 const accountingEntity = {
+  createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
   id: '123e4567-e89b-12d3-a456-426614174001' as TEntityId,
   ownerId: '123e4567-e89b-12d3-a456-426614174002' as TEntityId,
   type: EAccountingEntityType.Individual,
@@ -72,6 +73,7 @@ function makeAuditedAccount(
   index: number
 ): TAuditedEntity<ILedgerAccount, ILedgerAccount, ILedgerAccount> {
   const account = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     id: `123e4567-e89b-12d3-a456-4266141740${String(index).padStart(2, '0')}` as TEntityId,
     name,
   } as ILedgerAccount;
@@ -174,7 +176,11 @@ describe('postingAccountBootstrapService', () => {
   });
 
   it('owns and bootstraps the complete posting catalog in dependency order', async () => {
-    const result = await service.bootstrap(accountingEntity, repoOptions);
+    const result = await service.bootstrap(
+      accountingEntity,
+      'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      repoOptions
+    );
 
     expect(result.entries.map(({ account }) => account.name)).toEqual(
       expectedAccountNames
@@ -201,7 +207,11 @@ describe('postingAccountBootstrapService', () => {
   });
 
   it('persists each prerequisite before creating its dependent account', async () => {
-    await service.bootstrap(accountingEntity, repoOptions);
+    await service.bootstrap(
+      accountingEntity,
+      'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      repoOptions
+    );
 
     expect(
       mockLedgerAccountPersistenceService.create.mock.invocationCallOrder[0]
@@ -230,7 +240,11 @@ describe('postingAccountBootstrapService', () => {
   });
 
   it('supplies the configured control accounts for every ledger family', async () => {
-    await service.bootstrap(accountingEntity, repoOptions);
+    await service.bootstrap(
+      accountingEntity,
+      'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      repoOptions
+    );
 
     expect(
       mockReceivablesAccountService.createTradeReceivableSubAccount
@@ -268,9 +282,13 @@ describe('postingAccountBootstrapService', () => {
       persistenceFailure
     );
 
-    await expect(service.bootstrap(accountingEntity, repoOptions)).rejects.toBe(
-      persistenceFailure
-    );
+    await expect(
+      service.bootstrap(
+        accountingEntity,
+        'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        repoOptions
+      )
+    ).rejects.toBe(persistenceFailure);
     expect(
       mockReceivablesAccountService.createStatutoryReceivableSubAccount
     ).not.toHaveBeenCalled();
@@ -282,9 +300,13 @@ describe('postingAccountBootstrapService', () => {
       domainFailure
     );
 
-    await expect(service.bootstrap(accountingEntity, repoOptions)).rejects.toBe(
-      domainFailure
-    );
+    await expect(
+      service.bootstrap(
+        accountingEntity,
+        'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        repoOptions
+      )
+    ).rejects.toBe(domainFailure);
     expect(
       mockEmploymentIncomeAccountService.createSubAccount
     ).not.toHaveBeenCalled();
@@ -301,7 +323,11 @@ describe('postingAccountBootstrapService', () => {
     });
 
     await expect(
-      serviceWithoutHeader.bootstrap(accountingEntity, repoOptions)
+      serviceWithoutHeader.bootstrap(
+        accountingEntity,
+        'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        repoOptions
+      )
     ).rejects.toMatchObject({
       errorKey:
         'ledger_error_asset_account_control_account_not_found_unexpected',

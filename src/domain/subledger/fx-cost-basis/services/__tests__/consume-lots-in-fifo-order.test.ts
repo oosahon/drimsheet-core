@@ -1,3 +1,4 @@
+import { TEntityId } from '@shared/types/uuid';
 import generateUUID from '@shared/utils/uuid-generator';
 
 import { IJournalLine } from '@domain/journal-entry/types/journal-line.types';
@@ -28,6 +29,7 @@ describe('consumeLotsInFifoOrder', () => {
     const amount = moneyValue.make(quantity, SYSTEM_CURRENCIES.USD, false);
 
     return {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: generateUUID(),
       entryId: generateUUID(),
       accountId,
@@ -57,6 +59,7 @@ describe('consumeLotsInFifoOrder', () => {
     acquisitionRate: number
   ) {
     return fxCostBasisLotEntity.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       ledgerAccountId: accountId,
       accountingEntityId: entityId,
       status: EFxCostBasisLotStatus.Open,

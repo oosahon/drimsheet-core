@@ -3,6 +3,7 @@ import errorUtils from '@shared/utils/error';
 import DomainError from '@shared/values/errors/domain.error';
 
 const EErrorKeys = {
+  InvalidCreatedBy: 'ledger_error_created_by_invalid',
   InvalidId: 'ledger_error_id_invalid',
   InvalidAction: 'ledger_error_action_invalid',
   InvalidDate: 'ledger_error_date_invalid',
@@ -40,7 +41,6 @@ const EErrorKeys = {
     'ledger_error_ledger_account_accounting_entity_id_invalid',
   InvalidControlAccountId:
     'ledger_error_ledger_account_control_account_id_invalid',
-  InvalidCreatorId: 'ledger_error_ledger_account_creator_id_invalid',
   InvalidCountryCode: 'ledger_error_ledger_account_country_code_invalid',
   InvalidBankName: 'ledger_error_ledger_account_bank_name_invalid',
   InvalidBankAccountName:

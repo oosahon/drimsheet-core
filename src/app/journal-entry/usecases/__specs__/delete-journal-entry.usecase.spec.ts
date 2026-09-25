@@ -1,6 +1,7 @@
 import mockEventBus from '@shared/contracts/__mocks__/event-bus.mock';
 import mockRepoService from '@shared/contracts/__mocks__/repo.mock';
 import { ITransactionContext } from '@shared/types/repo.types';
+import { TEntityId } from '@shared/types/uuid';
 import generateUUID from '@shared/utils/uuid-generator';
 import appError from '@shared/values/errors/app.error';
 
@@ -18,6 +19,7 @@ import { EJournalSide } from '@domain/journal-entry/types/journal-line.types';
 import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
 import moneyValue from '@domain/money/values/money.vo';
 
+import { mockAccountingEntityService } from '@app/accounting/contracts/__mocks__/accounting.domain.services.mock';
 import mockAppContext, {
   mockClientSession,
 } from '@app/context/contracts/__mocks__/app-context.mock';
@@ -39,6 +41,7 @@ describe('makeDeleteJournalEntryUsecase', () => {
   const now = new Date('2026-09-22T10:00:00.000Z');
   const rectificationService = makeJournalEntryRectificationService();
   const usecase = makeDeleteJournalEntryUsecase({
+    accountingEntityService: mockAccountingEntityService,
     appContext: mockAppContext,
     eventBus: mockEventBus,
     fxCostBasisPersistenceService: mockFxLotCostBasisService.persistence,
@@ -98,7 +101,10 @@ describe('makeDeleteJournalEntryUsecase', () => {
   function prepareReversal(entry: IJournalEntry) {
     return {
       mode: EJournalEntryRemovalMode.Reverse,
-      ...rectificationService.reverse(entry),
+      ...rectificationService.reverse(
+        entry,
+        'a1111111-1111-4111-8111-111111111111' as TEntityId
+      ),
     } as const;
   }
 
@@ -109,7 +115,10 @@ describe('makeDeleteJournalEntryUsecase', () => {
     mockAppContext.get.mockReturnValue({
       correlationId,
       idempotencyKey,
-      user: { id: userId },
+      user: {
+        id: userId,
+        actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      },
       accountingEntity: { id: accountingEntityId },
       clientSession: mockClientSession,
     } as unknown as IAppContextData);
@@ -178,7 +187,7 @@ describe('makeDeleteJournalEntryUsecase', () => {
 
     expect(mockFxLotAppService.reverse).toHaveBeenCalledWith(
       entry.id,
-      { type: 'user', userId },
+      'a1111111-1111-4111-8111-111111111111' as TEntityId,
       { correlationId, idempotencyKey }
     );
     expect(mockJournalEntryPersistenceService.rectify).toHaveBeenCalledWith(
@@ -273,9 +282,9 @@ describe('makeDeleteJournalEntryUsecase', () => {
   it.each([
     ['missing', null, appError.ResourceNotFound],
     [
-      'another creator',
-      { ...makeEntry(null), createdBy: generateUUID() },
-      appError.Forbidden,
+      'outside accounting scope',
+      { ...makeEntry(null), accountingEntityId: generateUUID() },
+      appError.ResourceNotFound,
     ],
     ['stale', { ...makeEntry(null), version: 2 }, appError.Conflict],
   ])(

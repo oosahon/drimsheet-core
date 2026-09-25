@@ -1,6 +1,7 @@
 import { ColumnDefinitions, MigrationBuilder } from 'node-pg-migrate';
 
 import { accountingStandardsTable } from '../config/accounting';
+import { actorsTable } from '../config/actors';
 
 export const shorthands: ColumnDefinitions | undefined = undefined;
 
@@ -8,6 +9,12 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
   pgm.createTable(
     accountingStandardsTable,
     {
+      created_by: {
+        type: 'uuid',
+        notNull: true,
+        references: actorsTable,
+        onDelete: 'RESTRICT',
+      },
       code: {
         type: 'varchar(15)',
         primaryKey: true,

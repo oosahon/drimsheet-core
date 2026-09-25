@@ -9,6 +9,7 @@ import eventValue from '@shared/values/events/event.vo';
 
 import userEvents from '@domain/user/events/user.events';
 import IUserRepo from '@domain/user/repos/user.repo';
+import IActorService from '@domain/user/types/actor.service.types';
 import { IUser } from '@domain/user/types/user.types';
 
 import IPasswordService from '@app/auth/contracts/password-service.contract';
@@ -25,6 +26,7 @@ import authError from '@app/auth/errors/auth.error';
 import IAppContext from '@app/context/contracts/app-context.contract';
 
 interface IDependencies {
+  actorService: IActorService;
   appContext: IAppContext;
   userRepo: IUserRepo;
   passwordService: IPasswordService;
@@ -64,6 +66,8 @@ export default function makeResetPasswordUseCase(deps: IDependencies) {
       if (!user) {
         throw new authError.InvalidToken();
       }
+
+      await deps.actorService.resolveUser(user, { correlationId });
 
       const existingUserAuth = await deps.userAuthRepo.findByUserId(user.id, {
         correlationId,

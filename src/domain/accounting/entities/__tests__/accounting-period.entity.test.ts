@@ -22,6 +22,7 @@ describe('accountingPeriodEntity', () => {
 
   describe('make', () => {
     const validFiscalYear: IFiscalYear = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: '12302eb7-ec79-436f-b258-00a4fb9a5123' as TEntityId,
       name: 'FY 2026',
       accountingEntityId: '98402eb7-ec79-436f-b258-00a4fb9a572a' as TEntityId,
@@ -33,6 +34,7 @@ describe('accountingPeriodEntity', () => {
     };
 
     const validPayload = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       accountingEntityId: '98402eb7-ec79-436f-b258-00a4fb9a572a' as TEntityId,
       unit: EPeriodUnit.Quarter,
       count: 4,
@@ -87,13 +89,19 @@ describe('accountingPeriodEntity', () => {
     });
 
     it('throws InvalidPeriodUnitError if unit is invalid', () => {
-      const invalidPayload = { ...validPayload, unit: 'invalid' };
+      const invalidPayload = {
+        ...validPayload,
+        unit: 'invalid',
+      };
       // @ts-expect-error testing invalid unit
       expect(() => accountingPeriodEntity.make(invalidPayload)).toThrow();
     });
 
     it('throws InvalidPeriodIntervalError if count is invalid', () => {
-      const invalidPayload = { ...validPayload, count: -1 };
+      const invalidPayload = {
+        ...validPayload,
+        count: -1,
+      };
       expect(() => accountingPeriodEntity.make(invalidPayload)).toThrow();
     });
 

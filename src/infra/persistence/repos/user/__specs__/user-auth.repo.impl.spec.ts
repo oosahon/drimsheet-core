@@ -1,5 +1,6 @@
 import { eq } from 'drizzle-orm';
 
+import { TEntityId } from '@shared/types/uuid';
 import generateUUID from '@shared/utils/uuid-generator';
 import repoError from '@shared/values/errors/repo.error';
 
@@ -20,8 +21,13 @@ jest.mock('drizzle-orm', () => {
 });
 
 describe('userAuthRepo strict updates', () => {
-  const userAuth = { userId: generateUUID(), version: 2 } as IUserAuth;
+  const userAuth = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+    userId: generateUUID(),
+    version: 2,
+  } as IUserAuth;
   const repoModel = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     userId: userAuth.userId,
     version: userAuth.version,
   } as never;

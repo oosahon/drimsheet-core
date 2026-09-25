@@ -1,5 +1,4 @@
 import { TEntityId } from '@shared/types/uuid';
-import { EHistoryActorType } from '@shared/values/history/types/history.types';
 
 import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
 import moneyValue from '@domain/money/values/money.vo';
@@ -22,6 +21,7 @@ describe('FX Cost-Basis Lot Acquisition History Mapper', () => {
       diff: {
         before: null,
         after: {
+          createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
           id: acquisitionId,
           ledgerAccountId: 'ledger-account-1' as TEntityId,
           accountingEntityId,
@@ -45,10 +45,8 @@ describe('FX Cost-Basis Lot Acquisition History Mapper', () => {
         },
       },
       occurredAt,
-      actor: {
-        type: EHistoryActorType.User,
-        userId,
-      },
+      actorId: userId,
+      onBehalfOf: null,
       correlationId: 'correlation-id',
     };
 
@@ -56,9 +54,9 @@ describe('FX Cost-Basis Lot Acquisition History Mapper', () => {
       acquisitionId,
       lotId,
       accountingEntityId,
-      actorType: EHistoryActorType.User,
+      actorId: userId,
+      onBehalfOf: null,
       action: history.action,
-      userId,
       diff: history.diff,
       correlationId: history.correlationId,
       occurredAt: occurredAt.toISOString(),
@@ -72,14 +70,13 @@ describe('FX Cost-Basis Lot Acquisition History Mapper', () => {
       diff: {
         before: null,
         after: {
+          createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
           accountingEntityId: 'accounting-entity-1' as TEntityId,
         }, // missing lotId
       },
       occurredAt: new Date(),
-      actor: {
-        type: EHistoryActorType.System,
-        userId: null,
-      },
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      onBehalfOf: null,
       correlationId: 'correlation-id',
     } as unknown as IFxCostBasisLotAcquisitionHistory;
 
@@ -95,14 +92,13 @@ describe('FX Cost-Basis Lot Acquisition History Mapper', () => {
       diff: {
         before: null,
         after: {
+          createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
           lotId: 'lot-1' as TEntityId,
         }, // missing accountingEntityId
       },
       occurredAt: new Date(),
-      actor: {
-        type: EHistoryActorType.System,
-        userId: null,
-      },
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      onBehalfOf: null,
       correlationId: 'correlation-id',
     } as unknown as IFxCostBasisLotAcquisitionHistory;
 

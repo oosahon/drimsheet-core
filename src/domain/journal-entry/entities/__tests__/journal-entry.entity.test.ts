@@ -81,6 +81,17 @@ describe('JournalEntry Entity', () => {
       };
     });
 
+    it.each([
+      '123e4567-e89b-42d3-a456-426614174000' as TEntityId,
+      '123e4567-e89b-42d3-a456-426614174001' as TEntityId,
+      'b2222222-2222-4222-8222-222222222222' as TEntityId,
+      'c3333333-3333-4333-8333-333333333333' as TEntityId,
+    ])('preserves immutable $type creation attribution', (createdBy) => {
+      const [entity] = journalEntryEntity.make({ ...validPayload, createdBy });
+      expect(entity.createdBy).toBe(createdBy);
+      expect(Object.isFrozen(entity.createdBy)).toBe(true);
+    });
+
     it('should successfully create a journal entry with line items and events', () => {
       const [entry, events, audit] = journalEntryEntity.make(validPayload);
 
@@ -185,11 +196,11 @@ describe('JournalEntry Entity', () => {
       ).toThrow(journalEntryError.InvalidAccountingEntityId);
     });
 
-    it('should throw InvalidCreatedBy if createdBy is invalid', () => {
+    it('should throw InvalidActor if createdBy is invalid', () => {
       expect(() =>
         journalEntryEntity.make({
           ...validPayload,
-          createdBy: 'invalid' as TEntityId,
+          createdBy: 'invalid' as unknown as TEntityId,
         })
       ).toThrow(journalEntryError.InvalidCreatedBy);
     });
@@ -369,6 +380,7 @@ describe('JournalEntry Entity', () => {
     describe('validateLine', () => {
       it('throws an AppError for an invalid side', () => {
         const item1: IJournalLine = {
+          createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
           id: '1' as TEntityId,
           entryId: '2' as TEntityId,
           accountId: '3' as TEntityId,
@@ -478,15 +490,19 @@ describe('JournalEntry Entity', () => {
     it('updates every editable value on a draft journal entry', () => {
       const entry = makeEntry(null);
       const amount = moneyValue.make(150, SYSTEM_CURRENCIES.USD, false);
-      const [updatedEntry, events, audit] = journalEntryEntity.update(entry, {
-        id: entry.id,
-        memo: 'Updated draft',
-        lines: entry.lines.map((line) => ({
-          ...line,
-          amount,
-          functionalAmount: amount,
-        })),
-      });
+      const [updatedEntry, events, audit] = journalEntryEntity.update(
+        entry,
+        {
+          id: entry.id,
+          memo: 'Updated draft',
+          lines: entry.lines.map((line) => ({
+            ...line,
+            amount,
+            functionalAmount: amount,
+          })),
+        },
+        'a1111111-1111-4111-8111-111111111111' as TEntityId
+      );
 
       expect(updatedEntry).toMatchObject({
         id: entry.id,
@@ -517,14 +533,19 @@ describe('JournalEntry Entity', () => {
           size: 4096,
         },
       ];
-      const [updatedEntry, , audit] = journalEntryEntity.update(entry, {
-        id: entry.id,
-        attachments,
-        lines: entry.lines.map((line, index) => ({
-          ...line,
-          description: index === 0 ? 'Corrected description' : line.description,
-        })),
-      });
+      const [updatedEntry, , audit] = journalEntryEntity.update(
+        entry,
+        {
+          id: entry.id,
+          attachments,
+          lines: entry.lines.map((line, index) => ({
+            ...line,
+            description:
+              index === 0 ? 'Corrected description' : line.description,
+          })),
+        },
+        'a1111111-1111-4111-8111-111111111111' as TEntityId
+      );
 
       expect(updatedEntry.attachments).toEqual(attachments);
       expect(updatedEntry.lines[0].description).toBe('Corrected description');
@@ -537,10 +558,14 @@ describe('JournalEntry Entity', () => {
 
     it('uses the existing lines when lines are omitted and accepts explicit posting values', () => {
       const entry = makeEntry(null);
-      const [updatedEntry] = journalEntryEntity.update(entry, {
-        id: entry.id,
-        postedAt: null,
-      });
+      const [updatedEntry] = journalEntryEntity.update(
+        entry,
+        {
+          id: entry.id,
+          postedAt: null,
+        },
+        'a1111111-1111-4111-8111-111111111111' as TEntityId
+      );
 
       expect(updatedEntry.lines).toEqual(entry.lines);
       expect(updatedEntry.postedAt).toBeNull();
@@ -551,14 +576,18 @@ describe('JournalEntry Entity', () => {
       const amount = moneyValue.make(150, SYSTEM_CURRENCIES.USD, false);
 
       expect(() =>
-        journalEntryEntity.update(entry, {
-          id: entry.id,
-          lines: entry.lines.map((line) => ({
-            ...line,
-            amount,
-            functionalAmount: amount,
-          })),
-        })
+        journalEntryEntity.update(
+          entry,
+          {
+            id: entry.id,
+            lines: entry.lines.map((line) => ({
+              ...line,
+              amount,
+              functionalAmount: amount,
+            })),
+          },
+          'a1111111-1111-4111-8111-111111111111' as TEntityId
+        )
       ).toThrow(journalEntryError.RectificationNotPermitted);
     });
 

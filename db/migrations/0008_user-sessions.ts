@@ -1,11 +1,18 @@
 import { MigrationBuilder } from 'node-pg-migrate';
 
+import { actorsTable } from '../config/actors';
 import { userSessionsTable, usersTable } from '../config/users';
 
 export const up = (pgm: MigrationBuilder) => {
   pgm.createTable(
     userSessionsTable,
     {
+      created_by: {
+        type: 'uuid',
+        notNull: true,
+        references: actorsTable,
+        onDelete: 'RESTRICT',
+      },
       id: {
         type: 'uuid',
         primaryKey: true,
@@ -37,6 +44,7 @@ export const up = (pgm: MigrationBuilder) => {
   pgm.createIndex(userSessionsTable, ['user_id', 'refresh_token'], {
     unique: true,
   });
+  pgm.createIndex(userSessionsTable, 'created_by');
 };
 
 export const down = (pgm: MigrationBuilder) => {

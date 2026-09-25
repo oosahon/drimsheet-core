@@ -32,6 +32,7 @@ describe('makeAdjustLedgerAccountBalanceUseCase', () => {
     createdAt: new Date(),
   };
   const childBalance = ledgerAccountBalanceEntity.make({
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     ledgerAccountId: childAccountId,
     accountingEntityId,
     accountMaterializedPath: '100000.100001',
@@ -39,6 +40,7 @@ describe('makeAdjustLedgerAccountBalanceUseCase', () => {
     functionalCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
   });
   const parentBalance = ledgerAccountBalanceEntity.make({
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     ledgerAccountId: parentAccountId,
     accountingEntityId,
     accountMaterializedPath: '100000',

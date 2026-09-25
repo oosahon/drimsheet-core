@@ -8,8 +8,8 @@ import stringUtils from '@shared/utils/string';
 import zodValidationRunner from '@shared/utils/zod-validation-runner';
 import eventValue from '@shared/values/events/event.vo';
 import { IEvent } from '@shared/values/events/types/event.types';
-import historyValue from '@shared/values/history/history.vo';
 
+import IAccountingEntityService from '@domain/accounting/types/accounting-entity.service.types';
 import journalEntryError from '@domain/journal-entry/errors/journal-entry.error';
 import IJournalEntryRepo from '@domain/journal-entry/repos/journal-entry.repo';
 import {
@@ -29,6 +29,7 @@ import IFxCostBasisPersistenceService from '@app/subledger/fx-cost-basis/contrac
 import IFxLotAppService from '@app/subledger/fx-cost-basis/contracts/fx-lot.service.contract';
 
 interface IDependencies {
+  accountingEntityService: IAccountingEntityService;
   appContext: IAppContext;
   eventBus: IEventBus;
   fxCostBasisPersistenceService: IFxCostBasisPersistenceService;
@@ -52,6 +53,8 @@ export default function makeDeleteJournalEntryUsecase(deps: IDependencies) {
     const { correlationId, idempotencyKey, accountingEntity, user } =
       deps.appContext.get(['user', 'accountingEntity']);
 
+    deps.accountingEntityService.validateAccess(accountingEntity, user.id);
+
     const repoOptions = { correlationId, idempotencyKey };
 
     const storedEntry = await deps.journalEntryRepo.findById(
@@ -63,11 +66,13 @@ export default function makeDeleteJournalEntryUsecase(deps: IDependencies) {
       id,
       entry: storedEntry,
       accountingEntityId: accountingEntity.id,
-      userId: user.id,
       expectedVersion: payload.expectedVersion,
     });
 
-    const removal = deps.journalEntryRemovalService.prepare(originalEntry);
+    const removal = deps.journalEntryRemovalService.prepare(
+      originalEntry,
+      user.actorId
+    );
 
     if (removal.mode === EJournalEntryRemovalMode.Delete) {
       await deps.journalEntryPersistenceService.delete(
@@ -81,7 +86,7 @@ export default function makeDeleteJournalEntryUsecase(deps: IDependencies) {
       return;
     }
 
-    const actor = historyValue.getUserActor(user.id);
+    const actor = user.actorId;
 
     const fxReversal = await deps.fxLotAppService.reverse(
       originalEntry.id,

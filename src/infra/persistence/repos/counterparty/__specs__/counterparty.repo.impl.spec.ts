@@ -1,6 +1,7 @@
 import { SQL } from 'drizzle-orm';
 import { PgDialect } from 'drizzle-orm/pg-core';
 
+import { TEntityId } from '@shared/types/uuid';
 import generateUUID from '@shared/utils/uuid-generator';
 import addressValue from '@shared/values/contact-details/address.vo';
 import historyValue from '@shared/values/history/history.vo';
@@ -25,6 +26,7 @@ const payload = {
   type: 'organization' as const,
 };
 const [counterparty, , audit] = service.create({
+  createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
   ...payload,
   meta: {
     vendor: {
@@ -38,6 +40,7 @@ const address = addressValue.make({
   countryCode: 'NG',
 });
 const [employer, , employerAudit] = service.create({
+  createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
   ...payload,
   meta: {
     employer: {
@@ -47,11 +50,7 @@ const [employer, , employerAudit] = service.create({
   },
 });
 const row = counterpartyMapper.toRepo(counterparty);
-const history = historyValue.make(
-  audit,
-  historyValue.getUserActor(generateUUID()),
-  'correlation'
-);
+const history = historyValue.make(audit, generateUUID(), 'correlation');
 const options = { history, correlationId: 'correlation' };
 function useQuery(query: unknown) {
   jest
@@ -93,7 +92,7 @@ describe('Counterparty repository', () => {
     const { query, tx, values } = makeWriteQuery();
     const employerHistory = historyValue.make(
       employerAudit,
-      history.actor,
+      history.actorId,
       'correlation'
     );
     await counterpartyRepo.create(employer, {
@@ -154,7 +153,11 @@ describe('Counterparty repository reads', () => {
   type CounterpartyRow = Parameters<typeof counterpartyMapper.toDomain>[0];
 
   function fixture(meta?: Parameters<typeof domainService.create>[0]['meta']) {
-    const [entity] = domainService.create({ ...payload, meta });
+    const [entity] = domainService.create({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      ...payload,
+      meta,
+    });
     const row = counterpartyMapper.toRepo(entity);
     return { entity, row };
   }

@@ -1,3 +1,4 @@
+import { TEntityId } from '@shared/types/uuid';
 import generateUUID from '@shared/utils/uuid-generator';
 import addressValue from '@shared/values/contact-details/address.vo';
 
@@ -8,6 +9,7 @@ import counterpartyMapper from '@infra/persistence/repos/counterparty/mappers/co
 
 const service = makeCounterpartyService();
 const payload = {
+  createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
   accountingEntityId: generateUUID(),
   name: 'Example',
   type: 'organization' as const,
@@ -28,7 +30,10 @@ describe('counterpartyMapper', () => {
       if (combination & 2) meta.vendor = { address: null };
       if (combination & 4) meta.contractor = { address };
 
-      const [entity] = service.create({ ...payload, meta });
+      const [entity] = service.create({
+        ...payload,
+        meta,
+      });
       const row = counterpartyMapper.toRepo(entity);
 
       expect(row.meta).toEqual(entity.meta);

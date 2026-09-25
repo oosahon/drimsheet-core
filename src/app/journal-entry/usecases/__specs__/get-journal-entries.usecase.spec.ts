@@ -80,6 +80,7 @@ describe('makeGetJournalEntriesUsecase', () => {
     mockAppContext.get.mockReturnValue({
       correlationId,
       accountingEntity: {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         id: accountingEntityId,
         ownerId: userId,
         name: 'Test Business',

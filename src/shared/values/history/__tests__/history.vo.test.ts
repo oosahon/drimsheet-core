@@ -1,10 +1,6 @@
 import { TEntityId } from '@shared/types/uuid';
 import historyError from '@shared/values/history/history.error';
 import historyValue from '@shared/values/history/history.vo';
-import {
-  EHistoryActorType,
-  IHistoryActor,
-} from '@shared/values/history/types/history.types';
 
 interface ITestSnapshot {
   id: TEntityId;
@@ -24,15 +20,12 @@ const after: ITestSnapshot = {
   name: 'After',
 };
 
-const userActor: IHistoryActor = {
-  type: EHistoryActorType.User,
-  userId,
-};
+const userActor = userId;
 
 const correlationId = '854e4567-e89b-42d3-a456-426614174001';
 
 function makeHistory(
-  actor: IHistoryActor,
+  actorId: TEntityId,
   action: string,
   beforeSnapshot: ITestSnapshot | null,
   afterSnapshot: ITestSnapshot,
@@ -49,7 +42,7 @@ function makeHistory(
       },
       occurredAt,
     },
-    actor,
+    actorId,
     correlationId
   );
 }
@@ -68,7 +61,7 @@ describe('history.vo', () => {
 
       expect(history.entityId).toBe(entityId);
       expect(history.entityVersion).toBe(1);
-      expect(history.actor).toBe(userActor);
+      expect(history.actorId).toBe(userActor);
       expect(history.action).toBe('updated');
       expect(history.diff).toEqual({ before, after });
       expect(history.occurredAt).toBe(occurredAt);
@@ -80,28 +73,15 @@ describe('history.vo', () => {
       expect(history).not.toHaveProperty('note');
     });
 
-    it('creates history for system and migration actors', () => {
-      const systemHistory = makeHistory(
-        {
-          type: EHistoryActorType.System,
-          userId: null,
-        },
-        'created',
-        null,
-        after
-      );
-      const migrationHistory = makeHistory(
-        {
-          type: EHistoryActorType.Migration,
-          userId: null,
-        },
-        'created',
-        null,
-        after
-      );
-
-      expect(systemHistory.actor.type).toBe(EHistoryActorType.System);
-      expect(migrationHistory.actor.type).toBe(EHistoryActorType.Migration);
+    it.each([
+      userActor,
+      entityId,
+      'b2222222-2222-4222-8222-222222222222' as TEntityId,
+      'c3333333-3333-4333-8333-333333333333' as TEntityId,
+    ])('retains the supplied $type actor', (actor) => {
+      const history = makeHistory(actor, 'created', null, after);
+      expect(history.actorId).toBe(actor);
+      expect(history.actorId).toEqual(actor);
     });
 
     it('rejects invalid entity IDs', () => {
@@ -139,31 +119,32 @@ describe('history.vo', () => {
       }
     );
 
-    it('rejects invalid actors', () => {
-      const invalidActors: IHistoryActor[] = [
-        {
-          type: EHistoryActorType.User,
-          userId: null,
-        },
-        {
-          type: EHistoryActorType.User,
-          userId: 'invalid' as TEntityId,
-        },
-        {
-          type: EHistoryActorType.System,
-          userId,
-        },
-        {
-          type: 'unknown',
-          userId: null,
-        } as unknown as IHistoryActor,
-      ];
-
-      for (const actor of invalidActors) {
-        expect(() => makeHistory(actor, 'updated', before, after)).toThrow(
-          historyError.InvalidActor
-        );
+    it.each([null, undefined, '', 'invalid', {}])(
+      'rejects invalid actors with history errors: %p',
+      (actor) => {
+        expect(() =>
+          makeHistory(actor as unknown as TEntityId, 'updated', before, after)
+        ).toThrow(historyError.InvalidActorId);
       }
+    );
+
+    it('keeps delegation only on the history, with UUID validation', () => {
+      const delta = {
+        entityId,
+        entityVersion: 1,
+        action: 'created',
+        diff: { before: null, after },
+        occurredAt: new Date(),
+      };
+      const history = historyValue.make(delta, userId, correlationId, entityId);
+      expect(history.onBehalfOf).toBe(entityId);
+      expect(history.diff.after).not.toHaveProperty('onBehalfOf');
+      expect(
+        historyValue.make(delta, userId, correlationId).onBehalfOf
+      ).toBeNull();
+      expect(() =>
+        historyValue.make(delta, userId, correlationId, 'invalid' as TEntityId)
+      ).toThrow(historyError.InvalidOnBehalfOf);
     });
 
     it('rejects invalid actions', () => {
@@ -248,36 +229,6 @@ describe('history.vo', () => {
           )
         ).toThrow(historyError.InvalidDiff);
       }
-    });
-  });
-
-  describe('helpers', () => {
-    it('getUserActor returns valid user actor and validates userId', () => {
-      const actor = historyValue.getUserActor(userId);
-      expect(actor).toEqual({
-        userId,
-        type: EHistoryActorType.User,
-      });
-
-      expect(() =>
-        historyValue.getUserActor('invalid-uuid' as TEntityId)
-      ).toThrow(historyError.InvalidActor);
-    });
-
-    it('getSystemActor returns system actor', () => {
-      const actor = historyValue.getSystemActor();
-      expect(actor).toEqual({
-        userId: null,
-        type: EHistoryActorType.System,
-      });
-    });
-
-    it('getMigrationActor returns migration actor', () => {
-      const actor = historyValue.getMigrationActor();
-      expect(actor).toEqual({
-        userId: null,
-        type: EHistoryActorType.Migration,
-      });
     });
   });
 });

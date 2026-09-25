@@ -1,12 +1,12 @@
 import { TEntityId } from '@shared/types/uuid';
 import zodValidationRunner from '@shared/utils/zod-validation-runner';
-import appError from '@shared/values/errors/app.error';
 import { IPaginationDto } from '@shared/values/pagination/dto/pagination.dto';
 import paginationMapper from '@shared/values/pagination/dto/pagination.dto.mapper';
 import { paginationDtoValidation } from '@shared/values/pagination/dto/pagination.dto.validation';
 import { IPaginatedResponse } from '@shared/values/pagination/types/pagination.types';
 
 import ledgerBalanceEffectRule from '@domain/accounting/rules/ledger-balance-effect.rule';
+import IAccountingEntityService from '@domain/accounting/types/accounting-entity.service.types';
 import ILedgerAccountRepo from '@domain/ledger/repos/ledger-account.repo';
 
 import IAppContext from '@app/context/contracts/app-context.contract';
@@ -16,6 +16,7 @@ import accountTransactionMapper from '@app/ledger/dtos/account-transaction/accou
 import ledgerAppError from '@app/ledger/errors/ledger.error';
 
 interface IDependencies {
+  accountingEntityService: IAccountingEntityService;
   appContext: IAppContext;
   ledgerAccountRepo: ILedgerAccountRepo;
   accountTransactionQueryRepo: IAccountTransactionQueryRepo;
@@ -33,6 +34,8 @@ export default function makeGetAccountTransactionsUseCase(deps: IDependencies) {
       'accountingEntity',
     ]);
 
+    deps.accountingEntityService.validateAccess(accountingEntity, user.id);
+
     const repoOptions = { correlationId };
 
     const ledgerAccount = await deps.ledgerAccountRepo.findById(
@@ -43,12 +46,6 @@ export default function makeGetAccountTransactionsUseCase(deps: IDependencies) {
 
     if (!ledgerAccount) {
       throw new ledgerAppError.AccountNotFound();
-    }
-
-    const canAccessAccount = ledgerAccount?.createdBy === user.id;
-
-    if (!canAccessAccount) {
-      throw new appError.Forbidden();
     }
 
     const transactions =

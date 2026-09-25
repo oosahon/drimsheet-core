@@ -14,6 +14,7 @@ describe('User Auth Mapper', () => {
   describe('toRepo', () => {
     it('maps user auth to a repo model', () => {
       const userAuth: IUserAuth = {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         userId,
         version: 1,
         password: 'hashed-password',
@@ -24,6 +25,7 @@ describe('User Auth Mapper', () => {
       };
 
       expect(userAuthMapper.toRepo(userAuth)).toEqual({
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         userId,
         version: 1,
         password: 'hashed-password',
@@ -36,6 +38,7 @@ describe('User Auth Mapper', () => {
 
     it('maps a null password to repo null', () => {
       const userAuth: IUserAuth = {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         userId,
         version: 1,
         password: null,
@@ -52,6 +55,7 @@ describe('User Auth Mapper', () => {
   describe('toDomain', () => {
     it('maps a repo model to user auth', () => {
       const model: IUserAuthModel = {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         userId,
         version: 2,
         password: 'hashed-password',
@@ -62,6 +66,7 @@ describe('User Auth Mapper', () => {
       };
 
       expect(userAuthMapper.toDomain(model)).toEqual({
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         userId,
         version: 2,
         password: 'hashed-password',
@@ -74,6 +79,7 @@ describe('User Auth Mapper', () => {
 
     it('defaults nullable repo fields for the domain shape', () => {
       const model: IUserAuthModel = {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         userId,
         version: 3,
         password: null,
@@ -84,6 +90,7 @@ describe('User Auth Mapper', () => {
       };
 
       expect(userAuthMapper.toDomain(model)).toEqual({
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         userId,
         version: 3,
         password: null,

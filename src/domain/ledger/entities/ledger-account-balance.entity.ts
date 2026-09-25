@@ -17,13 +17,20 @@ import moneyValue from '@domain/money/values/money.vo';
 
 interface IMakePayload extends Pick<
   ILedgerAccountBalance,
-  'ledgerAccountId' | 'accountingEntityId' | 'accountMaterializedPath'
+  | 'createdBy'
+  | 'ledgerAccountId'
+  | 'accountingEntityId'
+  | 'accountMaterializedPath'
 > {
   currencyCode: string;
   functionalCurrencyCode: string;
 }
 
 function make(payload: IMakePayload): ILedgerAccountBalance {
+  stringUtils.validateUUID(
+    payload.createdBy,
+    ledgerAccountBalanceError.InvalidCreatedBy
+  );
   stringUtils.validateUUID(
     payload.ledgerAccountId,
     ledgerAccountBalanceError.InvalidLedgerAccountId
@@ -48,6 +55,7 @@ function make(payload: IMakePayload): ILedgerAccountBalance {
   const timestamp = new Date();
 
   return Object.freeze({
+    createdBy: payload.createdBy,
     ledgerAccountId: payload.ledgerAccountId,
     accountingEntityId: payload.accountingEntityId,
     accountMaterializedPath: payload.accountMaterializedPath,
@@ -68,6 +76,7 @@ function updateBalance(
   moneyValue.validate(functionalDelta);
 
   return Object.freeze({
+    createdBy: existingBalance.createdBy,
     ledgerAccountId: existingBalance.ledgerAccountId,
     accountingEntityId: existingBalance.accountingEntityId,
     accountMaterializedPath: existingBalance.accountMaterializedPath,
@@ -100,7 +109,7 @@ function adjust(
 
   stringUtils.validateUUID(
     payload.createdBy,
-    ledgerAccountBalanceError.InvalidCreatorId
+    ledgerAccountBalanceError.InvalidCreatedBy
   );
 
   const effect = getLedgerAccountBalanceEffect(payload.amount);

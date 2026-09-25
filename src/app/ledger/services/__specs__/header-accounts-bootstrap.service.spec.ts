@@ -32,6 +32,7 @@ import {
 import makeHeaderAccountsBootstrapService from '@app/ledger/services/header-accounts-bootstrap.service';
 
 const accountingEntity = {
+  createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
   id: '123e4567-e89b-12d3-a456-426614174001' as TEntityId,
   ownerId: '123e4567-e89b-12d3-a456-426614174002' as TEntityId,
   type: EAccountingEntityType.Individual,
@@ -43,6 +44,7 @@ function makeAuditedAccount(
   name: string
 ): TAuditedEntity<ILedgerAccount, ILedgerAccount, ILedgerAccount> {
   const account = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     id: `${name}-id` as TEntityId,
     name,
   } as ILedgerAccount;
@@ -173,7 +175,11 @@ describe('headerAccountsBootstrapService', () => {
   });
 
   it('creates the complete foundational catalog in deterministic order', async () => {
-    const result = await service.bootstrap(accountingEntity, repoOptions);
+    const result = await service.bootstrap(
+      accountingEntity,
+      'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      repoOptions
+    );
 
     expect(result.entries.map(({ account }) => account.name)).toEqual(
       expectedHeaderNames
@@ -211,7 +217,7 @@ describe('headerAccountsBootstrapService', () => {
     expect(mockAssetAccountService.createHeader).toHaveBeenCalledWith(
       {
         name: 'Cash and Cash Equivalents',
-        userId: accountingEntity.ownerId,
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         accountingEntity,
       },
       repoOptions
@@ -224,7 +230,11 @@ describe('headerAccountsBootstrapService', () => {
     );
 
     await expect(
-      service.bootstrap(accountingEntity, repoOptions)
+      service.bootstrap(
+        accountingEntity,
+        'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        repoOptions
+      )
     ).rejects.toThrow('header failed');
     expect(mockShortTermLoanAccountService.createHeader).not.toHaveBeenCalled();
   });

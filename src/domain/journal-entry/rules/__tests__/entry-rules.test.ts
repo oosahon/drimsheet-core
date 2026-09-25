@@ -1,3 +1,4 @@
+import { TEntityId } from '@shared/types/uuid';
 import generateUUID from '@shared/utils/uuid-generator';
 
 import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
@@ -71,6 +72,7 @@ describe('journal entry rules', () => {
   const currency = SYSTEM_CURRENCIES.NGN;
 
   const accountingEntity = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     id: accountingEntityId,
     ownerId: createdBy,
     functionalCurrencyCode: currency.code,
@@ -109,7 +111,7 @@ describe('journal entry rules', () => {
     [cashAccount] = await cashAccountService.createHeader(
       {
         name: 'Cash on Hand',
-        userId: createdBy,
+        createdBy: createdBy,
         accountingEntity,
       },
       repoOptions
@@ -118,7 +120,7 @@ describe('journal entry rules', () => {
     [receivableAccount] = await receivablesAccountService.createHeader(
       {
         name: 'Receivables',
-        userId: createdBy,
+        createdBy: createdBy,
         accountingEntity,
       },
       repoOptions
@@ -127,7 +129,7 @@ describe('journal entry rules', () => {
     [liabilityAccount] = await payablesAccountService.createHeader(
       {
         name: 'Accounts Payable',
-        createdBy,
+        createdBy: createdBy,
         accountingEntity,
       },
       repoOptions
@@ -137,7 +139,7 @@ describe('journal entry rules', () => {
       await equityAccountService.createOpeningBalanceAccount(
         {
           name: 'Opening Balance Equity',
-          createdBy,
+          createdBy: createdBy,
           accountingEntity,
         },
         repoOptions
@@ -148,7 +150,7 @@ describe('journal entry rules', () => {
       {
         name: 'Service Revenue',
         accountingEntity,
-        createdBy,
+        createdBy: createdBy,
       },
       repoOptions
     );

@@ -103,6 +103,7 @@ describe('counterpartyValidation', () => {
   describe('validateCounterparty', () => {
     it('should pass for a valid counterparty entity', () => {
       const validCounterparty: ICounterparty = {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         id: validUUID,
         accountingEntityId: validUUID2,
         name: 'Jane Doe',
@@ -140,6 +141,7 @@ describe('counterpartyValidation', () => {
 
     it('should throw InvalidRole if roles is not an array', () => {
       const invalidCounterparty = {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         id: validUUID,
         accountingEntityId: validUUID2,
         name: 'Jane Doe',

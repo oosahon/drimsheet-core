@@ -16,6 +16,7 @@ const reportingPeriodMapper = {
   toRepo(domain: IReportingPeriod): IReportingPeriodRepoModel {
     return {
       id: domain.id,
+      createdBy: domain.createdBy,
       name: domain.name,
       accountingEntityId: domain.accountingEntityId,
       fiscalYearId: domain.fiscalYearId,

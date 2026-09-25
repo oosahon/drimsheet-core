@@ -8,6 +8,7 @@ import fiscalYearMapper from '@infra/persistence/repos/accounting/mappers/fiscal
 describe('fiscalYearMapper', () => {
   it('should map IFiscalYear to IFiscalYearRepoModel', () => {
     const domain: IFiscalYear = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: 'uuid-1' as TEntityId,
       name: 'FY 2026',
       status: EPeriodStatus.Open,
@@ -21,6 +22,7 @@ describe('fiscalYearMapper', () => {
     const result = fiscalYearMapper.toRepo(domain);
 
     expect(result).toEqual({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: 'uuid-1',
       name: 'FY 2026',
       accountingEntityId: 'entity-1',
@@ -36,6 +38,7 @@ describe('fiscalYearMapper', () => {
 
   it('should map IFiscalYear to IFiscalYearRepoModel with closedAt', () => {
     const domain: IFiscalYear = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: 'uuid-1' as TEntityId,
       name: 'FY 2026',
       status: EPeriodStatus.Closed,

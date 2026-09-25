@@ -1,5 +1,6 @@
 import { ColumnDefinitions, MigrationBuilder } from 'node-pg-migrate';
 
+import { actorsTable } from '../config/actors';
 import { currenciesTable } from '../config/currencies';
 import { journalEntriesTable } from '../config/journal-entries';
 import {
@@ -7,7 +8,6 @@ import {
   ledgerAccountBalanceEffectType,
 } from '../config/ledger-account-balances';
 import { ledgerAccountsTable } from '../config/ledger-accounts';
-import { usersTable } from '../config/users';
 import toSchemaString from '../utils/to-schema-string';
 
 export const shorthands: ColumnDefinitions | undefined = undefined;
@@ -20,6 +20,12 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
   ]);
 
   pgm.createTable(ledgerAccountBalanceAdjustmentsTable, {
+    created_by: {
+      type: 'uuid',
+      notNull: true,
+      references: actorsTable,
+      onDelete: 'RESTRICT',
+    },
     id: {
       type: 'uuid',
       primaryKey: true,
@@ -67,13 +73,6 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
     effect: {
       type: toSchemaString(ledgerAccountBalanceEffectType),
       notNull: true,
-    },
-
-    created_by: {
-      type: 'uuid',
-      notNull: true,
-      references: usersTable,
-      onDelete: 'CASCADE',
     },
 
     created_at: {

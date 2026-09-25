@@ -56,7 +56,7 @@ export default function makeCreateTransferUsecase(deps: IDependencies) {
     const { correlationId, accountingEntity, user, idempotencyKey } =
       deps.appContext.get(['user', 'accountingEntity']);
 
-    const userActor = historyValue.getUserActor(user.id);
+    const userActor = user.actorId;
 
     const repoOptions = { correlationId, idempotencyKey };
 
@@ -88,6 +88,7 @@ export default function makeCreateTransferUsecase(deps: IDependencies) {
       await deps.counterpartyAppService.findOrCreateMany(
         chargeCounterpartiesPayload,
         accountingEntity.id,
+        user.actorId,
         repoOptions
       );
 
@@ -120,7 +121,7 @@ export default function makeCreateTransferUsecase(deps: IDependencies) {
       effectiveDate: payload.effectiveDate,
       postedAt: payload.postedAt,
       functionalCurrencyCode: accountingEntity.functionalCurrencyCode,
-      createdBy: user.id,
+      createdBy: user.actorId,
     };
 
     const transferPayload: ICreateTransferEntryPayload = {

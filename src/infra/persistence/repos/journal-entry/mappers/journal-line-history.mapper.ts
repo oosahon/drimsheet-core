@@ -28,8 +28,8 @@ const journalLineHistoryMapper = {
       journalLineId: history.entityId,
       journalEntryId: line.entryId,
       accountingEntityId,
-      userId: history.actor.userId,
-      actorType: history.actor.type,
+      actorId: history.actorId,
+      onBehalfOf: history.onBehalfOf,
       action: history.action,
       diff: {
         before: mapSnapshot(history.diff.before),

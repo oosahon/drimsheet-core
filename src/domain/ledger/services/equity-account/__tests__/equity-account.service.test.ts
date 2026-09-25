@@ -1,4 +1,5 @@
 import { IReadRepoOptions } from '@shared/types/repo.types';
+import { TEntityId } from '@shared/types/uuid';
 import generateUUID from '@shared/utils/uuid-generator';
 
 import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
@@ -40,6 +41,7 @@ describe('equityAccountService', () => {
   });
   const createdBy = generateUUID();
   const accountingEntity = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     id: generateUUID(),
     ownerId: createdBy,
     functionalCurrencyCode: SYSTEM_CURRENCIES.USD.code,
@@ -64,7 +66,7 @@ describe('equityAccountService', () => {
     const [account, events, audit] = await service.createOpeningBalanceAccount(
       {
         name: 'Opening Balance Equity',
-        createdBy,
+        createdBy: createdBy,
         accountingEntity,
       },
       repoOptions
@@ -91,7 +93,7 @@ describe('equityAccountService', () => {
       status: ELedgerAccountStatus.Active,
       contraAccountRule: EContraAccountRule.ContraNotPermitted,
       adjunctAccountRule: EAdjunctAccountRule.AdjunctNotPermitted,
-      createdBy,
+      createdBy: createdBy,
     });
     expect(Object.isFrozen(account)).toBe(true);
     expect(events).toHaveLength(1);
@@ -115,7 +117,7 @@ describe('equityAccountService', () => {
       status: ELedgerAccountStatus.Active,
       contraAccountRule: EContraAccountRule.ContraNotPermitted,
       adjunctAccountRule: EAdjunctAccountRule.AdjunctNotPermitted,
-      createdBy,
+      createdBy: createdBy,
     })[0];
     mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(existing);
 
@@ -123,7 +125,7 @@ describe('equityAccountService', () => {
       service.createOpeningBalanceAccount(
         {
           name: 'Opening Balance Equity',
-          createdBy,
+          createdBy: createdBy,
           accountingEntity,
         },
         repoOptions
@@ -142,7 +144,7 @@ describe('equityAccountService', () => {
       await service.createRetainedEarningsAccount(
         {
           name: 'Retained Earnings',
-          createdBy,
+          createdBy: createdBy,
           accountingEntity,
         },
         repoOptions
@@ -169,7 +171,7 @@ describe('equityAccountService', () => {
       status: ELedgerAccountStatus.Active,
       contraAccountRule: EContraAccountRule.ContraNotPermitted,
       adjunctAccountRule: EAdjunctAccountRule.AdjunctNotPermitted,
-      createdBy,
+      createdBy: createdBy,
     });
     expect(Object.isFrozen(account)).toBe(true);
     expect(events).toHaveLength(1);
@@ -193,7 +195,7 @@ describe('equityAccountService', () => {
       status: ELedgerAccountStatus.Active,
       contraAccountRule: EContraAccountRule.ContraNotPermitted,
       adjunctAccountRule: EAdjunctAccountRule.AdjunctNotPermitted,
-      createdBy,
+      createdBy: createdBy,
     })[0];
     mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(existing);
 
@@ -201,7 +203,7 @@ describe('equityAccountService', () => {
       service.createRetainedEarningsAccount(
         {
           name: 'Retained Earnings',
-          createdBy,
+          createdBy: createdBy,
           accountingEntity,
         },
         repoOptions

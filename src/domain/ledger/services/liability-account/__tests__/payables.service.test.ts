@@ -1,4 +1,5 @@
 import { IReadRepoOptions } from '@shared/types/repo.types';
+import { TEntityId } from '@shared/types/uuid';
 import generateUUID from '@shared/utils/uuid-generator';
 
 import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
@@ -38,6 +39,7 @@ describe('payablesAccountService', () => {
   const service = makePayablesAccountService({ ledgerAccountRepo });
   const createdBy = generateUUID();
   const accountingEntity = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     id: generateUUID(),
     ownerId: createdBy,
     functionalCurrencyCode: SYSTEM_CURRENCIES.USD.code,
@@ -65,7 +67,7 @@ describe('payablesAccountService', () => {
       status: ELedgerAccountStatus.Active,
       contraAccountRule: EContraAccountRule.ContraPermitted,
       adjunctAccountRule: EAdjunctAccountRule.AdjunctPermitted,
-      createdBy,
+      createdBy: createdBy,
       ...overrides,
     })[0];
 
@@ -85,7 +87,7 @@ describe('payablesAccountService', () => {
     const [account, events, audit] = await service.createHeader(
       {
         name: 'Payables',
-        createdBy,
+        createdBy: createdBy,
         accountingEntity,
       },
       repoOptions
@@ -112,7 +114,7 @@ describe('payablesAccountService', () => {
       status: ELedgerAccountStatus.Active,
       contraAccountRule: EContraAccountRule.ContraPermitted,
       adjunctAccountRule: EAdjunctAccountRule.AdjunctPermitted,
-      createdBy,
+      createdBy: createdBy,
     });
     expect(Object.isFrozen(account)).toBe(true);
     expect(events).toHaveLength(1);
@@ -127,7 +129,7 @@ describe('payablesAccountService', () => {
       service.createHeader(
         {
           name: 'Payables',
-          createdBy,
+          createdBy: createdBy,
           accountingEntity,
         },
         repoOptions
@@ -147,7 +149,7 @@ describe('payablesAccountService', () => {
       await service.createStatutoryPayableSubAccount(
         {
           name: 'Personal Income Tax',
-          createdBy,
+          createdBy: createdBy,
           accountingEntity,
           currency: SYSTEM_CURRENCIES.USD,
           isControlAccount: false,
@@ -189,13 +191,14 @@ describe('payablesAccountService', () => {
     const invoiceId = generateUUID();
     ledgerAccountRepo.findByCode.mockResolvedValueOnce(controlAccount);
     ledgerAccountRepo.findLatestBySubType.mockResolvedValueOnce({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       code: '201099',
     } as ILedgerAccount);
 
     const [account] = await service.createTradePayableSubAccount(
       {
         name: 'Supplier Invoice',
-        createdBy,
+        createdBy: createdBy,
         accountingEntity,
         isControlAccount: false,
         controlAccountCode: controlAccount.code,
@@ -224,7 +227,7 @@ describe('payablesAccountService', () => {
       service.createTradePayableSubAccount(
         {
           name: 'Supplier Invoice',
-          createdBy,
+          createdBy: createdBy,
           accountingEntity,
           isControlAccount: false,
           controlAccountCode: LIABILITY_LEDGER_CODES.PAYABLES.HEADER,
@@ -249,7 +252,7 @@ describe('payablesAccountService', () => {
     const [account] = await service.createTradePayableSubAccount(
       {
         name: 'Nested Trade Payable',
-        createdBy,
+        createdBy: createdBy,
         accountingEntity,
         isControlAccount: false,
         controlAccountCode: controlAccount.code,
@@ -278,7 +281,7 @@ describe('payablesAccountService', () => {
       service.createStatutoryPayableSubAccount(
         {
           name: 'Tax Payable',
-          createdBy,
+          createdBy: createdBy,
           accountingEntity,
           currency: SYSTEM_CURRENCIES.USD,
           isControlAccount: false,
@@ -307,7 +310,7 @@ describe('payablesAccountService', () => {
       service.createTradePayableSubAccount(
         {
           name: 'Supplier Invoice',
-          createdBy,
+          createdBy: createdBy,
           accountingEntity,
           isControlAccount: false,
           controlAccountCode: LIABILITY_LEDGER_CODES.PAYABLES.HEADER,

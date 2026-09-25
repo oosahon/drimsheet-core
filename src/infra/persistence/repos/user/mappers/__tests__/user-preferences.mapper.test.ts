@@ -11,6 +11,7 @@ describe('User Preferences Mapper', () => {
     '123e4567-e89b-12d3-a456-426614174001' as TEntityId;
 
   const preferences: IUserPreferences = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     userId: '123e4567-e89b-12d3-a456-426614174000' as TEntityId,
     lastActiveAccountingEntityId,
     appPreferences: {
@@ -22,6 +23,7 @@ describe('User Preferences Mapper', () => {
   };
 
   const repoModel: Parameters<typeof userPreferencesMapper.toDomain>[0] = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     id: '123e4567-e89b-12d3-a456-426614174000',
     lastActiveAccountingEntityId,
     appPreferences: {

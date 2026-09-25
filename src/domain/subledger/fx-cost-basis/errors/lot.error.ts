@@ -3,6 +3,7 @@ import errorUtils from '@shared/utils/error';
 import DomainError from '@shared/values/errors/domain.error';
 
 const EErrorKeys = {
+  InvalidCreatedBy: 'fx_cost_basis_lot_error_created_by_invalid',
   InvalidLedgerAccountId: 'fx_cost_basis_lot_error_ledger_account_id_invalid',
   InvalidAccountingEntityId:
     'fx_cost_basis_lot_error_accounting_entity_id_invalid',

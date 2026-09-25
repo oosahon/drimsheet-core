@@ -7,12 +7,12 @@ import getDbQuery from '@infra/persistence/helpers/get-db-query';
 import currencyMapper from '@infra/persistence/repos/money/mappers/currency.mapper';
 
 const currencyRepo: ICurrencyRepo = {
-  create: async (payload, options) => {
+  create: async (payload, createdBy, options) => {
     const dbQuery = getDbQuery(options);
 
     await dbQuery
       .insert(currencies)
-      .values(currencyMapper.toRepo(payload))
+      .values(currencyMapper.toRepo(payload, createdBy))
       .onConflictDoNothing();
   },
 

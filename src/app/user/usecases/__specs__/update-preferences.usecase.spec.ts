@@ -22,7 +22,11 @@ describe('makeUpdateUserPreferencesUsecase', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockAppContext.get.mockReturnValue({
-      user: { id: userId } as IUser,
+      user: {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        id: userId,
+      } as IUser,
       correlationId,
     } as ReturnType<typeof mockAppContext.get>);
   });
@@ -40,6 +44,7 @@ describe('makeUpdateUserPreferencesUsecase', () => {
       appUsageMode: EAppUsageModePreference.NonPowerUser,
     };
     const updatedPreferences: IUserPreferences = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       userId,
       lastActiveAccountingEntityId: null,
       appPreferences,
@@ -51,7 +56,11 @@ describe('makeUpdateUserPreferencesUsecase', () => {
     await expect(usecase(appPreferences)).resolves.toEqual(updatedPreferences);
 
     expect(mockUserPreferencesService.update).toHaveBeenCalledWith(
-      { userId, appPreferences },
+      {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        userId,
+        appPreferences,
+      },
       { correlationId }
     );
   });

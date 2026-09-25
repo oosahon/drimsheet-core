@@ -57,6 +57,7 @@ export default function makeAccountingEntityService(
     );
 
     const accountingEntity = accountingEntityEntity.make({
+      createdBy: input.createdBy,
       name: input.name,
       type: input.type,
       ownerId: input.ownerId,
@@ -64,6 +65,7 @@ export default function makeAccountingEntityService(
       jurisdictionCode: input.jurisdictionCode,
     });
     const fiscalYear = fiscalYearEntity.make({
+      createdBy: input.createdBy,
       accountingEntityId: accountingEntity[0].id,
       startDate: input.fiscalYear.startDate,
       endDate: input.fiscalYear.endDate,
@@ -71,6 +73,7 @@ export default function makeAccountingEntityService(
     });
 
     const accountingPeriods = accountingPeriodEntity.make({
+      createdBy: input.createdBy,
       accountingEntityId: accountingEntity[0].id,
       unit: input.accountingPeriod.unit,
       count: input.accountingPeriod.count,
@@ -83,6 +86,7 @@ export default function makeAccountingEntityService(
       ) ?? accountingPeriods[0][0];
 
     const accountingContext = accountingContextEntity.make({
+      createdBy: input.createdBy,
       name: 'Default Accounting Context',
       description: null,
       accountingEntityId: accountingEntity[0].id,
@@ -92,6 +96,7 @@ export default function makeAccountingEntityService(
     });
 
     const reportingPeriods = reportingPeriodEntity.make({
+      createdBy: input.createdBy,
       accountingEntityId: accountingEntity[0].id,
       unit: input.reportingPeriod.unit,
       count: input.reportingPeriod.count,
@@ -104,6 +109,7 @@ export default function makeAccountingEntityService(
       ) ?? reportingPeriods[0][0];
 
     const reportingContext = reportingContextEntity.make({
+      createdBy: input.createdBy,
       name: 'Default Reporting Context',
       description: null,
       accountingEntityId: accountingEntity[0].id,

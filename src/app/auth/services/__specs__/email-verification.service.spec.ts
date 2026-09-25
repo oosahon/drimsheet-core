@@ -14,6 +14,8 @@ import mockTransactionalEmailService from '@app/notification/contracts/__mocks__
 describe('makeEmailVerificationService', () => {
   const correlationId = 'test-corr-id';
   const user: IUser = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+    actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     id: 'test-user-id' as TEntityId,
     version: 1,
     email: emailValue.make('unverified@example.com'),

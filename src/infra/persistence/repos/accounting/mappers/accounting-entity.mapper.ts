@@ -17,6 +17,7 @@ export interface IAccountingEntityModel extends InferSelectModel<
 const accountingEntityMapper = {
   toRepo(entity: IAccountingEntity): IAccountingEntityModel {
     return {
+      createdBy: entity.createdBy as TEntityId,
       id: entity.id,
       ownerId: entity.ownerId,
       name: entity.name,
@@ -30,6 +31,7 @@ const accountingEntityMapper = {
 
   toDomain(payload: IAccountingEntityModel): IAccountingEntity {
     return Object.freeze({
+      createdBy: payload.createdBy as TEntityId,
       id: payload.id as TEntityId,
       ownerId: payload.ownerId as TEntityId,
       name: payload.name,

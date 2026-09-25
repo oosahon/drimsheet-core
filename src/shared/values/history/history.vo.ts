@@ -4,37 +4,11 @@ import numberUtils from '@shared/utils/number';
 import safeJSON from '@shared/utils/safe-json';
 import stringUtils from '@shared/utils/string';
 import {
-  EHistoryActorType,
   IEntityDelta,
   IHistory,
-  IHistoryActor,
-  IUserHistoryActor,
 } from '@shared/values/history/types/history.types';
 
 import historyError from './history.error';
-
-function validateActor(actor: IHistoryActor) {
-  const isValidActorType = Object.values(EHistoryActorType).includes(
-    actor.type
-  );
-
-  if (!isValidActorType) {
-    throw new historyError.InvalidActor({ actor });
-  }
-
-  if (actor.type === EHistoryActorType.User) {
-    if (actor.userId === null) {
-      throw new historyError.InvalidActor({ actor });
-    }
-
-    stringUtils.validateUUID(actor.userId, historyError.InvalidActor);
-    return;
-  }
-
-  if (actor.userId !== null) {
-    throw new historyError.InvalidActor({ actor });
-  }
-}
 
 function isSnapshot(value: unknown): value is object {
   return (
@@ -64,8 +38,9 @@ function validateSnapshots<TSnapshot extends object>(
 
 function make<T extends object>(
   delta: IEntityDelta<T>,
-  actor: IHistoryActor,
-  correlationId: string
+  actorId: TEntityId,
+  correlationId: string,
+  onBehalfOf: TEntityId | null = null
 ): IHistory<T> {
   stringUtils.validateUUID(delta.entityId, historyError.InvalidEntityId);
 
@@ -85,7 +60,10 @@ function make<T extends object>(
   );
   validateSnapshots(delta.diff.before, delta.diff.after);
   dateUtils.validateDate(delta.occurredAt, historyError.InvalidDate);
-  validateActor(actor);
+  stringUtils.validateUUID(actorId, historyError.InvalidActorId);
+  if (onBehalfOf !== null) {
+    stringUtils.validateUUID(onBehalfOf, historyError.InvalidOnBehalfOf);
+  }
   stringUtils.validateIsNonEmptyString(
     correlationId,
     historyError.InvalidCorrelationId
@@ -97,40 +75,16 @@ function make<T extends object>(
     action: delta.action,
     diff: safeJSON.normalize(delta.diff),
     occurredAt: delta.occurredAt,
-    actor: actor,
+    actorId,
+    onBehalfOf,
     correlationId,
   };
 
   return Object.freeze(history);
 }
 
-function getUserActor(userId: TEntityId): IUserHistoryActor {
-  stringUtils.validateUUID(userId, historyError.InvalidActor);
-  return {
-    userId,
-    type: EHistoryActorType.User,
-  };
-}
-
-function getSystemActor(): IHistoryActor {
-  return {
-    userId: null,
-    type: EHistoryActorType.System,
-  };
-}
-
-function getMigrationActor(): IHistoryActor {
-  return {
-    userId: null,
-    type: EHistoryActorType.Migration,
-  };
-}
-
 const historyValue = Object.freeze({
   make,
-  getUserActor,
-  getSystemActor,
-  getMigrationActor,
 });
 
 export default historyValue;

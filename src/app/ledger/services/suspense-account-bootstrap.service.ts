@@ -1,3 +1,4 @@
+import { TEntityId } from '@shared/types/uuid';
 import { TAuditedEntity } from '@shared/values/events/types/event.types';
 
 import { ILedgerAccount } from '@domain/ledger/types/ledger.types';
@@ -30,6 +31,7 @@ export default function makeSuspenseAccountBootstrapService(
 ): ISuspenseAccountBootstrapService {
   const bootstrap: ISuspenseAccountBootstrapService['bootstrap'] = async (
     accountingEntity,
+    createdBy,
     repoOptions
   ) => {
     const functionalCurrency = currencyEntity.getByCode(
@@ -38,7 +40,7 @@ export default function makeSuspenseAccountBootstrapService(
     const payload = {
       accountingEntityId: accountingEntity.id,
       currency: functionalCurrency,
-      createdBy: accountingEntity.ownerId,
+      createdBy: createdBy,
     };
     const bootstrapResult: ILedgerAccountBootstrapResult = {
       entries: [],

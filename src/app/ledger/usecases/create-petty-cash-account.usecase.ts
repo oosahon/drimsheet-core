@@ -59,7 +59,7 @@ export default function makeCreatePettyCashAccountUseCase(deps: IDependencies) {
       'user',
       'accountingEntity',
     ]);
-    const actor = historyValue.getUserActor(user.id);
+    const actor = user.actorId;
     const repoOptions = { correlationId };
 
     // Validate data
@@ -93,7 +93,7 @@ export default function makeCreatePettyCashAccountUseCase(deps: IDependencies) {
           name: payload.name,
           currency: currencyEntity.getByCode(payload.currencyCode),
           isControlAccount: payload.isControlAccount,
-          userId: user.id,
+          createdBy: user.actorId,
           accountingEntity,
           controlAccountCode: controlAccount.code,
         },
@@ -122,7 +122,7 @@ export default function makeCreatePettyCashAccountUseCase(deps: IDependencies) {
           amount: moneyMapper.fromDto(payload.openingBalance.amount),
           effectiveDate: payload.openingBalance.date,
           exchangeRate,
-          createdBy: user.id,
+          createdBy: user.actorId,
         },
         repoOptions
       );

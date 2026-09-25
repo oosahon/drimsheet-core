@@ -42,10 +42,16 @@ function make(
     fxCostBasisLotError.InvalidAcquisitionDate
   );
 
+  stringUtils.validateUUID(
+    payload.createdBy,
+    fxCostBasisLotError.InvalidCreatedBy
+  );
+
   const timestamp = new Date();
 
   const entity: IFxCostBasisLot = Object.freeze({
     id: generateUUID(),
+    createdBy: payload.createdBy,
     ledgerAccountId: payload.ledgerAccountId,
     accountingEntityId: payload.accountingEntityId,
     status: payload.status,
@@ -102,6 +108,7 @@ function consume(
 
   const entity: IFxCostBasisLot = Object.freeze({
     id: lot.id,
+    createdBy: lot.createdBy,
     ledgerAccountId: lot.ledgerAccountId,
     accountingEntityId: lot.accountingEntityId,
     status,
@@ -152,6 +159,7 @@ function reverseAcquisition(
   const timestamp = new Date();
   const entity: IFxCostBasisLot = Object.freeze({
     id: lot.id,
+    createdBy: lot.createdBy,
     ledgerAccountId: lot.ledgerAccountId,
     accountingEntityId: lot.accountingEntityId,
     status,
@@ -189,6 +197,7 @@ function reverseDisposition(
   const timestamp = new Date();
   const entity: IFxCostBasisLot = Object.freeze({
     id: lot.id,
+    createdBy: lot.createdBy,
     ledgerAccountId: lot.ledgerAccountId,
     accountingEntityId: lot.accountingEntityId,
     status: EFxCostBasisLotStatus.Open,

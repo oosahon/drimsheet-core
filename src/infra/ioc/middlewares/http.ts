@@ -3,6 +3,7 @@ import vars from '@infra/config/vars.config';
 import featureFlagService from '@infra/integrations/launchdarkly/launchdarkly-feature-flag.service';
 import { accountingEntityService } from '@infra/ioc/services/accounting';
 import { tokenService } from '@infra/ioc/services/auth';
+import { actorService } from '@infra/ioc/services/user';
 import { oAuthUseCase } from '@infra/ioc/usecases/auth';
 import observability from '@infra/observability';
 import accountingRepos from '@infra/persistence/repos/accounting';
@@ -45,7 +46,8 @@ const httpMiddlewares = {
     appContext,
     accountingRepos.accountingEntity,
     tokenService,
-    userRepos.user
+    userRepos.user,
+    actorService
   ),
 
   errorHandler: makeErrorHandlerMiddleware(),

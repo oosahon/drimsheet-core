@@ -21,6 +21,7 @@ export interface IFxCostBasisLotModel extends InferSelectModel<
 const fxCostBasisLot = {
   toRepo(payload: IFxCostBasisLot): IFxCostBasisLotModel {
     return {
+      createdBy: payload.createdBy as TEntityId,
       id: payload.id as TEntityId,
       ledgerAccountId: payload.ledgerAccountId as TEntityId,
       accountingEntityId: payload.accountingEntityId as TEntityId,
@@ -34,7 +35,7 @@ const fxCostBasisLot = {
       costBasisCurrency: payload.costBasis.currency.code,
       remainingCostBasisAmount: moneyMapper.toRepo(payload.remainingCostBasis)
         .amount,
-      acquisitionRate: exchangeRateMapper.toRepo(payload.acquisitionRate),
+      acquisitionRate: exchangeRateMapper.toEmbedded(payload.acquisitionRate),
       acquisitionDate: toRepoDate(payload.acquisitionDate),
       version: payload.version,
       createdAt: toRepoDate(payload.createdAt),
@@ -44,6 +45,7 @@ const fxCostBasisLot = {
 
   toDomain(payload: IFxCostBasisLotModel): IFxCostBasisLot {
     return {
+      createdBy: payload.createdBy as TEntityId,
       id: payload.id as TEntityId,
       ledgerAccountId: payload.ledgerAccountId as TEntityId,
       accountingEntityId: payload.accountingEntityId as TEntityId,

@@ -3,6 +3,7 @@ import makeGetExchangeRateUseCase from '@app/money/usecases/get-exchange-rates.u
 import makeIngestExchangeRateUseCase from '@app/money/usecases/ingest-exchange-rate.usecase';
 
 import { repoService } from '@infra/ioc/services/repo';
+import { actorService } from '@infra/ioc/services/user';
 import observability from '@infra/observability';
 import { makeTracedUseCase } from '@infra/observability/usecase-tracing';
 import currencyRepos from '@infra/persistence/repos/money';
@@ -19,6 +20,7 @@ export const getAllCurrenciesUseCase = makeTracedUseCase(
 export const ingestExchangeRateUseCase = makeTracedUseCase(
   'money.ingestExchangeRateUseCase',
   makeIngestExchangeRateUseCase({
+    actorService,
     exchangeRateRepo: currencyRepos.exchangeRate,
     repoService,
   })

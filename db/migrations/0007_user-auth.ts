@@ -1,11 +1,18 @@
 import { MigrationBuilder } from 'node-pg-migrate';
 
+import { actorsTable } from '../config/actors';
 import { userAuthTable, usersTable } from '../config/users';
 
 export const up = (pgm: MigrationBuilder) => {
   pgm.createTable(
     userAuthTable,
     {
+      created_by: {
+        type: 'uuid',
+        notNull: true,
+        references: actorsTable,
+        onDelete: 'RESTRICT',
+      },
       user_id: {
         type: 'uuid',
         primaryKey: true,
@@ -41,6 +48,7 @@ export const up = (pgm: MigrationBuilder) => {
   pgm.addConstraint(userAuthTable, 'user_auth_version_positive_ck', {
     check: 'version > 0',
   });
+  pgm.createIndex(userAuthTable, 'created_by');
 };
 
 export const down = (pgm: MigrationBuilder) => {

@@ -49,6 +49,7 @@ const journalEntryDtoMapper = {
       side: line.side,
       description: line.description,
       version: line.version,
+      createdBy: line.createdBy,
       createdAt: line.createdAt,
       updatedAt: line.updatedAt,
     };
@@ -95,6 +96,7 @@ const journalEntryDtoMapper = {
         side: line.side,
         description: line.description,
         version: line.version,
+        createdBy: line.createdBy,
         createdAt: line.createdAt,
         updatedAt: line.updatedAt,
       })),

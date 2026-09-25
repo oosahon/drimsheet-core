@@ -148,6 +148,8 @@ function makeUser({
   const timestamp = new Date('2026-01-01T00:00:00.000Z');
 
   return {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+    actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     id: '00000000-0000-0000-0000-000000000001' as TEntityId,
     version: 1,
     email,

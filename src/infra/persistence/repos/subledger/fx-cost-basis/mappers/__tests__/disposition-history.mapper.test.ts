@@ -1,5 +1,4 @@
 import { TEntityId } from '@shared/types/uuid';
-import { EHistoryActorType } from '@shared/values/history/types/history.types';
 
 import { IFxCostBasisLotDispositionHistory } from '@domain/subledger/fx-cost-basis/types/disposition.types';
 
@@ -17,22 +16,23 @@ describe('FX Cost-Basis Lot Disposition History Mapper', () => {
       action: 'created',
       diff: {
         before: null,
-        after: { accountingEntityId },
+        after: {
+          createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+          accountingEntityId,
+        },
       },
       occurredAt,
-      actor: {
-        type: EHistoryActorType.User,
-        userId,
-      },
+      actorId: userId,
+      onBehalfOf: null,
       correlationId: 'correlation-id',
     } as unknown as IFxCostBasisLotDispositionHistory;
 
     expect(fxCostBasisLotDispositionHistoryMapper.toRepo(history)).toEqual({
       dispositionId,
       accountingEntityId,
-      actorType: EHistoryActorType.User,
+      actorId: userId,
+      onBehalfOf: null,
       action: history.action,
-      userId,
       diff: history.diff,
       correlationId: history.correlationId,
       occurredAt: occurredAt.toISOString(),
@@ -44,23 +44,24 @@ describe('FX Cost-Basis Lot Disposition History Mapper', () => {
       entityId: dispositionId,
       action: 'created',
       diff: {
-        before: { accountingEntityId },
+        before: {
+          createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+          accountingEntityId,
+        },
         after: null,
       },
       occurredAt,
-      actor: {
-        type: EHistoryActorType.System,
-        userId: null,
-      },
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      onBehalfOf: null,
       correlationId: 'correlation-id',
     } as unknown as IFxCostBasisLotDispositionHistory;
 
     expect(fxCostBasisLotDispositionHistoryMapper.toRepo(history)).toEqual({
       dispositionId,
       accountingEntityId,
-      actorType: EHistoryActorType.System,
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      onBehalfOf: null,
       action: history.action,
-      userId: null,
       diff: history.diff,
       correlationId: history.correlationId,
       occurredAt: occurredAt.toISOString(),
@@ -73,13 +74,13 @@ describe('FX Cost-Basis Lot Disposition History Mapper', () => {
       action: 'created',
       diff: {
         before: null,
-        after: {},
+        after: {
+          createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        },
       },
       occurredAt,
-      actor: {
-        type: EHistoryActorType.System,
-        userId: null,
-      },
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      onBehalfOf: null,
       correlationId: 'correlation-id',
     } as unknown as IFxCostBasisLotDispositionHistory;
 

@@ -9,6 +9,7 @@ describe('Counterparty DTO Mapper', () => {
   describe('toDto', () => {
     it('should map counterparty domain entity to DTO correctly', () => {
       const mockCounterparty: ICounterparty = {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         id: 'cp-id-123' as unknown as TEntityId,
         accountingEntityId: 'ae-id-456' as unknown as TEntityId,
         name: 'John Doe',
@@ -23,6 +24,7 @@ describe('Counterparty DTO Mapper', () => {
       const dto = counterpartyDtoMapper.toDto(mockCounterparty);
 
       expect(dto).toEqual({
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         id: 'cp-id-123',
         accountingEntityId: 'ae-id-456',
         name: 'John Doe',
@@ -37,6 +39,7 @@ describe('Counterparty DTO Mapper', () => {
 
     it('should preserve roles list', () => {
       const mockCounterparty: ICounterparty = {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         id: 'cp-id-123' as unknown as TEntityId,
         accountingEntityId: 'ae-id-456' as unknown as TEntityId,
         name: 'Vendor Corp',
@@ -74,8 +77,16 @@ describe('creation input mapping', () => {
       },
     };
     const before = structuredClone(payload);
-    const mapped = counterpartyDtoMapper.fromDto(payload, accountingEntityId);
-    expect(mapped).toEqual({ ...payload, accountingEntityId });
+    const mapped = counterpartyDtoMapper.fromDto(
+      payload,
+      accountingEntityId,
+      'a1111111-1111-4111-8111-111111111111' as TEntityId
+    );
+    expect(mapped).toEqual({
+      ...payload,
+      accountingEntityId,
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+    });
     expect(mapped.meta?.employer?.displayName).toBeUndefined();
     expect(mapped.meta?.employer?.address.line2).toBeUndefined();
     expect(mapped.meta?.employer?.address).not.toBe(address);
@@ -84,11 +95,18 @@ describe('creation input mapping', () => {
 
   it('preserves omitted and empty metadata distinctly', () => {
     expect(
-      counterpartyDtoMapper.fromDto(base, accountingEntityId).meta
+      counterpartyDtoMapper.fromDto(
+        base,
+        accountingEntityId,
+        'a1111111-1111-4111-8111-111111111111' as TEntityId
+      ).meta
     ).toBeUndefined();
     expect(
-      counterpartyDtoMapper.fromDto({ ...base, meta: {} }, accountingEntityId)
-        .meta
+      counterpartyDtoMapper.fromDto(
+        { ...base, meta: {} },
+        accountingEntityId,
+        'a1111111-1111-4111-8111-111111111111' as TEntityId
+      ).meta
     ).toEqual({});
   });
 
@@ -98,7 +116,8 @@ describe('creation input mapping', () => {
       expect(
         counterpartyDtoMapper.fromDto(
           { ...base, meta: { vendor } },
-          accountingEntityId
+          accountingEntityId,
+          'a1111111-1111-4111-8111-111111111111' as TEntityId
         ).meta
       ).toEqual({ vendor });
     }
@@ -117,6 +136,7 @@ describe('complete counterparty response mapping', () => {
       ...optional,
     };
     const [counterparty] = makeCounterpartyService().create({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       accountingEntityId: '123e4567-e89b-12d3-a456-426614174001' as TEntityId,
       name: 'Company',
       type: 'organization',

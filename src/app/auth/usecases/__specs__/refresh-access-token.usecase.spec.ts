@@ -10,14 +10,20 @@ import makeRefreshAccessTokenUseCase from '@app/auth/usecases/refresh-access-tok
 import mockAppContext, {
   mockClientSession,
 } from '@app/context/contracts/__mocks__/app-context.mock';
+import { mockActorService } from '@app/user/contracts/__mocks__/actor.services.mock';
 import { mockUserRepo } from '@app/user/contracts/__mocks__/user.repos.mock';
 
 describe('refreshAccessTokenUseCase', () => {
   const correlationId = 'test-corr-id';
   const presentedRefreshToken = 'presented-refresh-token';
   const userId = '123e4567-e89b-12d3-a456-426614174000' as TEntityId;
-  const user = { id: userId } as unknown as IUser;
+  const user = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+    actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+    id: userId,
+  } as unknown as IUser;
   const userSession = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     id: '123e4567-e89b-12d3-a456-426614174001' as TEntityId,
     userId,
     refreshToken: 'replacement-refresh-token',
@@ -27,6 +33,7 @@ describe('refreshAccessTokenUseCase', () => {
 
   const getUseCase = () =>
     makeRefreshAccessTokenUseCase({
+      actorService: mockActorService,
       reqContext: mockAppContext,
       userRepo: mockUserRepo,
       tokenService: mockTokenService,

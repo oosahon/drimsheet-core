@@ -27,6 +27,7 @@ describe('reportingPeriodEntity', () => {
   describe('make', () => {
     const makePayload = () => {
       const [fiscalYear] = fiscalYearEntity.make({
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         accountingEntityId,
         startDate: new Date('2026-01-01T00:00:00.000Z'),
         endDate: new Date('2026-12-31T23:59:59.999Z'),
@@ -34,6 +35,7 @@ describe('reportingPeriodEntity', () => {
       });
 
       return {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         accountingEntityId,
         unit: EPeriodUnit.Quarter,
         count: 4,

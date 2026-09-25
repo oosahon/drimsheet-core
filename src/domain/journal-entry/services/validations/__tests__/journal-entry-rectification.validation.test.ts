@@ -1,3 +1,4 @@
+import { TEntityId } from '@shared/types/uuid';
 import generateUUID from '@shared/utils/uuid-generator';
 
 import journalEntryEntity from '@domain/journal-entry/entities/journal-entry.entity';
@@ -51,6 +52,7 @@ describe('journalEntryRectificationValidation', () => {
 
     expect(() =>
       journalEntryRectificationValidation.validatePayload({
+        actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         originalEntry,
         newEntry: { id: generateUUID(), memo: 'Corrected' },
       })
@@ -65,6 +67,7 @@ describe('journalEntryRectificationValidation', () => {
 
     expect(() =>
       journalEntryRectificationValidation.validatePayload({
+        actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         originalEntry,
         newEntry: { id: generateUUID(), memo: 'Corrected' },
       })
@@ -79,6 +82,7 @@ describe('journalEntryRectificationValidation', () => {
 
     expect(() =>
       journalEntryRectificationValidation.validatePayload({
+        actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         originalEntry,
         newEntry: { id: generateUUID(), memo: 'Corrected' },
       })
@@ -90,6 +94,7 @@ describe('journalEntryRectificationValidation', () => {
 
     expect(() =>
       journalEntryRectificationValidation.validateHasChanges({
+        actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         originalEntry,
         newEntry: {
           id: generateUUID(),
@@ -109,6 +114,7 @@ describe('journalEntryRectificationValidation', () => {
 
     expect(() =>
       journalEntryRectificationValidation.validatePayload({
+        actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         originalEntry,
         newEntry: {
           id: generateUUID(),
@@ -126,6 +132,7 @@ describe('journalEntryRectificationValidation', () => {
 
     expect(() =>
       journalEntryRectificationValidation.validateHasChanges({
+        actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         originalEntry,
         newEntry: {
           id: generateUUID(),
@@ -138,13 +145,32 @@ describe('journalEntryRectificationValidation', () => {
     ).not.toThrow();
   });
 
+  it('accepts equivalent creator attribution after serialization', () => {
+    const originalEntry = makeEntry();
+    expect(() =>
+      journalEntryRectificationValidation.validatePayload({
+        actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        originalEntry,
+        newEntry: {
+          id: generateUUID(),
+          createdBy: originalEntry.createdBy,
+          memo: 'changed',
+        },
+      })
+    ).not.toThrow();
+  });
+
   it('rejects changes to the owning fields', () => {
     const originalEntry = makeEntry();
 
     expect(() =>
       journalEntryRectificationValidation.validatePayload({
+        actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         originalEntry,
-        newEntry: { id: generateUUID(), createdBy: generateUUID() },
+        newEntry: {
+          id: generateUUID(),
+          createdBy: generateUUID(),
+        },
       })
     ).toThrow(journalEntryError.RectificationNotPermitted);
   });
@@ -154,6 +180,7 @@ describe('journalEntryRectificationValidation', () => {
 
     expect(() =>
       journalEntryRectificationValidation.validatePayload({
+        actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         originalEntry,
         newEntry: {
           id: generateUUID(),

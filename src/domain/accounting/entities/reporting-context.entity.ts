@@ -42,10 +42,13 @@ function make(
   );
   const description = getAccountingContextDescription(payload.description);
 
+  stringUtils.validateUUID(payload.createdBy, accountingError.InvalidCreatedBy);
+
   const timestamp = new Date();
 
   const entity: IReportingContext = Object.freeze({
     id: generateUUID(),
+    createdBy: payload.createdBy,
     name,
     description,
     accountingEntityId: payload.accountingEntityId,

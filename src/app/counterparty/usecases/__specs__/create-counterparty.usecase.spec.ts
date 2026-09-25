@@ -33,8 +33,15 @@ describe('makeCreateCounterpartyUsecase', () => {
     mockAppContext.get.mockReturnValue({
       correlationId: 'test-correlation-id',
       idempotencyKey: 'test-idempotency-key',
-      user: { id: userId as TEntityId },
-      accountingEntity: { id: accountingEntityId as TEntityId },
+      user: {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        id: userId as TEntityId,
+      },
+      accountingEntity: {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        id: accountingEntityId as TEntityId,
+      },
     } as IAppContextData);
     mockCounterpartyDomainServices.counterparty.create.mockImplementation(
       (payload) => realCounterpartyService.create(payload)
@@ -57,6 +64,7 @@ describe('makeCreateCounterpartyUsecase', () => {
       name: 'Jane Doe',
       type: 'individual',
       status: 'active',
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     });
 
     expect(mockCounterpartyRepo.create).toHaveBeenCalledWith(
@@ -71,7 +79,7 @@ describe('makeCreateCounterpartyUsecase', () => {
       expect.objectContaining({
         correlationId: 'test-correlation-id',
         history: expect.objectContaining({
-          actor: { type: 'user', userId },
+          actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
           correlationId: 'test-correlation-id',
         }),
       })
@@ -88,6 +96,7 @@ describe('makeCreateCounterpartyUsecase', () => {
     );
 
     expect(result).toEqual({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: expect.any(String),
       accountingEntityId: '123e4567-e89b-12d3-a456-426614174001',
       name: 'Jane Doe',

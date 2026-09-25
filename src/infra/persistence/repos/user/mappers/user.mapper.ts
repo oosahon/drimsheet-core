@@ -24,6 +24,8 @@ const userMapper = {
     return Object.freeze({
       ...user,
       id: user.id as TEntityId,
+      actorId: user.actorId as TEntityId,
+      createdBy: user.createdBy as TEntityId,
       ...fromCommonRepoDates(user),
     });
   },

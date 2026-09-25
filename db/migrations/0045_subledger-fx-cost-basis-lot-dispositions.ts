@@ -1,6 +1,7 @@
 import type { ColumnDefinitions, MigrationBuilder } from 'node-pg-migrate';
 
 import { accountingEntitiesTable } from '../config/accounting-entity';
+import { actorsTable } from '../config/actors';
 import { currenciesTable } from '../config/currencies';
 import { subledgerFxCostBasisLotDispositionsTable } from '../config/fx-cost-basis-lots';
 import { journalEntriesTable } from '../config/journal-entries';
@@ -12,6 +13,12 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
   pgm.createTable(
     subledgerFxCostBasisLotDispositionsTable,
     {
+      created_by: {
+        type: 'uuid',
+        notNull: true,
+        references: actorsTable,
+        onDelete: 'RESTRICT',
+      },
       id: {
         type: 'uuid',
         primaryKey: true,

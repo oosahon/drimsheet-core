@@ -23,6 +23,7 @@ describe('makeGetCounterpartiesUsecase', () => {
   };
 
   const mockCounterparty: ICounterparty = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     id: 'cp-1' as TEntityId,
     accountingEntityId: accountingEntity.id,
     name: 'Acme Corp',
@@ -90,6 +91,7 @@ describe('makeGetCounterpartiesUsecase', () => {
 
     expect(result.data).toHaveLength(1);
     expect(result.data[0]).toEqual({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: 'cp-1',
       accountingEntityId: 'entity-123',
       name: 'Acme Corp',

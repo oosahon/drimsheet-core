@@ -1,3 +1,4 @@
+import { TEntityId } from '@shared/types/uuid';
 import generateUUID from '@shared/utils/uuid-generator';
 
 import journalEntryEntity from '@domain/journal-entry/entities/journal-entry.entity';
@@ -44,7 +45,7 @@ describe('makeJournalEntryRectificationService', () => {
       effectiveDate,
       postedAt: options?.posted ? effectiveDate : null,
       memo: options?.memo ?? null,
-      createdBy,
+      createdBy: createdBy,
       functionalCurrency: SYSTEM_CURRENCIES.USD,
       attachments: options?.attachments ?? [],
       lines: [
@@ -79,6 +80,7 @@ describe('makeJournalEntryRectificationService', () => {
     const [newEntry] = newEntryResult;
 
     return {
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       originalEntry,
       newEntry: {
         ...newEntry,
@@ -111,7 +113,10 @@ describe('makeJournalEntryRectificationService', () => {
       ? { ...postedEntry, status: EJournalEntryStatus.Archived }
       : postedEntry;
 
-    const result = service.reverse(originalEntry);
+    const result = service.reverse(
+      originalEntry,
+      'a1111111-1111-4111-8111-111111111111' as TEntityId
+    );
 
     expect(result.entriesToCreate).toHaveLength(1);
     expect(result.reversingJournalEntry).toMatchObject({
@@ -146,9 +151,12 @@ describe('makeJournalEntryRectificationService', () => {
       status: EJournalEntryStatus.Archived,
     };
 
-    expect(() => service.reverse(archivedEntry)).toThrow(
-      journalEntryError.InvalidStatusTransition
-    );
+    expect(() =>
+      service.reverse(
+        archivedEntry,
+        'a1111111-1111-4111-8111-111111111111' as TEntityId
+      )
+    ).toThrow(journalEntryError.InvalidStatusTransition);
   });
 
   it('updates a draft journal entry in place', () => {
@@ -259,6 +267,7 @@ describe('makeJournalEntryRectificationService', () => {
     const [originalEntry] = makeEntry({ posted: true, memo: 'Before' });
 
     const result = service.rectify({
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       originalEntry,
       newEntry: { id: generateUUID(), memo: null },
     });
@@ -270,6 +279,7 @@ describe('makeJournalEntryRectificationService', () => {
     const [originalEntry] = makeEntry({ posted: true, memo: 'Before' });
 
     const result = service.rectify({
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       originalEntry,
       newEntry: {
         id: generateUUID(),
@@ -300,5 +310,48 @@ describe('makeJournalEntryRectificationService', () => {
     expect(() =>
       service.rectify(makePayload(originalEntry, makeEntry({ posted: true })))
     ).toThrow(journalEntryError.RectificationNotPermitted);
+  });
+  it('attributes new reversal/replacement rows to the performer and keeps original creators', () => {
+    const [originalEntry] = makeEntry({ posted: true });
+    const actorId = generateUUID();
+    const payload = makePayload(
+      originalEntry,
+      makeEntry({ posted: true, amount: 150 })
+    );
+    const result = service.rectify({ ...payload, actorId });
+    expect(result.entryUpdate?.entry.createdBy).toBe(originalEntry.createdBy);
+    expect(result.entriesToCreate).toHaveLength(2);
+    for (const creation of result.entriesToCreate) {
+      expect(creation[0].createdBy).toBe(actorId);
+      expect(
+        creation[0].lines.every((line) => line.createdBy === actorId)
+      ).toBe(true);
+    }
+    const reversal = service.reverse(originalEntry, actorId);
+    expect(reversal.reversingJournalEntry.createdBy).toBe(actorId);
+    expect(reversal.entryUpdate.entry.createdBy).toBe(originalEntry.createdBy);
+  });
+
+  it('assigns the performer only to new lines while updating a draft', () => {
+    const [originalEntry] = makeEntry();
+    const actorId = generateUUID();
+    const newLineId = generateUUID();
+    const payload = makePayload(originalEntry, makeEntry({ amount: 150 }));
+    const result = service.rectify({
+      ...payload,
+      actorId,
+      newEntry: {
+        ...payload.newEntry,
+        lines: payload.newEntry.lines!.map((line, index) => ({
+          ...line,
+          id: index === 0 ? originalEntry.lines[0].id : newLineId,
+        })),
+      },
+    });
+    expect(result.currentJournalEntry.createdBy).toBe(originalEntry.createdBy);
+    expect(result.currentJournalEntry.lines[0].createdBy).toBe(
+      originalEntry.lines[0].createdBy
+    );
+    expect(result.currentJournalEntry.lines[1].createdBy).toBe(actorId);
   });
 });

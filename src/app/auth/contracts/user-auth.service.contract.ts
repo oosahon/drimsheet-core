@@ -1,6 +1,9 @@
 import { IUserAuth, UAuthStrategy } from '@app/auth/contracts/auth.types';
 
-interface IMakeUserAuthPayload extends Pick<IUserAuth, 'userId' | 'password'> {
+interface IMakeUserAuthPayload extends Pick<
+  IUserAuth,
+  'userId' | 'password' | 'createdBy'
+> {
   strategy: UAuthStrategy;
 }
 

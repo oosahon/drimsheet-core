@@ -87,6 +87,8 @@ describe('makeRequestPasswordResetUseCase', () => {
 
   it('does not issue a credential when the auth record is missing', async () => {
     mockUserRepo.findByEmail.mockResolvedValue({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: 'test-user-id',
     } as IUser);
     mockUserAuthRepo.findByUserId.mockResolvedValue(null);
@@ -111,6 +113,8 @@ describe('makeRequestPasswordResetUseCase', () => {
   it('should generate token, send email, and publish event if user is found', async () => {
     const userEmail = 'found@example.com';
     const mockUser: IUser = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: 'test-user-id' as TEntityId,
       email: emailValue.make(userEmail),
       emailVerified: true,
@@ -125,6 +129,7 @@ describe('makeRequestPasswordResetUseCase', () => {
     const resetLink = `https://test-app.com/auth/reset-password?token=${resetToken}`;
 
     const mockUserAuth = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       userId: mockUser.id,
       password: 'hashed-password',
       failedLoginAttempts: 0,
@@ -176,6 +181,8 @@ describe('makeRequestPasswordResetUseCase', () => {
   it('should send a reset link if the user only has Google authentication', async () => {
     const userEmail = 'found@example.com';
     const mockUser: IUser = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: 'test-user-id' as TEntityId,
       email: emailValue.make(userEmail),
       emailVerified: true,
@@ -188,6 +195,7 @@ describe('makeRequestPasswordResetUseCase', () => {
     };
 
     const mockUserAuth = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       userId: mockUser.id,
       password: null,
       failedLoginAttempts: 0,

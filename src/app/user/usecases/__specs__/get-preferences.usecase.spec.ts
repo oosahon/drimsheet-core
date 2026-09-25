@@ -16,6 +16,8 @@ describe('makeGetUserPreferencesUseCase', () => {
   it('should get user preferences successfully', async () => {
     const correlationId = 'test-corr-id';
     const mockUser = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: 'test-user-id' as TEntityId,
     } as IUser;
 
@@ -25,6 +27,7 @@ describe('makeGetUserPreferencesUseCase', () => {
     } as IAppContextData);
 
     const mockPreferences = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       userId: 'prefs-id' as TEntityId,
       lastActiveAccountingEntityId: null,
       appPreferences: {
@@ -65,6 +68,8 @@ describe('makeGetUserPreferencesUseCase', () => {
   it('should throw appError.ResourceNotFound if user preferences row does not exist', async () => {
     const correlationId = 'test-corr-id';
     const mockUser = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: 'test-user-id' as TEntityId,
     } as IUser;
 

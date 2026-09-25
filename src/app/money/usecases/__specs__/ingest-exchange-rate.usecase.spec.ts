@@ -6,6 +6,7 @@ import {
   EExchangeRateType,
   IExchangeRate,
 } from '@domain/money/types/exchange-rate.types';
+import actorEntity from '@domain/user/entities/actor.entity';
 
 import { mockExchangeRateRepo } from '@app/money/contracts/__mocks__/money.repos.mock';
 import {
@@ -13,8 +14,12 @@ import {
   IExchangeRateIngestionDto,
 } from '@app/money/dtos/exchange-rate/exchange-rate.dto';
 import makeIngestExchangeRateUseCase from '@app/money/usecases/ingest-exchange-rate.usecase';
+import { mockActorService } from '@app/user/contracts/__mocks__/actor.services.mock';
 
 describe('makeIngestExchangeRateUseCase', () => {
+  const [systemActor] = actorEntity.makeSystem(
+    actorEntity.makeMigration()[0].id
+  );
   const correlationId = '019cde0f-5b78-775a-bf29-8f02a947760a';
 
   const makeExchangeRate = (
@@ -49,12 +54,16 @@ describe('makeIngestExchangeRateUseCase', () => {
 
   const makeUseCase = () =>
     makeIngestExchangeRateUseCase({
+      actorService: mockActorService,
       exchangeRateRepo: mockExchangeRateRepo,
       repoService: mockRepoService,
     });
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockActorService.resolveByUsername
+      .mockReset()
+      .mockResolvedValue(systemActor);
     jest.useFakeTimers();
     jest.setSystemTime(new Date('2026-06-11T12:00:00.000Z'));
     mockExchangeRateRepo.create.mockResolvedValue(undefined);
@@ -103,6 +112,7 @@ describe('makeIngestExchangeRateUseCase', () => {
           type: 'official',
         }),
       ]),
+      systemActor.id,
       { correlationId, tx: 'mock-tx' }
     );
     expect(
@@ -159,6 +169,7 @@ describe('makeIngestExchangeRateUseCase', () => {
           currencyPair: 'EUR/NGN',
         }),
       ]),
+      systemActor.id,
       { correlationId, tx: 'mock-tx' }
     );
   });

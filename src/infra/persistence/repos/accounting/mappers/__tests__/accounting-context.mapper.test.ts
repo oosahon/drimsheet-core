@@ -8,6 +8,7 @@ import accountingContextMapper from '@infra/persistence/repos/accounting/mappers
 describe('accountingContextMapper', () => {
   it('should map IAccountingContext to IAccountingContextRepoModel', () => {
     const domain: IAccountingContext = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: 'uuid-1' as TEntityId,
       name: 'Primary Context',
       description: 'Main context',
@@ -23,6 +24,7 @@ describe('accountingContextMapper', () => {
     const result = accountingContextMapper.toRepo(domain);
 
     expect(result).toEqual({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: 'uuid-1',
       name: 'Primary Context',
       description: 'Main context',
@@ -38,6 +40,7 @@ describe('accountingContextMapper', () => {
 
   it('should map closedAt', () => {
     const domain = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: 'uuid-1' as TEntityId,
       name: 'Primary Context',
       description: null,

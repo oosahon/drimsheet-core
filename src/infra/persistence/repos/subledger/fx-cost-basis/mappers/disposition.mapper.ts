@@ -24,6 +24,7 @@ const fxCostBasisLotDispositionMapper = {
     payload: IFxCostBasisLotDispositionModel
   ): IFxCostBasisLotDisposition {
     return {
+      createdBy: payload.createdBy as TEntityId,
       id: payload.id as TEntityId,
       ledgerAccountId: payload.ledgerAccountId as TEntityId,
       accountingEntityId: payload.accountingEntityId as TEntityId,
@@ -59,6 +60,7 @@ const fxCostBasisLotDispositionMapper = {
 
   toRepo(payload: IFxCostBasisLotDisposition): IFxCostBasisLotDispositionModel {
     return {
+      createdBy: payload.createdBy as TEntityId,
       id: payload.id,
       ledgerAccountId: payload.ledgerAccountId,
       accountingEntityId: payload.accountingEntityId,
@@ -75,7 +77,7 @@ const fxCostBasisLotDispositionMapper = {
       realizedGainLossCurrency: payload.realizedGainLoss.currency.code,
       dispositionRate: payload.dispositionRate,
       officialRate: payload.officialRate
-        ? exchangeRateMapper.toRepo(payload.officialRate)
+        ? exchangeRateMapper.toEmbedded(payload.officialRate)
         : null,
       dispositionDate: toRepoDateOnly(payload.dispositionDate),
       createdAt: toRepoDate(payload.createdAt),

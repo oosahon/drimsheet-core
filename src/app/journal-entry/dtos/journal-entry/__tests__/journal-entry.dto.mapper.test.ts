@@ -47,6 +47,7 @@ describe('Journal Entry DTO Mapper', () => {
         ],
         lines: [
           {
+            createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
             id: 'line-id' as unknown as TEntityId,
             entryId: 'entry-id' as unknown as TEntityId,
             accountId: 'account-id' as unknown as TEntityId,
@@ -102,6 +103,7 @@ describe('Journal Entry DTO Mapper', () => {
         ],
         lines: [
           {
+            createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
             id: 'line-id',
             entryId: 'entry-id',
             accountId: 'account-id',
@@ -172,6 +174,7 @@ describe('Journal Entry DTO Mapper', () => {
         ],
         lines: [
           {
+            createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
             id: 'line-id-1' as unknown as TEntityId,
             entryId,
             accountId,
@@ -190,6 +193,7 @@ describe('Journal Entry DTO Mapper', () => {
             updatedAt,
           },
           {
+            createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
             id: 'line-id-2' as unknown as TEntityId,
             entryId,
             accountId,
@@ -229,6 +233,7 @@ describe('Journal Entry DTO Mapper', () => {
         attachments: entry.attachments,
         lines: [
           {
+            createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
             id: 'line-id-1',
             entryId,
             account: { id: accountId, name: 'Cash' },
@@ -252,6 +257,7 @@ describe('Journal Entry DTO Mapper', () => {
             updatedAt,
           },
           {
+            createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
             id: 'line-id-2',
             entryId,
             account: { id: accountId, name: 'Sales' },

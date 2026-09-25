@@ -19,7 +19,7 @@ function makeHistory(entityVersion: number) {
       },
       occurredAt: new Date(),
     },
-    historyValue.getSystemActor(),
+    'b2222222-2222-4222-8222-222222222222' as TEntityId,
     correlationId
   );
 }

@@ -1,6 +1,7 @@
 import mockEventBus from '@shared/contracts/__mocks__/event-bus.mock';
 import mockRepoService from '@shared/contracts/__mocks__/repo.mock';
 import { ITransactionContext } from '@shared/types/repo.types';
+import { TEntityId } from '@shared/types/uuid';
 import generateUUID from '@shared/utils/uuid-generator';
 import appError from '@shared/values/errors/app.error';
 
@@ -19,6 +20,7 @@ import { ILedgerAccount } from '@domain/ledger/types/ledger.types';
 import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
 import moneyValue from '@domain/money/values/money.vo';
 
+import { mockAccountingEntityService } from '@app/accounting/contracts/__mocks__/accounting.domain.services.mock';
 import mockAppContext, {
   mockClientSession,
 } from '@app/context/contracts/__mocks__/app-context.mock';
@@ -45,8 +47,14 @@ describe('makeRectifyJournalEntryUsecase', () => {
   const idempotencyKey = 'rectification-idempotency-key';
   const userId = generateUUID();
   const accountingEntityId = generateUUID();
-  const sourceAccount = { id: generateUUID() } as ILedgerAccount;
-  const destinationAccount = { id: generateUUID() } as ILedgerAccount;
+  const sourceAccount = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+    id: generateUUID(),
+  } as ILedgerAccount;
+  const destinationAccount = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+    id: generateUUID(),
+  } as ILedgerAccount;
   const effectiveDate = new Date('2026-09-01T00:00:00.000Z');
   const now = new Date('2026-09-21T10:00:00.000Z');
   const rectificationService = makeJournalEntryRectificationService();
@@ -134,6 +142,7 @@ describe('makeRectifyJournalEntryUsecase', () => {
 
   function getUsecase() {
     return makeRectifyJournalEntryUsecase({
+      accountingEntityService: mockAccountingEntityService,
       appContext: mockAppContext,
       counterpartyRepo: mockCounterpartyRepo,
       journalEntryRepo: mockJournalEntryRepo,
@@ -155,7 +164,10 @@ describe('makeRectifyJournalEntryUsecase', () => {
     mockAppContext.get.mockReturnValue({
       correlationId,
       idempotencyKey,
-      user: { id: userId },
+      user: {
+        id: userId,
+        actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      },
       accountingEntity: {
         id: accountingEntityId,
         functionalCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
@@ -183,11 +195,13 @@ describe('makeRectifyJournalEntryUsecase', () => {
       })),
     };
     const result = rectificationService.rectify({
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       originalEntry,
       newEntry,
     });
     mockJournalEntryRepo.findById.mockResolvedValue(originalEntry);
     const counterparty = counterpartyEntity.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       accountingEntityId,
       name: 'Vendor',
       type: ECounterpartyType.Organization,
@@ -225,7 +239,7 @@ describe('makeRectifyJournalEntryUsecase', () => {
         requestedEntry: expect.objectContaining({
           sourceType: EJournalEntrySourceType.Transfer,
         }),
-        actor: expect.objectContaining({ userId }),
+        actor: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       }),
       { correlationId, idempotencyKey }
     );
@@ -288,11 +302,13 @@ describe('makeRectifyJournalEntryUsecase', () => {
       })),
     };
     const result = rectificationService.rectify({
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       originalEntry,
       newEntry,
     });
     mockJournalEntryRepo.findById.mockResolvedValue(originalEntry);
     const existingCounterparty = counterpartyEntity.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       accountingEntityId,
       name: 'Existing vendor',
       type: ECounterpartyType.Organization,
@@ -344,6 +360,7 @@ describe('makeRectifyJournalEntryUsecase', () => {
       })),
     };
     const result = rectificationService.rectify({
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       originalEntry,
       newEntry: candidate,
     });
@@ -376,7 +393,10 @@ describe('makeRectifyJournalEntryUsecase', () => {
     ).rejects.toBeInstanceOf(appError.ResourceNotFound);
   });
 
-  it('rejects rectification by a user who did not create the journal entry', async () => {
+  it('rejects rectification without accounting ownership', async () => {
+    mockAccountingEntityService.validateAccess.mockImplementationOnce(() => {
+      throw new appError.Forbidden();
+    });
     const [originalEntry] = makeEntry(100);
     mockJournalEntryRepo.findById.mockResolvedValue({
       ...originalEntry,

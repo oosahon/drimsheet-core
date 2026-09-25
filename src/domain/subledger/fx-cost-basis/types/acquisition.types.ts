@@ -8,6 +8,7 @@ import { IExchangeRate } from '@domain/money/types/exchange-rate.types';
 import { IMoney } from '@domain/money/types/money.types';
 
 export interface IFxCostBasisLotAcquisition {
+  createdBy: TEntityId;
   id: TEntityId;
   ledgerAccountId: TEntityId;
   accountingEntityId: TEntityId;

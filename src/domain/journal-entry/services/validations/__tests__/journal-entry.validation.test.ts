@@ -37,6 +37,7 @@ describe('journalEntryServiceValidation', () => {
 
   function makeSourceAccountBalance(amount: bigint) {
     const balance = ledgerAccountBalanceEntity.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       ledgerAccountId: sourceAccountId,
       accountingEntityId,
       accountMaterializedPath: '100001',
@@ -106,6 +107,7 @@ describe('journalEntryServiceValidation', () => {
   describe('validateCounterparties', () => {
     it('succeeds when all counterparties belong to the accounting entity', () => {
       const counterparty = {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         accountingEntityId,
       } as ICounterparty;
       const payload = makePayload([counterparty, counterparty], counterparty);
@@ -131,6 +133,7 @@ describe('journalEntryServiceValidation', () => {
 
     it('throws when a line counterparty does not belong to the accounting entity', () => {
       const invalidCounterparty = {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         accountingEntityId: 'different-entity-id' as TEntityId,
       } as ICounterparty;
       const payload = makePayload([null, invalidCounterparty], null);
@@ -145,6 +148,7 @@ describe('journalEntryServiceValidation', () => {
 
     it('throws when the destination counterparty does not belong to the accounting entity', () => {
       const invalidCounterparty = {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         accountingEntityId: 'different-entity-id' as TEntityId,
       } as ICounterparty;
       const payload = makePayload([null], invalidCounterparty);

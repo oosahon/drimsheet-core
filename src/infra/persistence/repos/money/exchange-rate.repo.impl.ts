@@ -12,13 +12,15 @@ import getDbQuery from '@infra/persistence/helpers/get-db-query';
 import exchangeRateMapper from '@infra/persistence/repos/money/mappers/exchange-rate.mapper';
 
 const exchangeRateRepo: IExchangeRateRepo = {
-  create: async (payload, options) => {
+  create: async (payload, createdBy, options) => {
     const values = Array.isArray(payload) ? payload : [payload];
     const dbQuery = getDbQuery(options);
 
     await dbQuery
       .insert(currencyExchangeRatesInCore)
-      .values(values.map(exchangeRateMapper.toRepo))
+      .values(
+        values.map((value) => exchangeRateMapper.toRepo(value, createdBy))
+      )
       .onConflictDoNothing();
   },
 

@@ -1,3 +1,4 @@
+import { TEntityId } from '@shared/types/uuid';
 import runtimeError from '@shared/values/errors/runtime.error';
 
 import { IAppContextData } from '@app/context/contracts/app-context.contract';
@@ -23,8 +24,13 @@ describe('appContext', () => {
   });
 
   it('returns a store when every required key is present', () => {
-    const user = { id: 'user-id' } as IAppContextData['user'];
+    const user = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      id: 'user-id',
+    } as IAppContextData['user'];
     const accountingEntity = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: 'accounting-entity-id',
     } as IAppContextData['accountingEntity'];
     const store = { ...makeStore(), user, accountingEntity };
@@ -78,7 +84,11 @@ describe('appContext', () => {
 
   it('enriches the active store through set', () => {
     const store = makeStore();
-    const user = { id: 'user-id' } as IAppContextData['user'];
+    const user = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      id: 'user-id',
+    } as IAppContextData['user'];
 
     appContext.init(store, () => {
       appContext.set({ user });

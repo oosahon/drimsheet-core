@@ -81,7 +81,7 @@ export default function makeCreateOpeningBalanceUseCase(deps: IDependencies) {
     const [updatedAccount, accountEvents, accountAudit] =
       ledgerAccountEntity.updateOpeningBalanceDate(account, payload.date);
 
-    const actor = historyValue.getUserActor(user.id);
+    const actor = user.actorId;
     const accountHistory = historyValue.make(
       accountAudit,
       actor,

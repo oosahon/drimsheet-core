@@ -3,7 +3,7 @@ import {
   TRepoTransactionFn,
 } from '@shared/contracts/repo.contract';
 
-import { ledgerAccountBalanceEntity } from '@domain/ledger/entities';
+import ledgerAccountBalanceEntity from '@domain/ledger/entities/ledger-account-balance.entity';
 import ILedgerAccountBalanceRepo from '@domain/ledger/repos/ledger-account-balance.repo';
 import ILedgerAccountRepo from '@domain/ledger/repos/ledger-account.repo';
 import currencyEntity from '@domain/money/entities/currency.entity';
@@ -27,6 +27,7 @@ function makeCreate(
     const functionalCurrency = currencyEntity.getByCode(functionalCurrencyCode);
 
     const balance = ledgerAccountBalanceEntity.make({
+      createdBy: account.createdBy,
       ledgerAccountId: account.id,
       accountingEntityId: account.accountingEntityId,
       accountMaterializedPath: account.materializedPath,

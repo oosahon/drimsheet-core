@@ -10,6 +10,7 @@ import reportingPeriodMapper from '@infra/persistence/repos/accounting/mappers/r
 describe('reportingPeriodMapper', () => {
   it('should map IReportingPeriod to IReportingPeriodRepoModel', () => {
     const domain: IReportingPeriod = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: 'uuid-1' as TEntityId,
       name: 'Q1 2026',
       accountingEntityId: 'entity-1' as TEntityId,
@@ -24,6 +25,7 @@ describe('reportingPeriodMapper', () => {
     const result = reportingPeriodMapper.toRepo(domain);
 
     expect(result).toEqual({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: 'uuid-1',
       name: 'Q1 2026',
       accountingEntityId: 'entity-1',

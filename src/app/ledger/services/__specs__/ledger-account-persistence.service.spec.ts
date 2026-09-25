@@ -3,6 +3,7 @@ import {
   ITransactionContext,
   IWriteRepoOptions,
 } from '@shared/types/repo.types';
+import { TEntityId } from '@shared/types/uuid';
 
 import accountingEntityEntity from '@domain/accounting/entities/accounting-entity.entity';
 import { EAccountingEntityType } from '@domain/accounting/types/accounting-entity.types';
@@ -40,12 +41,15 @@ describe('ledgerAccountPersistenceService', () => {
       );
 
     const [user] = userEntity.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       email: 'owner@example.com',
       emailVerified: true,
       firstName: 'Account',
       lastName: 'Owner',
     });
     const [accountingEntity] = accountingEntityEntity.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       name: 'Owner Business',
       ownerId: user.id,
       type: EAccountingEntityType.Individual,
@@ -56,7 +60,7 @@ describe('ledgerAccountPersistenceService', () => {
       {
         name: 'Cash',
         accountingEntity,
-        userId: user.id,
+        createdBy: user.actorId,
       },
       { correlationId: 'test-correlation-id' }
     );
@@ -67,7 +71,8 @@ describe('ledgerAccountPersistenceService', () => {
         {
           entityId: account.id,
           action: 'created',
-          actor: { type: 'user', userId: user.id },
+          actorId: user.id,
+          onBehalfOf: null,
           occurredAt: new Date(),
           correlationId: 'test-correlation-id',
           diff: { before: null, after: account },

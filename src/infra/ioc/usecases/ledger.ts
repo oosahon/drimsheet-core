@@ -7,7 +7,10 @@ import makeGetLedgerAccountUseCase from '@app/ledger/usecases/get-ledger-account
 import makeGetLedgerAccountsUsecase from '@app/ledger/usecases/get-ledger-accounts.usecase';
 import makeGetPermittedPostingAccountsUsecase from '@app/ledger/usecases/get-permitted-posting-accounts.usecase';
 
-import { accountingPeriodService } from '@infra/ioc/services/accounting';
+import {
+  accountingEntityService,
+  accountingPeriodService,
+} from '@infra/ioc/services/accounting';
 import {
   fxCostBasisPersistenceService,
   fxLotAppService,
@@ -57,6 +60,7 @@ export const getPermittedPostingAccountsUseCase = makeTracedUseCase(
 export const getLedgerAccountUseCase = makeTracedUseCase(
   'ledger.getLedgerAccountUseCase',
   makeGetLedgerAccountUseCase({
+    accountingEntityService,
     appContext: appContext,
     ledgerAccountRepo: ledgerRepos.ledgerAccount,
     balanceEnrichmentService: ledgerAccountBalanceEnrichmentService,
@@ -78,6 +82,7 @@ export const adjustLedgerAccountBalanceUseCase = makeTracedUseCase(
 export const getAccountTransactionsUseCase = makeTracedUseCase(
   'ledger.getAccountTransactionsUseCase',
   makeGetAccountTransactionsUseCase({
+    accountingEntityService,
     appContext: appContext,
     ledgerAccountRepo: ledgerRepos.ledgerAccount,
     accountTransactionQueryRepo: ledgerRepos.queries.accountTransaction,

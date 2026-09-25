@@ -63,7 +63,7 @@ export default function makeCreateBankAccountUseCase(deps: IDependencies) {
       'user',
       'accountingEntity',
     ]);
-    const actor = historyValue.getUserActor(user.id);
+    const actor = user.actorId;
     const repoOptions = { correlationId };
 
     // Validate data
@@ -113,7 +113,7 @@ export default function makeCreateBankAccountUseCase(deps: IDependencies) {
       name: payload.name,
       currency: currencyEntity.getByCode(payload.currencyCode),
       isControlAccount: false,
-      userId: user.id,
+      createdBy: user.actorId,
       accountingEntity,
       controlAccountCode: controlAccount.code,
       bankDetails,
@@ -135,6 +135,7 @@ export default function makeCreateBankAccountUseCase(deps: IDependencies) {
             account.id,
             accountingEntity.id,
             bankDetails,
+            actor,
             writeRepoOptions
           );
         },
@@ -154,7 +155,7 @@ export default function makeCreateBankAccountUseCase(deps: IDependencies) {
           amount: moneyMapper.fromDto(payload.openingBalance.amount),
           effectiveDate: payload.openingBalance.date,
           exchangeRate,
-          createdBy: user.id,
+          createdBy: user.actorId,
         },
         repoOptions
       );
@@ -207,6 +208,7 @@ export default function makeCreateBankAccountUseCase(deps: IDependencies) {
         updatedAccount.id,
         accountingEntity.id,
         bankDetails,
+        actor,
         writeRepoOptions
       );
 

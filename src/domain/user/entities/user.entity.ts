@@ -20,6 +20,9 @@ import userAudit from '@domain/user/values/user-audit.vo';
 function make(
   payload: TCreationOmits<IUser>
 ): TAuditedEntity<IUser, IUser, IUser> {
+  stringUtils.validateUUID(payload.createdBy, userError.InvalidCreatedBy);
+
+  stringUtils.validateUUID(payload.actorId, userError.InvalidActorId);
   const timestamp = new Date();
 
   const firstName = stringUtils.sanitizeAndValidate(
@@ -42,6 +45,8 @@ function make(
 
   const user: IUser = Object.freeze({
     id: generateUUID(),
+    createdBy: payload.createdBy,
+    actorId: payload.actorId,
     email: emailValue.make(payload.email),
     emailVerified: !!payload.emailVerified,
     firstName,
@@ -72,6 +77,8 @@ function verifyEmail(user: IUser): [IUser, IEvent<IUser>[], IUserAudit | null] {
 
   const updatedUser = Object.freeze({
     id: user.id,
+    createdBy: user.createdBy,
+    actorId: user.actorId,
     email: user.email,
     emailVerified: true,
     firstName: user.firstName,
@@ -126,6 +133,8 @@ function update(
 
   const updatedUser: IUser = Object.freeze({
     id: user.id,
+    createdBy: user.createdBy,
+    actorId: user.actorId,
     email: user.email,
     emailVerified: user.emailVerified,
     firstName,

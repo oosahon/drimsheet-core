@@ -24,6 +24,7 @@ const fxCostBasisLotAcquisitionMapper = {
     payload: IFxCostBasisLotAcquisitionModel
   ): IFxCostBasisLotAcquisition {
     return {
+      createdBy: payload.createdBy as TEntityId,
       id: payload.id as TEntityId,
       ledgerAccountId: payload.ledgerAccountId as TEntityId,
       accountingEntityId: payload.accountingEntityId as TEntityId,
@@ -52,6 +53,7 @@ const fxCostBasisLotAcquisitionMapper = {
 
   toRepo(payload: IFxCostBasisLotAcquisition): IFxCostBasisLotAcquisitionModel {
     return {
+      createdBy: payload.createdBy as TEntityId,
       id: payload.id,
       ledgerAccountId: payload.ledgerAccountId,
       accountingEntityId: payload.accountingEntityId,
@@ -64,7 +66,7 @@ const fxCostBasisLotAcquisitionMapper = {
       acquisitionRate: payload.acquisitionRate,
       acquisitionDate: toRepoDateOnly(payload.acquisitionDate),
       officialRate: payload.officialRate
-        ? exchangeRateMapper.toRepo(payload.officialRate)
+        ? exchangeRateMapper.toEmbedded(payload.officialRate)
         : null,
       createdAt: toRepoDate(payload.createdAt),
     };

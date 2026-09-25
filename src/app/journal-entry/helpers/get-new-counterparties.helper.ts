@@ -1,6 +1,6 @@
+import { TEntityId } from '@shared/types/uuid';
 import { IEvent } from '@shared/values/events/types/event.types';
 import historyValue from '@shared/values/history/history.vo';
-import { IUserHistoryActor } from '@shared/values/history/types/history.types';
 
 import { ICounterpartyHistory } from '@domain/counterparty/types/counterparty-audit.types';
 import { ICounterparty } from '@domain/counterparty/types/counterparty.types';
@@ -13,12 +13,12 @@ interface INewCounterparties {
 }
 
 /**
- * Converts newly prepared counterparties into persistence records with user
+ * Converts newly prepared counterparties into persistence records with
  * histories and a flat event collection. Existing counterparties are omitted.
  */
 export default function getNewCounterpartiesHelper(
   counterparties: Map<string, ICounterpartyFindOrCreateRes>,
-  actor: IUserHistoryActor,
+  actor: TEntityId,
   correlationId: string
 ): INewCounterparties {
   const records: INewCounterparties['records'] = [];

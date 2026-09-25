@@ -1,3 +1,4 @@
+import IActorService from '@domain/user/types/actor.service.types';
 import { IUser } from '@domain/user/types/user.types';
 
 import IUserSessionPersistenceService from '@app/auth/contracts/user-session-persistence.service.contract';
@@ -5,6 +6,7 @@ import IUserSessionService from '@app/auth/contracts/user-session.service.contra
 import IAppContext from '@app/context/contracts/app-context.contract';
 
 interface IDependencies {
+  actorService: IActorService;
   reqContext: IAppContext;
   userSessionService: IUserSessionService;
   userSessionPersistenceService: IUserSessionPersistenceService;
@@ -17,6 +19,7 @@ export default function makeOauthUsecase(deps: IDependencies) {
       const { correlationId, clientSession } = deps.reqContext.get([
         'clientSession',
       ]);
+      await deps.actorService.resolveUser(user, { correlationId });
       const preparedSession = await deps.userSessionService.prepare(
         user,
         clientSession.getRefreshToken()

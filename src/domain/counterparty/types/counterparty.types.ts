@@ -29,6 +29,7 @@ export type UCounterpartyRole =
   (typeof ECounterpartyRole)[keyof typeof ECounterpartyRole];
 
 export interface ICounterparty {
+  createdBy: TEntityId;
   id: TEntityId;
   accountingEntityId: TEntityId;
   name: string;
@@ -67,6 +68,7 @@ export type TCounterpartyRoleDetails = {
 }[UCounterpartyRole];
 
 export interface IMakeCounterpartyPayload {
+  createdBy: TEntityId;
   accountingEntityId: TEntityId;
   name: string;
   type: UCounterpartyType;

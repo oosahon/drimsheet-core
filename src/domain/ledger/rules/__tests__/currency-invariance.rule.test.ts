@@ -1,3 +1,4 @@
+import { TEntityId } from '@shared/types/uuid';
 import generateUUID from '@shared/utils/uuid-generator';
 
 import ledgerAccountEntity from '@domain/ledger/entities/ledger-account.entity';

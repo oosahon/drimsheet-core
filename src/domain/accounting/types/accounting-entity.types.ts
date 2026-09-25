@@ -14,6 +14,7 @@ export type UAccountingEntityType =
   (typeof EAccountingEntityType)[keyof typeof EAccountingEntityType];
 
 export interface IAccountingEntity {
+  createdBy: TEntityId;
   id: TEntityId;
   name: string;
   type: UAccountingEntityType;

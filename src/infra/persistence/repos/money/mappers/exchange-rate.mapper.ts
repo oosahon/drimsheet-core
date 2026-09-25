@@ -1,5 +1,7 @@
 import { InferSelectModel } from 'drizzle-orm';
 
+import { TEntityId } from '@shared/types/uuid';
+
 import { IExchangeRate } from '@domain/money/types/exchange-rate.types';
 
 import { currencyExchangeRatesInCore } from '@infra/config/drizzle/schema';
@@ -13,7 +15,26 @@ export interface IExchangeRateModel extends InferSelectModel<
 > {}
 
 const exchangeRateMapper = {
-  toRepo: (payload: IExchangeRate): Omit<IExchangeRateModel, 'id'> => {
+  toRepo: (
+    payload: IExchangeRate,
+    createdBy: TEntityId
+  ): Omit<IExchangeRateModel, 'id'> => {
+    return {
+      createdBy,
+      currencyPair: payload.currencyPair,
+      baseCurrencyCode: payload.baseCurrencyCode,
+      targetCurrencyCode: payload.targetCurrencyCode,
+      rate: payload.rate.toString(),
+      type: payload.type,
+      asOf: toRepoDate(payload.asOf),
+      source: payload.source,
+      createdAt: toRepoDate(payload.createdAt),
+    };
+  },
+
+  toEmbedded: (
+    payload: IExchangeRate
+  ): Omit<IExchangeRateModel, 'id' | 'createdBy'> => {
     return {
       currencyPair: payload.currencyPair,
       baseCurrencyCode: payload.baseCurrencyCode,
@@ -26,7 +47,9 @@ const exchangeRateMapper = {
     };
   },
 
-  toDomain(payload: IExchangeRateModel): IExchangeRate {
+  toDomain(
+    payload: Omit<IExchangeRateModel, 'id' | 'createdBy'>
+  ): IExchangeRate {
     return {
       currencyPair: payload.currencyPair,
       baseCurrencyCode: payload.baseCurrencyCode,

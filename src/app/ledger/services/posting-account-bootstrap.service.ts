@@ -1,3 +1,4 @@
+import { TEntityId } from '@shared/types/uuid';
 import { TAuditedEntity } from '@shared/values/events/types/event.types';
 import historyValue from '@shared/values/history/history.vo';
 
@@ -64,14 +65,14 @@ export default function makePostingAccountBootstrapService(
 ): IPostingAccountBootstrapService {
   const bootstrap: IPostingAccountBootstrapService['bootstrap'] = async (
     accountingEntity,
+    createdBy,
     repoOptions
   ) => {
-    const createdBy = accountingEntity.ownerId;
     const accountingEntityId = accountingEntity.id;
     const functionalCurrency = currencyEntity.getByCode(
       accountingEntity.functionalCurrencyCode
     );
-    const actor = historyValue.getUserActor(createdBy);
+    const actor = createdBy;
     const bootstrapResult: ILedgerAccountBootstrapResult = {
       entries: [],
       events: [],
@@ -110,7 +111,7 @@ export default function makePostingAccountBootstrapService(
       await deps.receivablesAccountService.createTradeReceivableSubAccount(
         {
           name: 'Trade Receivables',
-          userId: createdBy,
+          createdBy,
           accountingEntity,
           currency: functionalCurrency,
           isControlAccount: true,
@@ -123,7 +124,7 @@ export default function makePostingAccountBootstrapService(
       await deps.receivablesAccountService.createStatutoryReceivableSubAccount(
         {
           name: 'Statutory Receivables',
-          userId: createdBy,
+          createdBy,
           accountingEntity,
           currency: functionalCurrency,
           isControlAccount: true,
@@ -136,7 +137,7 @@ export default function makePostingAccountBootstrapService(
       await deps.receivablesAccountService.createStatutoryReceivableSubAccount(
         {
           name: 'Statutory Receivables (Default)',
-          userId: createdBy,
+          createdBy,
           accountingEntity,
           currency: functionalCurrency,
           isControlAccount: false,

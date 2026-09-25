@@ -7,21 +7,16 @@ interface IValidateJournalEntryMutationPayload {
   id: string;
   entry: IJournalEntry | null;
   accountingEntityId: TEntityId;
-  userId: TEntityId;
   expectedVersion: number;
 }
 
 function validate(
   payload: IValidateJournalEntryMutationPayload
 ): IJournalEntry {
-  const { id, entry, accountingEntityId, userId, expectedVersion } = payload;
+  const { id, entry, accountingEntityId, expectedVersion } = payload;
 
   if (entry?.accountingEntityId !== accountingEntityId) {
     throw new appError.ResourceNotFound({ id });
-  }
-
-  if (entry.createdBy !== userId) {
-    throw new appError.Forbidden({ id });
   }
 
   if (entry.version !== expectedVersion) {

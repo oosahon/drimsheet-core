@@ -28,6 +28,7 @@ interface ICounterpartyMetaDto {
 }
 
 export interface ICounterpartyDto {
+  createdBy: string;
   id: string;
   accountingEntityId: string;
   name: string;

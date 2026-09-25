@@ -35,6 +35,7 @@ describe('JournalLineItem Entity', () => {
 
     beforeEach(() => {
       validEntryPayload = {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         id: '2b4c10ab-5c31-419b-ab29-688001d9f8e4' as TEntityId,
         memo: 'General Memo',
         createdAt: new Date('2026-04-15T00:00:00.000Z'),
@@ -156,6 +157,7 @@ describe('JournalLineItem Entity', () => {
 
   describe('update', () => {
     const entryPayload: TEntryPayload = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: '2b4c10ab-5c31-419b-ab29-688001d9f8e4' as TEntityId,
       memo: 'General Memo',
       createdAt: new Date('2026-04-15T00:00:00.000Z'),

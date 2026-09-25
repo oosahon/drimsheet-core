@@ -1,4 +1,5 @@
 import { IReadRepoOptions } from '@shared/types/repo.types';
+import { TEntityId } from '@shared/types/uuid';
 import generateUUID from '@shared/utils/uuid-generator';
 
 import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
@@ -39,6 +40,7 @@ describe('taxExpenseAccountService', () => {
   });
   const createdBy = generateUUID();
   const accountingEntity = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     id: generateUUID(),
     ownerId: createdBy,
     functionalCurrencyCode: SYSTEM_CURRENCIES.USD.code,
@@ -67,13 +69,13 @@ describe('taxExpenseAccountService', () => {
       status: ELedgerAccountStatus.Active,
       contraAccountRule: EContraAccountRule.ContraNotPermitted,
       adjunctAccountRule: EAdjunctAccountRule.AdjunctNotPermitted,
-      createdBy,
+      createdBy: createdBy,
       ...overrides,
     })[0];
 
   const subAccountPayload = {
     name: 'Tax Expense (Default)',
-    createdBy,
+    createdBy: createdBy,
     accountingEntityId: accountingEntity.id,
     isControlAccount: false,
     controlAccountCode: EXPENSE_LEDGER_CODES.TAX_EXPENSE.HEADER,
@@ -95,7 +97,7 @@ describe('taxExpenseAccountService', () => {
     const [account, events, audit] = await service.createHeader(
       {
         name: 'Tax Expense',
-        createdBy,
+        createdBy: createdBy,
         accountingEntity,
       },
       repoOptions
@@ -122,7 +124,7 @@ describe('taxExpenseAccountService', () => {
       status: ELedgerAccountStatus.Active,
       contraAccountRule: EContraAccountRule.ContraNotPermitted,
       adjunctAccountRule: EAdjunctAccountRule.AdjunctNotPermitted,
-      createdBy,
+      createdBy: createdBy,
     });
     expect(Object.isFrozen(service)).toBe(true);
     expect(Object.isFrozen(account)).toBe(true);
@@ -138,7 +140,7 @@ describe('taxExpenseAccountService', () => {
       service.createHeader(
         {
           name: 'Tax Expense',
-          createdBy,
+          createdBy: createdBy,
           accountingEntity,
         },
         repoOptions
@@ -189,7 +191,7 @@ describe('taxExpenseAccountService', () => {
         status: ELedgerAccountStatus.Active,
         contraAccountRule: EContraAccountRule.ContraNotPermitted,
         adjunctAccountRule: EAdjunctAccountRule.AdjunctNotPermitted,
-        createdBy,
+        createdBy: createdBy,
       });
       expect(Object.isFrozen(account)).toBe(true);
       expect(events).toHaveLength(1);
