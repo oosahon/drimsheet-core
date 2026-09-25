@@ -8,6 +8,8 @@ import {
   accountingPeriodHistoryInAudit,
   accountingPeriodsInCore,
   accountingStandardsInCore,
+  actorHistoryInAudit,
+  actorsInCore,
   bankDetailsInCore,
   counterpartiesInCore,
   counterpartyHistoryInAudit,
@@ -44,48 +46,274 @@ import {
   usersInCore,
 } from './schema';
 
+export const actorsInCoreRelations = relations(
+  actorsInCore,
+  ({ one, many }) => ({
+    actorsInCore_createdBy: one(actorsInCore, {
+      fields: [actorsInCore.createdBy],
+      references: [actorsInCore.id],
+      relationName: 'actorsInCore_createdBy_actorsInCore_id',
+    }),
+    actorsInCores_createdBy: many(actorsInCore, {
+      relationName: 'actorsInCore_createdBy_actorsInCore_id',
+    }),
+    actorsInCore_ownerActorId: one(actorsInCore, {
+      fields: [actorsInCore.ownerActorId],
+      references: [actorsInCore.id],
+      relationName: 'actorsInCore_ownerActorId_actorsInCore_id',
+    }),
+    actorsInCores_ownerActorId: many(actorsInCore, {
+      relationName: 'actorsInCore_ownerActorId_actorsInCore_id',
+    }),
+    actorHistoryInAudits_actorEntityId: many(actorHistoryInAudit, {
+      relationName: 'actorHistoryInAudit_actorEntityId_actorsInCore_id',
+    }),
+    actorHistoryInAudits_actorId: many(actorHistoryInAudit, {
+      relationName: 'actorHistoryInAudit_actorId_actorsInCore_id',
+    }),
+    actorHistoryInAudits_onBehalfOf: many(actorHistoryInAudit, {
+      relationName: 'actorHistoryInAudit_onBehalfOf_actorsInCore_id',
+    }),
+    usersInCores_actorId: many(usersInCore, {
+      relationName: 'usersInCore_actorId_actorsInCore_id',
+    }),
+    usersInCores_createdBy: many(usersInCore, {
+      relationName: 'usersInCore_createdBy_actorsInCore_id',
+    }),
+    userAuthInCores: many(userAuthInCore),
+    userSessionsInCores: many(userSessionsInCore),
+    userProfileHistoryInAudits_actorId: many(userProfileHistoryInAudit, {
+      relationName: 'userProfileHistoryInAudit_actorId_actorsInCore_id',
+    }),
+    userProfileHistoryInAudits_onBehalfOf: many(userProfileHistoryInAudit, {
+      relationName: 'userProfileHistoryInAudit_onBehalfOf_actorsInCore_id',
+    }),
+    currenciesInCores: many(currenciesInCore),
+    currencyExchangeRatesInCores: many(currencyExchangeRatesInCore),
+    accountingStandardsInCores: many(accountingStandardsInCore),
+    jurisdictionsInCores: many(jurisdictionsInCore),
+    accountingEntitiesInCores: many(accountingEntitiesInCore),
+    accountingEntityHistoryInAudits_actorId: many(
+      accountingEntityHistoryInAudit,
+      {
+        relationName: 'accountingEntityHistoryInAudit_actorId_actorsInCore_id',
+      }
+    ),
+    accountingEntityHistoryInAudits_onBehalfOf: many(
+      accountingEntityHistoryInAudit,
+      {
+        relationName:
+          'accountingEntityHistoryInAudit_onBehalfOf_actorsInCore_id',
+      }
+    ),
+    userPreferencesInCores: many(userPreferencesInCore),
+    fiscalYearsInCores: many(fiscalYearsInCore),
+    fiscalYearHistoryInAudits_actorId: many(fiscalYearHistoryInAudit, {
+      relationName: 'fiscalYearHistoryInAudit_actorId_actorsInCore_id',
+    }),
+    fiscalYearHistoryInAudits_onBehalfOf: many(fiscalYearHistoryInAudit, {
+      relationName: 'fiscalYearHistoryInAudit_onBehalfOf_actorsInCore_id',
+    }),
+    accountingPeriodsInCores: many(accountingPeriodsInCore),
+    accountingPeriodHistoryInAudits_actorId: many(
+      accountingPeriodHistoryInAudit,
+      {
+        relationName: 'accountingPeriodHistoryInAudit_actorId_actorsInCore_id',
+      }
+    ),
+    accountingPeriodHistoryInAudits_onBehalfOf: many(
+      accountingPeriodHistoryInAudit,
+      {
+        relationName:
+          'accountingPeriodHistoryInAudit_onBehalfOf_actorsInCore_id',
+      }
+    ),
+    accountingContextsInCores: many(accountingContextsInCore),
+    accountingContextHistoryInAudits_actorId: many(
+      accountingContextHistoryInAudit,
+      {
+        relationName: 'accountingContextHistoryInAudit_actorId_actorsInCore_id',
+      }
+    ),
+    accountingContextHistoryInAudits_onBehalfOf: many(
+      accountingContextHistoryInAudit,
+      {
+        relationName:
+          'accountingContextHistoryInAudit_onBehalfOf_actorsInCore_id',
+      }
+    ),
+    reportingPeriodsInCores: many(reportingPeriodsInCore),
+    reportingPeriodHistoryInAudits_actorId: many(
+      reportingPeriodHistoryInAudit,
+      {
+        relationName: 'reportingPeriodHistoryInAudit_actorId_actorsInCore_id',
+      }
+    ),
+    reportingPeriodHistoryInAudits_onBehalfOf: many(
+      reportingPeriodHistoryInAudit,
+      {
+        relationName:
+          'reportingPeriodHistoryInAudit_onBehalfOf_actorsInCore_id',
+      }
+    ),
+    reportingContextsInCores: many(reportingContextsInCore),
+    reportingContextHistoryInAudits_actorId: many(
+      reportingContextHistoryInAudit,
+      {
+        relationName: 'reportingContextHistoryInAudit_actorId_actorsInCore_id',
+      }
+    ),
+    reportingContextHistoryInAudits_onBehalfOf: many(
+      reportingContextHistoryInAudit,
+      {
+        relationName:
+          'reportingContextHistoryInAudit_onBehalfOf_actorsInCore_id',
+      }
+    ),
+    ledgerAccountsInCores: many(ledgerAccountsInCore),
+    ledgerAccountHistoryInAudits_actorId: many(ledgerAccountHistoryInAudit, {
+      relationName: 'ledgerAccountHistoryInAudit_actorId_actorsInCore_id',
+    }),
+    ledgerAccountHistoryInAudits_onBehalfOf: many(ledgerAccountHistoryInAudit, {
+      relationName: 'ledgerAccountHistoryInAudit_onBehalfOf_actorsInCore_id',
+    }),
+    ledgerAccountBalancesInCores: many(ledgerAccountBalancesInCore),
+    counterpartiesInCores: many(counterpartiesInCore),
+    counterpartyHistoryInAudits_actorId: many(counterpartyHistoryInAudit, {
+      relationName: 'counterpartyHistoryInAudit_actorId_actorsInCore_id',
+    }),
+    counterpartyHistoryInAudits_onBehalfOf: many(counterpartyHistoryInAudit, {
+      relationName: 'counterpartyHistoryInAudit_onBehalfOf_actorsInCore_id',
+    }),
+    journalEntriesInCores: many(journalEntriesInCore),
+    journalEntryHistoryInAudits_actorId: many(journalEntryHistoryInAudit, {
+      relationName: 'journalEntryHistoryInAudit_actorId_actorsInCore_id',
+    }),
+    journalEntryHistoryInAudits_onBehalfOf: many(journalEntryHistoryInAudit, {
+      relationName: 'journalEntryHistoryInAudit_onBehalfOf_actorsInCore_id',
+    }),
+    journalLinesInCores: many(journalLinesInCore),
+    journalLineHistoryInAudits_actorId: many(journalLineHistoryInAudit, {
+      relationName: 'journalLineHistoryInAudit_actorId_actorsInCore_id',
+    }),
+    journalLineHistoryInAudits_onBehalfOf: many(journalLineHistoryInAudit, {
+      relationName: 'journalLineHistoryInAudit_onBehalfOf_actorsInCore_id',
+    }),
+    ledgerAccountBalanceAdjustmentsInCores: many(
+      ledgerAccountBalanceAdjustmentsInCore
+    ),
+    subledgerFxCostBasisLotsInCores: many(subledgerFxCostBasisLotsInCore),
+    subledgerFxCostBasisLotHistoryInAudits_actorId: many(
+      subledgerFxCostBasisLotHistoryInAudit,
+      {
+        relationName:
+          'subledgerFxCostBasisLotHistoryInAudit_actorId_actorsInCore_id',
+      }
+    ),
+    subledgerFxCostBasisLotHistoryInAudits_onBehalfOf: many(
+      subledgerFxCostBasisLotHistoryInAudit,
+      {
+        relationName:
+          'subledgerFxCostBasisLotHistoryInAudit_onBehalfOf_actorsInCore_id',
+      }
+    ),
+    subledgerFxCostBasisLotAcquisitionsInCores: many(
+      subledgerFxCostBasisLotAcquisitionsInCore
+    ),
+    subledgerFxCostBasisLotAcquisitionHistoryInAudits_onBehalfOf: many(
+      subledgerFxCostBasisLotAcquisitionHistoryInAudit,
+      {
+        relationName:
+          'subledgerFxCostBasisLotAcquisitionHistoryInAudit_onBehalfOf_actorsInCore_id',
+      }
+    ),
+    subledgerFxCostBasisLotAcquisitionHistoryInAudits_actorId: many(
+      subledgerFxCostBasisLotAcquisitionHistoryInAudit,
+      {
+        relationName:
+          'subledgerFxCostBasisLotAcquisitionHistoryInAudit_actorId_actorsInCore_id',
+      }
+    ),
+    subledgerFxCostBasisLotDispositionsInCores: many(
+      subledgerFxCostBasisLotDispositionsInCore
+    ),
+    subledgerFxCostBasisLotDispositionHistoryInAudits_onBehalfOf: many(
+      subledgerFxCostBasisLotDispositionHistoryInAudit,
+      {
+        relationName:
+          'subledgerFxCostBasisLotDispositionHistoryInAudit_onBehalfOf_actorsInCore_id',
+      }
+    ),
+    subledgerFxCostBasisLotDispositionHistoryInAudits_actorId: many(
+      subledgerFxCostBasisLotDispositionHistoryInAudit,
+      {
+        relationName:
+          'subledgerFxCostBasisLotDispositionHistoryInAudit_actorId_actorsInCore_id',
+      }
+    ),
+    subledgerFxCostBasisLotDispositionAllocationsInCores: many(
+      subledgerFxCostBasisLotDispositionAllocationsInCore
+    ),
+    bankDetailsInCores: many(bankDetailsInCore),
+  })
+);
+
+export const actorHistoryInAuditRelations = relations(
+  actorHistoryInAudit,
+  ({ one }) => ({
+    actorsInCore_actorEntityId: one(actorsInCore, {
+      fields: [actorHistoryInAudit.actorEntityId],
+      references: [actorsInCore.id],
+      relationName: 'actorHistoryInAudit_actorEntityId_actorsInCore_id',
+    }),
+    actorsInCore_actorId: one(actorsInCore, {
+      fields: [actorHistoryInAudit.actorId],
+      references: [actorsInCore.id],
+      relationName: 'actorHistoryInAudit_actorId_actorsInCore_id',
+    }),
+    actorsInCore_onBehalfOf: one(actorsInCore, {
+      fields: [actorHistoryInAudit.onBehalfOf],
+      references: [actorsInCore.id],
+      relationName: 'actorHistoryInAudit_onBehalfOf_actorsInCore_id',
+    }),
+  })
+);
+
+export const usersInCoreRelations = relations(usersInCore, ({ one, many }) => ({
+  actorsInCore_actorId: one(actorsInCore, {
+    fields: [usersInCore.actorId],
+    references: [actorsInCore.id],
+    relationName: 'usersInCore_actorId_actorsInCore_id',
+  }),
+  actorsInCore_createdBy: one(actorsInCore, {
+    fields: [usersInCore.createdBy],
+    references: [actorsInCore.id],
+    relationName: 'usersInCore_createdBy_actorsInCore_id',
+  }),
+  userAuthInCores: many(userAuthInCore),
+  userSessionsInCores: many(userSessionsInCore),
+  accountingEntitiesInCores: many(accountingEntitiesInCore),
+  userPreferencesInCores: many(userPreferencesInCore),
+}));
+
 export const userAuthInCoreRelations = relations(userAuthInCore, ({ one }) => ({
+  actorsInCore: one(actorsInCore, {
+    fields: [userAuthInCore.createdBy],
+    references: [actorsInCore.id],
+  }),
   usersInCore: one(usersInCore, {
     fields: [userAuthInCore.userId],
     references: [usersInCore.id],
   }),
 }));
 
-export const usersInCoreRelations = relations(usersInCore, ({ many }) => ({
-  userAuthInCores: many(userAuthInCore),
-  userSessionsInCores: many(userSessionsInCore),
-  userProfileHistoryInAudits: many(userProfileHistoryInAudit),
-  accountingEntitiesInCores: many(accountingEntitiesInCore),
-  accountingEntityHistoryInAudits: many(accountingEntityHistoryInAudit),
-  userPreferencesInCores: many(userPreferencesInCore),
-  fiscalYearHistoryInAudits: many(fiscalYearHistoryInAudit),
-  accountingPeriodHistoryInAudits: many(accountingPeriodHistoryInAudit),
-  accountingContextHistoryInAudits: many(accountingContextHistoryInAudit),
-  reportingPeriodHistoryInAudits: many(reportingPeriodHistoryInAudit),
-  reportingContextHistoryInAudits: many(reportingContextHistoryInAudit),
-  ledgerAccountsInCores: many(ledgerAccountsInCore),
-  ledgerAccountHistoryInAudits: many(ledgerAccountHistoryInAudit),
-  counterpartyHistoryInAudits: many(counterpartyHistoryInAudit),
-  journalEntriesInCores: many(journalEntriesInCore),
-  journalEntryHistoryInAudits: many(journalEntryHistoryInAudit),
-  journalLineHistoryInAudits: many(journalLineHistoryInAudit),
-  ledgerAccountBalanceAdjustmentsInCores: many(
-    ledgerAccountBalanceAdjustmentsInCore
-  ),
-  subledgerFxCostBasisLotHistoryInAudits: many(
-    subledgerFxCostBasisLotHistoryInAudit
-  ),
-  subledgerFxCostBasisLotAcquisitionHistoryInAudits: many(
-    subledgerFxCostBasisLotAcquisitionHistoryInAudit
-  ),
-  subledgerFxCostBasisLotDispositionHistoryInAudits: many(
-    subledgerFxCostBasisLotDispositionHistoryInAudit
-  ),
-}));
-
 export const userSessionsInCoreRelations = relations(
   userSessionsInCore,
   ({ one }) => ({
+    actorsInCore: one(actorsInCore, {
+      fields: [userSessionsInCore.createdBy],
+      references: [actorsInCore.id],
+    }),
     usersInCore: one(usersInCore, {
       fields: [userSessionsInCore.userId],
       references: [usersInCore.id],
@@ -96,34 +324,26 @@ export const userSessionsInCoreRelations = relations(
 export const userProfileHistoryInAuditRelations = relations(
   userProfileHistoryInAudit,
   ({ one }) => ({
-    usersInCore: one(usersInCore, {
-      fields: [userProfileHistoryInAudit.userId],
-      references: [usersInCore.id],
+    actorsInCore_actorId: one(actorsInCore, {
+      fields: [userProfileHistoryInAudit.actorId],
+      references: [actorsInCore.id],
+      relationName: 'userProfileHistoryInAudit_actorId_actorsInCore_id',
     }),
-  })
-);
-
-export const currencyExchangeRatesInCoreRelations = relations(
-  currencyExchangeRatesInCore,
-  ({ one }) => ({
-    currenciesInCore_baseCurrencyCode: one(currenciesInCore, {
-      fields: [currencyExchangeRatesInCore.baseCurrencyCode],
-      references: [currenciesInCore.code],
-      relationName:
-        'currencyExchangeRatesInCore_baseCurrencyCode_currenciesInCore_code',
-    }),
-    currenciesInCore_targetCurrencyCode: one(currenciesInCore, {
-      fields: [currencyExchangeRatesInCore.targetCurrencyCode],
-      references: [currenciesInCore.code],
-      relationName:
-        'currencyExchangeRatesInCore_targetCurrencyCode_currenciesInCore_code',
+    actorsInCore_onBehalfOf: one(actorsInCore, {
+      fields: [userProfileHistoryInAudit.onBehalfOf],
+      references: [actorsInCore.id],
+      relationName: 'userProfileHistoryInAudit_onBehalfOf_actorsInCore_id',
     }),
   })
 );
 
 export const currenciesInCoreRelations = relations(
   currenciesInCore,
-  ({ many }) => ({
+  ({ one, many }) => ({
+    actorsInCore: one(actorsInCore, {
+      fields: [currenciesInCore.createdBy],
+      references: [actorsInCore.id],
+    }),
     currencyExchangeRatesInCores_baseCurrencyCode: many(
       currencyExchangeRatesInCore,
       {
@@ -163,13 +383,6 @@ export const currenciesInCoreRelations = relations(
       relationName:
         'journalLinesInCore_functionalCurrencyCode_currenciesInCore_code',
     }),
-    ledgerAccountBalanceAdjustmentsInCores_currencyCode: many(
-      ledgerAccountBalanceAdjustmentsInCore,
-      {
-        relationName:
-          'ledgerAccountBalanceAdjustmentsInCore_currencyCode_currenciesInCore_code',
-      }
-    ),
     ledgerAccountBalanceAdjustmentsInCores_functionalCurrencyCode: many(
       ledgerAccountBalanceAdjustmentsInCore,
       {
@@ -177,11 +390,11 @@ export const currenciesInCoreRelations = relations(
           'ledgerAccountBalanceAdjustmentsInCore_functionalCurrencyCode_currenciesInCore_code',
       }
     ),
-    subledgerFxCostBasisLotsInCores_originalQuantityCurrency: many(
-      subledgerFxCostBasisLotsInCore,
+    ledgerAccountBalanceAdjustmentsInCores_currencyCode: many(
+      ledgerAccountBalanceAdjustmentsInCore,
       {
         relationName:
-          'subledgerFxCostBasisLotsInCore_originalQuantityCurrency_currenciesInCore_code',
+          'ledgerAccountBalanceAdjustmentsInCore_currencyCode_currenciesInCore_code',
       }
     ),
     subledgerFxCostBasisLotsInCores_costBasisCurrency: many(
@@ -191,11 +404,11 @@ export const currenciesInCoreRelations = relations(
           'subledgerFxCostBasisLotsInCore_costBasisCurrency_currenciesInCore_code',
       }
     ),
-    subledgerFxCostBasisLotAcquisitionsInCores_quantityCurrency: many(
-      subledgerFxCostBasisLotAcquisitionsInCore,
+    subledgerFxCostBasisLotsInCores_originalQuantityCurrency: many(
+      subledgerFxCostBasisLotsInCore,
       {
         relationName:
-          'subledgerFxCostBasisLotAcquisitionsInCore_quantityCurrency_currenciesInCore_code',
+          'subledgerFxCostBasisLotsInCore_originalQuantityCurrency_currenciesInCore_code',
       }
     ),
     subledgerFxCostBasisLotAcquisitionsInCores_costBasisCurrency: many(
@@ -205,11 +418,11 @@ export const currenciesInCoreRelations = relations(
           'subledgerFxCostBasisLotAcquisitionsInCore_costBasisCurrency_currenciesInCore_code',
       }
     ),
-    subledgerFxCostBasisLotDispositionsInCores_quantityCurrency: many(
-      subledgerFxCostBasisLotDispositionsInCore,
+    subledgerFxCostBasisLotAcquisitionsInCores_quantityCurrency: many(
+      subledgerFxCostBasisLotAcquisitionsInCore,
       {
         relationName:
-          'subledgerFxCostBasisLotDispositionsInCore_quantityCurrency_currenciesInCore_code',
+          'subledgerFxCostBasisLotAcquisitionsInCore_quantityCurrency_currenciesInCore_code',
       }
     ),
     subledgerFxCostBasisLotDispositionsInCores_costBasisConsumedCurrency: many(
@@ -219,13 +432,6 @@ export const currenciesInCoreRelations = relations(
           'subledgerFxCostBasisLotDispositionsInCore_costBasisConsumedCurrency_currenciesInCore_code',
       }
     ),
-    subledgerFxCostBasisLotDispositionsInCores_proceedsCurrency: many(
-      subledgerFxCostBasisLotDispositionsInCore,
-      {
-        relationName:
-          'subledgerFxCostBasisLotDispositionsInCore_proceedsCurrency_currenciesInCore_code',
-      }
-    ),
     subledgerFxCostBasisLotDispositionsInCores_realizedGainLossCurrency: many(
       subledgerFxCostBasisLotDispositionsInCore,
       {
@@ -233,23 +439,18 @@ export const currenciesInCoreRelations = relations(
           'subledgerFxCostBasisLotDispositionsInCore_realizedGainLossCurrency_currenciesInCore_code',
       }
     ),
-    subledgerFxCostBasisLotDispositionAllocationsInCores_proceedsCurrency: many(
-      subledgerFxCostBasisLotDispositionAllocationsInCore,
+    subledgerFxCostBasisLotDispositionsInCores_proceedsCurrency: many(
+      subledgerFxCostBasisLotDispositionsInCore,
       {
         relationName:
-          'subledgerFxCostBasisLotDispositionAllocationsInCore_proceedsCurrency_currenciesInCore_code',
+          'subledgerFxCostBasisLotDispositionsInCore_proceedsCurrency_currenciesInCore_code',
       }
     ),
-    subledgerFxCostBasisLotDispositionAllocationsInCores_realizedGainLossCurrency:
-      many(subledgerFxCostBasisLotDispositionAllocationsInCore, {
-        relationName:
-          'subledgerFxCostBasisLotDispositionAllocationsInCore_realizedGainLossCurrency_currenciesInCore_code',
-      }),
-    subledgerFxCostBasisLotDispositionAllocationsInCores_quantityCurrency: many(
-      subledgerFxCostBasisLotDispositionAllocationsInCore,
+    subledgerFxCostBasisLotDispositionsInCores_quantityCurrency: many(
+      subledgerFxCostBasisLotDispositionsInCore,
       {
         relationName:
-          'subledgerFxCostBasisLotDispositionAllocationsInCore_quantityCurrency_currenciesInCore_code',
+          'subledgerFxCostBasisLotDispositionsInCore_quantityCurrency_currenciesInCore_code',
       }
     ),
     subledgerFxCostBasisLotDispositionAllocationsInCores_costBasisConsumedCurrency:
@@ -257,12 +458,72 @@ export const currenciesInCoreRelations = relations(
         relationName:
           'subledgerFxCostBasisLotDispositionAllocationsInCore_costBasisConsumedCurrency_currenciesInCore_code',
       }),
+    subledgerFxCostBasisLotDispositionAllocationsInCores_realizedGainLossCurrency:
+      many(subledgerFxCostBasisLotDispositionAllocationsInCore, {
+        relationName:
+          'subledgerFxCostBasisLotDispositionAllocationsInCore_realizedGainLossCurrency_currenciesInCore_code',
+      }),
+    subledgerFxCostBasisLotDispositionAllocationsInCores_proceedsCurrency: many(
+      subledgerFxCostBasisLotDispositionAllocationsInCore,
+      {
+        relationName:
+          'subledgerFxCostBasisLotDispositionAllocationsInCore_proceedsCurrency_currenciesInCore_code',
+      }
+    ),
+    subledgerFxCostBasisLotDispositionAllocationsInCores_quantityCurrency: many(
+      subledgerFxCostBasisLotDispositionAllocationsInCore,
+      {
+        relationName:
+          'subledgerFxCostBasisLotDispositionAllocationsInCore_quantityCurrency_currenciesInCore_code',
+      }
+    ),
+  })
+);
+
+export const currencyExchangeRatesInCoreRelations = relations(
+  currencyExchangeRatesInCore,
+  ({ one }) => ({
+    currenciesInCore_baseCurrencyCode: one(currenciesInCore, {
+      fields: [currencyExchangeRatesInCore.baseCurrencyCode],
+      references: [currenciesInCore.code],
+      relationName:
+        'currencyExchangeRatesInCore_baseCurrencyCode_currenciesInCore_code',
+    }),
+    actorsInCore: one(actorsInCore, {
+      fields: [currencyExchangeRatesInCore.createdBy],
+      references: [actorsInCore.id],
+    }),
+    currenciesInCore_targetCurrencyCode: one(currenciesInCore, {
+      fields: [currencyExchangeRatesInCore.targetCurrencyCode],
+      references: [currenciesInCore.code],
+      relationName:
+        'currencyExchangeRatesInCore_targetCurrencyCode_currenciesInCore_code',
+    }),
+  })
+);
+
+export const accountingStandardsInCoreRelations = relations(
+  accountingStandardsInCore,
+  ({ one, many }) => ({
+    actorsInCore: one(actorsInCore, {
+      fields: [accountingStandardsInCore.createdBy],
+      references: [actorsInCore.id],
+    }),
+    accountingContextsInCores: many(accountingContextsInCore),
+    reportingContextsInCores: many(reportingContextsInCore),
+    jurisdictionAccountingStandardsInCores: many(
+      jurisdictionAccountingStandardsInCore
+    ),
   })
 );
 
 export const jurisdictionsInCoreRelations = relations(
   jurisdictionsInCore,
   ({ one, many }) => ({
+    actorsInCore: one(actorsInCore, {
+      fields: [jurisdictionsInCore.createdBy],
+      references: [actorsInCore.id],
+    }),
     currenciesInCore: one(currenciesInCore, {
       fields: [jurisdictionsInCore.currencyCode],
       references: [currenciesInCore.code],
@@ -277,9 +538,9 @@ export const jurisdictionsInCoreRelations = relations(
 export const accountingEntitiesInCoreRelations = relations(
   accountingEntitiesInCore,
   ({ one, many }) => ({
-    usersInCore: one(usersInCore, {
-      fields: [accountingEntitiesInCore.ownerId],
-      references: [usersInCore.id],
+    actorsInCore: one(actorsInCore, {
+      fields: [accountingEntitiesInCore.createdBy],
+      references: [actorsInCore.id],
     }),
     currenciesInCore: one(currenciesInCore, {
       fields: [accountingEntitiesInCore.functionalCurrencyCode],
@@ -288,6 +549,10 @@ export const accountingEntitiesInCoreRelations = relations(
     jurisdictionsInCore: one(jurisdictionsInCore, {
       fields: [accountingEntitiesInCore.jurisdictionCode],
       references: [jurisdictionsInCore.code],
+    }),
+    usersInCore: one(usersInCore, {
+      fields: [accountingEntitiesInCore.ownerId],
+      references: [usersInCore.id],
     }),
     userPreferencesInCores: many(userPreferencesInCore),
     fiscalYearsInCores: many(fiscalYearsInCore),
@@ -313,9 +578,15 @@ export const accountingEntitiesInCoreRelations = relations(
 export const accountingEntityHistoryInAuditRelations = relations(
   accountingEntityHistoryInAudit,
   ({ one }) => ({
-    usersInCore: one(usersInCore, {
-      fields: [accountingEntityHistoryInAudit.userId],
-      references: [usersInCore.id],
+    actorsInCore_actorId: one(actorsInCore, {
+      fields: [accountingEntityHistoryInAudit.actorId],
+      references: [actorsInCore.id],
+      relationName: 'accountingEntityHistoryInAudit_actorId_actorsInCore_id',
+    }),
+    actorsInCore_onBehalfOf: one(actorsInCore, {
+      fields: [accountingEntityHistoryInAudit.onBehalfOf],
+      references: [actorsInCore.id],
+      relationName: 'accountingEntityHistoryInAudit_onBehalfOf_actorsInCore_id',
     }),
   })
 );
@@ -323,6 +594,10 @@ export const accountingEntityHistoryInAuditRelations = relations(
 export const userPreferencesInCoreRelations = relations(
   userPreferencesInCore,
   ({ one }) => ({
+    actorsInCore: one(actorsInCore, {
+      fields: [userPreferencesInCore.createdBy],
+      references: [actorsInCore.id],
+    }),
     usersInCore: one(usersInCore, {
       fields: [userPreferencesInCore.id],
       references: [usersInCore.id],
@@ -341,6 +616,10 @@ export const fiscalYearsInCoreRelations = relations(
       fields: [fiscalYearsInCore.accountingEntityId],
       references: [accountingEntitiesInCore.id],
     }),
+    actorsInCore: one(actorsInCore, {
+      fields: [fiscalYearsInCore.createdBy],
+      references: [actorsInCore.id],
+    }),
     accountingPeriodsInCores: many(accountingPeriodsInCore),
     accountingContextsInCores: many(accountingContextsInCore),
     reportingPeriodsInCores: many(reportingPeriodsInCore),
@@ -350,9 +629,15 @@ export const fiscalYearsInCoreRelations = relations(
 export const fiscalYearHistoryInAuditRelations = relations(
   fiscalYearHistoryInAudit,
   ({ one }) => ({
-    usersInCore: one(usersInCore, {
-      fields: [fiscalYearHistoryInAudit.userId],
-      references: [usersInCore.id],
+    actorsInCore_actorId: one(actorsInCore, {
+      fields: [fiscalYearHistoryInAudit.actorId],
+      references: [actorsInCore.id],
+      relationName: 'fiscalYearHistoryInAudit_actorId_actorsInCore_id',
+    }),
+    actorsInCore_onBehalfOf: one(actorsInCore, {
+      fields: [fiscalYearHistoryInAudit.onBehalfOf],
+      references: [actorsInCore.id],
+      relationName: 'fiscalYearHistoryInAudit_onBehalfOf_actorsInCore_id',
     }),
   })
 );
@@ -363,6 +648,10 @@ export const accountingPeriodsInCoreRelations = relations(
     accountingEntitiesInCore: one(accountingEntitiesInCore, {
       fields: [accountingPeriodsInCore.accountingEntityId],
       references: [accountingEntitiesInCore.id],
+    }),
+    actorsInCore: one(actorsInCore, {
+      fields: [accountingPeriodsInCore.createdBy],
+      references: [actorsInCore.id],
     }),
     fiscalYearsInCore: one(fiscalYearsInCore, {
       fields: [accountingPeriodsInCore.fiscalYearId],
@@ -375,9 +664,15 @@ export const accountingPeriodsInCoreRelations = relations(
 export const accountingPeriodHistoryInAuditRelations = relations(
   accountingPeriodHistoryInAudit,
   ({ one }) => ({
-    usersInCore: one(usersInCore, {
-      fields: [accountingPeriodHistoryInAudit.userId],
-      references: [usersInCore.id],
+    actorsInCore_actorId: one(actorsInCore, {
+      fields: [accountingPeriodHistoryInAudit.actorId],
+      references: [actorsInCore.id],
+      relationName: 'accountingPeriodHistoryInAudit_actorId_actorsInCore_id',
+    }),
+    actorsInCore_onBehalfOf: one(actorsInCore, {
+      fields: [accountingPeriodHistoryInAudit.onBehalfOf],
+      references: [actorsInCore.id],
+      relationName: 'accountingPeriodHistoryInAudit_onBehalfOf_actorsInCore_id',
     }),
   })
 );
@@ -393,35 +688,35 @@ export const accountingContextsInCoreRelations = relations(
       fields: [accountingContextsInCore.accountingStandardCode],
       references: [accountingStandardsInCore.code],
     }),
-    fiscalYearsInCore: one(fiscalYearsInCore, {
-      fields: [accountingContextsInCore.fiscalYearId],
-      references: [fiscalYearsInCore.id],
+    actorsInCore: one(actorsInCore, {
+      fields: [accountingContextsInCore.createdBy],
+      references: [actorsInCore.id],
     }),
     accountingPeriodsInCore: one(accountingPeriodsInCore, {
       fields: [accountingContextsInCore.currentOperatingPeriodId],
       references: [accountingPeriodsInCore.id],
     }),
+    fiscalYearsInCore: one(fiscalYearsInCore, {
+      fields: [accountingContextsInCore.fiscalYearId],
+      references: [fiscalYearsInCore.id],
+    }),
     reportingContextsInCores: many(reportingContextsInCore),
-  })
-);
-
-export const accountingStandardsInCoreRelations = relations(
-  accountingStandardsInCore,
-  ({ many }) => ({
-    accountingContextsInCores: many(accountingContextsInCore),
-    reportingContextsInCores: many(reportingContextsInCore),
-    jurisdictionAccountingStandardsInCores: many(
-      jurisdictionAccountingStandardsInCore
-    ),
   })
 );
 
 export const accountingContextHistoryInAuditRelations = relations(
   accountingContextHistoryInAudit,
   ({ one }) => ({
-    usersInCore: one(usersInCore, {
-      fields: [accountingContextHistoryInAudit.userId],
-      references: [usersInCore.id],
+    actorsInCore_actorId: one(actorsInCore, {
+      fields: [accountingContextHistoryInAudit.actorId],
+      references: [actorsInCore.id],
+      relationName: 'accountingContextHistoryInAudit_actorId_actorsInCore_id',
+    }),
+    actorsInCore_onBehalfOf: one(actorsInCore, {
+      fields: [accountingContextHistoryInAudit.onBehalfOf],
+      references: [actorsInCore.id],
+      relationName:
+        'accountingContextHistoryInAudit_onBehalfOf_actorsInCore_id',
     }),
   })
 );
@@ -432,6 +727,10 @@ export const reportingPeriodsInCoreRelations = relations(
     accountingEntitiesInCore: one(accountingEntitiesInCore, {
       fields: [reportingPeriodsInCore.accountingEntityId],
       references: [accountingEntitiesInCore.id],
+    }),
+    actorsInCore: one(actorsInCore, {
+      fields: [reportingPeriodsInCore.createdBy],
+      references: [actorsInCore.id],
     }),
     fiscalYearsInCore: one(fiscalYearsInCore, {
       fields: [reportingPeriodsInCore.fiscalYearId],
@@ -444,9 +743,15 @@ export const reportingPeriodsInCoreRelations = relations(
 export const reportingPeriodHistoryInAuditRelations = relations(
   reportingPeriodHistoryInAudit,
   ({ one }) => ({
-    usersInCore: one(usersInCore, {
-      fields: [reportingPeriodHistoryInAudit.userId],
-      references: [usersInCore.id],
+    actorsInCore_actorId: one(actorsInCore, {
+      fields: [reportingPeriodHistoryInAudit.actorId],
+      references: [actorsInCore.id],
+      relationName: 'reportingPeriodHistoryInAudit_actorId_actorsInCore_id',
+    }),
+    actorsInCore_onBehalfOf: one(actorsInCore, {
+      fields: [reportingPeriodHistoryInAudit.onBehalfOf],
+      references: [actorsInCore.id],
+      relationName: 'reportingPeriodHistoryInAudit_onBehalfOf_actorsInCore_id',
     }),
   })
 );
@@ -454,25 +759,29 @@ export const reportingPeriodHistoryInAuditRelations = relations(
 export const reportingContextsInCoreRelations = relations(
   reportingContextsInCore,
   ({ one }) => ({
+    accountingContextsInCore: one(accountingContextsInCore, {
+      fields: [reportingContextsInCore.accountingContextId],
+      references: [accountingContextsInCore.id],
+    }),
     accountingEntitiesInCore: one(accountingEntitiesInCore, {
       fields: [reportingContextsInCore.accountingEntityId],
       references: [accountingEntitiesInCore.id],
     }),
-    currenciesInCore: one(currenciesInCore, {
-      fields: [reportingContextsInCore.reportingCurrencyCode],
-      references: [currenciesInCore.code],
+    accountingStandardsInCore: one(accountingStandardsInCore, {
+      fields: [reportingContextsInCore.accountingStandardCode],
+      references: [accountingStandardsInCore.code],
     }),
-    accountingContextsInCore: one(accountingContextsInCore, {
-      fields: [reportingContextsInCore.accountingContextId],
-      references: [accountingContextsInCore.id],
+    actorsInCore: one(actorsInCore, {
+      fields: [reportingContextsInCore.createdBy],
+      references: [actorsInCore.id],
     }),
     reportingPeriodsInCore: one(reportingPeriodsInCore, {
       fields: [reportingContextsInCore.currentReportingPeriodId],
       references: [reportingPeriodsInCore.id],
     }),
-    accountingStandardsInCore: one(accountingStandardsInCore, {
-      fields: [reportingContextsInCore.accountingStandardCode],
-      references: [accountingStandardsInCore.code],
+    currenciesInCore: one(currenciesInCore, {
+      fields: [reportingContextsInCore.reportingCurrencyCode],
+      references: [currenciesInCore.code],
     }),
   })
 );
@@ -480,9 +789,15 @@ export const reportingContextsInCoreRelations = relations(
 export const reportingContextHistoryInAuditRelations = relations(
   reportingContextHistoryInAudit,
   ({ one }) => ({
-    usersInCore: one(usersInCore, {
-      fields: [reportingContextHistoryInAudit.userId],
-      references: [usersInCore.id],
+    actorsInCore_actorId: one(actorsInCore, {
+      fields: [reportingContextHistoryInAudit.actorId],
+      references: [actorsInCore.id],
+      relationName: 'reportingContextHistoryInAudit_actorId_actorsInCore_id',
+    }),
+    actorsInCore_onBehalfOf: one(actorsInCore, {
+      fields: [reportingContextHistoryInAudit.onBehalfOf],
+      references: [actorsInCore.id],
+      relationName: 'reportingContextHistoryInAudit_onBehalfOf_actorsInCore_id',
     }),
   })
 );
@@ -504,13 +819,13 @@ export const ledgerAccountsInCoreRelations = relations(
       relationName:
         'ledgerAccountsInCore_controlAccountId_ledgerAccountsInCore_id',
     }),
+    actorsInCore: one(actorsInCore, {
+      fields: [ledgerAccountsInCore.createdBy],
+      references: [actorsInCore.id],
+    }),
     currenciesInCore: one(currenciesInCore, {
       fields: [ledgerAccountsInCore.currencyCode],
       references: [currenciesInCore.code],
-    }),
-    usersInCore: one(usersInCore, {
-      fields: [ledgerAccountsInCore.createdBy],
-      references: [usersInCore.id],
     }),
     ledgerAccountBalancesInCores: many(ledgerAccountBalancesInCore),
     journalLinesInCores: many(journalLinesInCore),
@@ -531,9 +846,15 @@ export const ledgerAccountsInCoreRelations = relations(
 export const ledgerAccountHistoryInAuditRelations = relations(
   ledgerAccountHistoryInAudit,
   ({ one }) => ({
-    usersInCore: one(usersInCore, {
-      fields: [ledgerAccountHistoryInAudit.userId],
-      references: [usersInCore.id],
+    actorsInCore_actorId: one(actorsInCore, {
+      fields: [ledgerAccountHistoryInAudit.actorId],
+      references: [actorsInCore.id],
+      relationName: 'ledgerAccountHistoryInAudit_actorId_actorsInCore_id',
+    }),
+    actorsInCore_onBehalfOf: one(actorsInCore, {
+      fields: [ledgerAccountHistoryInAudit.onBehalfOf],
+      references: [actorsInCore.id],
+      relationName: 'ledgerAccountHistoryInAudit_onBehalfOf_actorsInCore_id',
     }),
   })
 );
@@ -541,13 +862,13 @@ export const ledgerAccountHistoryInAuditRelations = relations(
 export const ledgerAccountBalancesInCoreRelations = relations(
   ledgerAccountBalancesInCore,
   ({ one }) => ({
-    ledgerAccountsInCore: one(ledgerAccountsInCore, {
-      fields: [ledgerAccountBalancesInCore.ledgerAccountId],
-      references: [ledgerAccountsInCore.id],
-    }),
     accountingEntitiesInCore: one(accountingEntitiesInCore, {
       fields: [ledgerAccountBalancesInCore.accountingEntityId],
       references: [accountingEntitiesInCore.id],
+    }),
+    actorsInCore: one(actorsInCore, {
+      fields: [ledgerAccountBalancesInCore.createdBy],
+      references: [actorsInCore.id],
     }),
     currenciesInCore_currencyCode: one(currenciesInCore, {
       fields: [ledgerAccountBalancesInCore.currencyCode],
@@ -561,6 +882,10 @@ export const ledgerAccountBalancesInCoreRelations = relations(
       relationName:
         'ledgerAccountBalancesInCore_functionalCurrencyCode_currenciesInCore_code',
     }),
+    ledgerAccountsInCore: one(ledgerAccountsInCore, {
+      fields: [ledgerAccountBalancesInCore.ledgerAccountId],
+      references: [ledgerAccountsInCore.id],
+    }),
   })
 );
 
@@ -571,6 +896,10 @@ export const counterpartiesInCoreRelations = relations(
       fields: [counterpartiesInCore.accountingEntityId],
       references: [accountingEntitiesInCore.id],
     }),
+    actorsInCore: one(actorsInCore, {
+      fields: [counterpartiesInCore.createdBy],
+      references: [actorsInCore.id],
+    }),
     journalLinesInCores: many(journalLinesInCore),
   })
 );
@@ -578,9 +907,15 @@ export const counterpartiesInCoreRelations = relations(
 export const counterpartyHistoryInAuditRelations = relations(
   counterpartyHistoryInAudit,
   ({ one }) => ({
-    usersInCore: one(usersInCore, {
-      fields: [counterpartyHistoryInAudit.userId],
-      references: [usersInCore.id],
+    actorsInCore_actorId: one(actorsInCore, {
+      fields: [counterpartyHistoryInAudit.actorId],
+      references: [actorsInCore.id],
+      relationName: 'counterpartyHistoryInAudit_actorId_actorsInCore_id',
+    }),
+    actorsInCore_onBehalfOf: one(actorsInCore, {
+      fields: [counterpartyHistoryInAudit.onBehalfOf],
+      references: [actorsInCore.id],
+      relationName: 'counterpartyHistoryInAudit_onBehalfOf_actorsInCore_id',
     }),
   })
 );
@@ -592,6 +927,10 @@ export const journalEntriesInCoreRelations = relations(
       fields: [journalEntriesInCore.accountingEntityId],
       references: [accountingEntitiesInCore.id],
     }),
+    actorsInCore: one(actorsInCore, {
+      fields: [journalEntriesInCore.createdBy],
+      references: [actorsInCore.id],
+    }),
     journalEntriesInCore: one(journalEntriesInCore, {
       fields: [journalEntriesInCore.voidingEntryId],
       references: [journalEntriesInCore.id],
@@ -601,10 +940,6 @@ export const journalEntriesInCoreRelations = relations(
     journalEntriesInCores: many(journalEntriesInCore, {
       relationName:
         'journalEntriesInCore_voidingEntryId_journalEntriesInCore_id',
-    }),
-    usersInCore: one(usersInCore, {
-      fields: [journalEntriesInCore.createdBy],
-      references: [usersInCore.id],
     }),
     journalEntryAttachmentsInCores: many(journalEntryAttachmentsInCore),
     journalLinesInCores: many(journalLinesInCore),
@@ -623,9 +958,15 @@ export const journalEntriesInCoreRelations = relations(
 export const journalEntryHistoryInAuditRelations = relations(
   journalEntryHistoryInAudit,
   ({ one }) => ({
-    usersInCore: one(usersInCore, {
-      fields: [journalEntryHistoryInAudit.userId],
-      references: [usersInCore.id],
+    actorsInCore_actorId: one(actorsInCore, {
+      fields: [journalEntryHistoryInAudit.actorId],
+      references: [actorsInCore.id],
+      relationName: 'journalEntryHistoryInAudit_actorId_actorsInCore_id',
+    }),
+    actorsInCore_onBehalfOf: one(actorsInCore, {
+      fields: [journalEntryHistoryInAudit.onBehalfOf],
+      references: [actorsInCore.id],
+      relationName: 'journalEntryHistoryInAudit_onBehalfOf_actorsInCore_id',
     }),
   })
 );
@@ -643,10 +984,6 @@ export const journalEntryAttachmentsInCoreRelations = relations(
 export const journalLinesInCoreRelations = relations(
   journalLinesInCore,
   ({ one }) => ({
-    journalEntriesInCore: one(journalEntriesInCore, {
-      fields: [journalLinesInCore.entryId],
-      references: [journalEntriesInCore.id],
-    }),
     ledgerAccountsInCore: one(ledgerAccountsInCore, {
       fields: [journalLinesInCore.accountId],
       references: [ledgerAccountsInCore.id],
@@ -655,10 +992,18 @@ export const journalLinesInCoreRelations = relations(
       fields: [journalLinesInCore.counterpartyId],
       references: [counterpartiesInCore.id],
     }),
+    actorsInCore: one(actorsInCore, {
+      fields: [journalLinesInCore.createdBy],
+      references: [actorsInCore.id],
+    }),
     currenciesInCore_currencyCode: one(currenciesInCore, {
       fields: [journalLinesInCore.currencyCode],
       references: [currenciesInCore.code],
       relationName: 'journalLinesInCore_currencyCode_currenciesInCore_code',
+    }),
+    journalEntriesInCore: one(journalEntriesInCore, {
+      fields: [journalLinesInCore.entryId],
+      references: [journalEntriesInCore.id],
     }),
     currenciesInCore_functionalCurrencyCode: one(currenciesInCore, {
       fields: [journalLinesInCore.functionalCurrencyCode],
@@ -672,9 +1017,15 @@ export const journalLinesInCoreRelations = relations(
 export const journalLineHistoryInAuditRelations = relations(
   journalLineHistoryInAudit,
   ({ one }) => ({
-    usersInCore: one(usersInCore, {
-      fields: [journalLineHistoryInAudit.userId],
-      references: [usersInCore.id],
+    actorsInCore_actorId: one(actorsInCore, {
+      fields: [journalLineHistoryInAudit.actorId],
+      references: [actorsInCore.id],
+      relationName: 'journalLineHistoryInAudit_actorId_actorsInCore_id',
+    }),
+    actorsInCore_onBehalfOf: one(actorsInCore, {
+      fields: [journalLineHistoryInAudit.onBehalfOf],
+      references: [actorsInCore.id],
+      relationName: 'journalLineHistoryInAudit_onBehalfOf_actorsInCore_id',
     }),
   })
 );
@@ -682,9 +1033,15 @@ export const journalLineHistoryInAuditRelations = relations(
 export const ledgerAccountBalanceAdjustmentsInCoreRelations = relations(
   ledgerAccountBalanceAdjustmentsInCore,
   ({ one }) => ({
-    ledgerAccountsInCore: one(ledgerAccountsInCore, {
-      fields: [ledgerAccountBalanceAdjustmentsInCore.ledgerAccountId],
-      references: [ledgerAccountsInCore.id],
+    currenciesInCore_functionalCurrencyCode: one(currenciesInCore, {
+      fields: [ledgerAccountBalanceAdjustmentsInCore.functionalCurrencyCode],
+      references: [currenciesInCore.code],
+      relationName:
+        'ledgerAccountBalanceAdjustmentsInCore_functionalCurrencyCode_currenciesInCore_code',
+    }),
+    actorsInCore: one(actorsInCore, {
+      fields: [ledgerAccountBalanceAdjustmentsInCore.createdBy],
+      references: [actorsInCore.id],
     }),
     currenciesInCore_currencyCode: one(currenciesInCore, {
       fields: [ledgerAccountBalanceAdjustmentsInCore.currencyCode],
@@ -692,19 +1049,13 @@ export const ledgerAccountBalanceAdjustmentsInCoreRelations = relations(
       relationName:
         'ledgerAccountBalanceAdjustmentsInCore_currencyCode_currenciesInCore_code',
     }),
-    currenciesInCore_functionalCurrencyCode: one(currenciesInCore, {
-      fields: [ledgerAccountBalanceAdjustmentsInCore.functionalCurrencyCode],
-      references: [currenciesInCore.code],
-      relationName:
-        'ledgerAccountBalanceAdjustmentsInCore_functionalCurrencyCode_currenciesInCore_code',
-    }),
     journalEntriesInCore: one(journalEntriesInCore, {
       fields: [ledgerAccountBalanceAdjustmentsInCore.journalEntryId],
       references: [journalEntriesInCore.id],
     }),
-    usersInCore: one(usersInCore, {
-      fields: [ledgerAccountBalanceAdjustmentsInCore.createdBy],
-      references: [usersInCore.id],
+    ledgerAccountsInCore: one(ledgerAccountsInCore, {
+      fields: [ledgerAccountBalanceAdjustmentsInCore.ledgerAccountId],
+      references: [ledgerAccountsInCore.id],
     }),
   })
 );
@@ -712,25 +1063,29 @@ export const ledgerAccountBalanceAdjustmentsInCoreRelations = relations(
 export const subledgerFxCostBasisLotsInCoreRelations = relations(
   subledgerFxCostBasisLotsInCore,
   ({ one, many }) => ({
-    ledgerAccountsInCore: one(ledgerAccountsInCore, {
-      fields: [subledgerFxCostBasisLotsInCore.ledgerAccountId],
-      references: [ledgerAccountsInCore.id],
-    }),
     accountingEntitiesInCore: one(accountingEntitiesInCore, {
       fields: [subledgerFxCostBasisLotsInCore.accountingEntityId],
       references: [accountingEntitiesInCore.id],
-    }),
-    currenciesInCore_originalQuantityCurrency: one(currenciesInCore, {
-      fields: [subledgerFxCostBasisLotsInCore.originalQuantityCurrency],
-      references: [currenciesInCore.code],
-      relationName:
-        'subledgerFxCostBasisLotsInCore_originalQuantityCurrency_currenciesInCore_code',
     }),
     currenciesInCore_costBasisCurrency: one(currenciesInCore, {
       fields: [subledgerFxCostBasisLotsInCore.costBasisCurrency],
       references: [currenciesInCore.code],
       relationName:
         'subledgerFxCostBasisLotsInCore_costBasisCurrency_currenciesInCore_code',
+    }),
+    actorsInCore: one(actorsInCore, {
+      fields: [subledgerFxCostBasisLotsInCore.createdBy],
+      references: [actorsInCore.id],
+    }),
+    ledgerAccountsInCore: one(ledgerAccountsInCore, {
+      fields: [subledgerFxCostBasisLotsInCore.ledgerAccountId],
+      references: [ledgerAccountsInCore.id],
+    }),
+    currenciesInCore_originalQuantityCurrency: one(currenciesInCore, {
+      fields: [subledgerFxCostBasisLotsInCore.originalQuantityCurrency],
+      references: [currenciesInCore.code],
+      relationName:
+        'subledgerFxCostBasisLotsInCore_originalQuantityCurrency_currenciesInCore_code',
     }),
     subledgerFxCostBasisLotAcquisitionsInCores: many(
       subledgerFxCostBasisLotAcquisitionsInCore
@@ -744,9 +1099,17 @@ export const subledgerFxCostBasisLotsInCoreRelations = relations(
 export const subledgerFxCostBasisLotHistoryInAuditRelations = relations(
   subledgerFxCostBasisLotHistoryInAudit,
   ({ one }) => ({
-    usersInCore: one(usersInCore, {
-      fields: [subledgerFxCostBasisLotHistoryInAudit.userId],
-      references: [usersInCore.id],
+    actorsInCore_actorId: one(actorsInCore, {
+      fields: [subledgerFxCostBasisLotHistoryInAudit.actorId],
+      references: [actorsInCore.id],
+      relationName:
+        'subledgerFxCostBasisLotHistoryInAudit_actorId_actorsInCore_id',
+    }),
+    actorsInCore_onBehalfOf: one(actorsInCore, {
+      fields: [subledgerFxCostBasisLotHistoryInAudit.onBehalfOf],
+      references: [actorsInCore.id],
+      relationName:
+        'subledgerFxCostBasisLotHistoryInAudit_onBehalfOf_actorsInCore_id',
     }),
   })
 );
@@ -758,13 +1121,27 @@ export const subledgerFxCostBasisLotAcquisitionsInCoreRelations = relations(
       fields: [subledgerFxCostBasisLotAcquisitionsInCore.accountingEntityId],
       references: [accountingEntitiesInCore.id],
     }),
-    subledgerFxCostBasisLotsInCore: one(subledgerFxCostBasisLotsInCore, {
-      fields: [subledgerFxCostBasisLotAcquisitionsInCore.lotId],
-      references: [subledgerFxCostBasisLotsInCore.id],
+    currenciesInCore_costBasisCurrency: one(currenciesInCore, {
+      fields: [subledgerFxCostBasisLotAcquisitionsInCore.costBasisCurrency],
+      references: [currenciesInCore.code],
+      relationName:
+        'subledgerFxCostBasisLotAcquisitionsInCore_costBasisCurrency_currenciesInCore_code',
+    }),
+    actorsInCore: one(actorsInCore, {
+      fields: [subledgerFxCostBasisLotAcquisitionsInCore.createdBy],
+      references: [actorsInCore.id],
     }),
     journalEntriesInCore: one(journalEntriesInCore, {
       fields: [subledgerFxCostBasisLotAcquisitionsInCore.journalEntryId],
       references: [journalEntriesInCore.id],
+    }),
+    ledgerAccountsInCore: one(ledgerAccountsInCore, {
+      fields: [subledgerFxCostBasisLotAcquisitionsInCore.ledgerAccountId],
+      references: [ledgerAccountsInCore.id],
+    }),
+    subledgerFxCostBasisLotsInCore: one(subledgerFxCostBasisLotsInCore, {
+      fields: [subledgerFxCostBasisLotAcquisitionsInCore.lotId],
+      references: [subledgerFxCostBasisLotsInCore.id],
     }),
     currenciesInCore_quantityCurrency: one(currenciesInCore, {
       fields: [subledgerFxCostBasisLotAcquisitionsInCore.quantityCurrency],
@@ -772,48 +1149,28 @@ export const subledgerFxCostBasisLotAcquisitionsInCoreRelations = relations(
       relationName:
         'subledgerFxCostBasisLotAcquisitionsInCore_quantityCurrency_currenciesInCore_code',
     }),
-    currenciesInCore_costBasisCurrency: one(currenciesInCore, {
-      fields: [subledgerFxCostBasisLotAcquisitionsInCore.costBasisCurrency],
-      references: [currenciesInCore.code],
-      relationName:
-        'subledgerFxCostBasisLotAcquisitionsInCore_costBasisCurrency_currenciesInCore_code',
-    }),
-    ledgerAccountsInCore: one(ledgerAccountsInCore, {
-      fields: [subledgerFxCostBasisLotAcquisitionsInCore.ledgerAccountId],
-      references: [ledgerAccountsInCore.id],
-    }),
   })
 );
 
 export const subledgerFxCostBasisLotAcquisitionHistoryInAuditRelations =
   relations(subledgerFxCostBasisLotAcquisitionHistoryInAudit, ({ one }) => ({
-    usersInCore: one(usersInCore, {
-      fields: [subledgerFxCostBasisLotAcquisitionHistoryInAudit.userId],
-      references: [usersInCore.id],
+    actorsInCore_onBehalfOf: one(actorsInCore, {
+      fields: [subledgerFxCostBasisLotAcquisitionHistoryInAudit.onBehalfOf],
+      references: [actorsInCore.id],
+      relationName:
+        'subledgerFxCostBasisLotAcquisitionHistoryInAudit_onBehalfOf_actorsInCore_id',
+    }),
+    actorsInCore_actorId: one(actorsInCore, {
+      fields: [subledgerFxCostBasisLotAcquisitionHistoryInAudit.actorId],
+      references: [actorsInCore.id],
+      relationName:
+        'subledgerFxCostBasisLotAcquisitionHistoryInAudit_actorId_actorsInCore_id',
     }),
   }));
 
 export const subledgerFxCostBasisLotDispositionsInCoreRelations = relations(
   subledgerFxCostBasisLotDispositionsInCore,
   ({ one, many }) => ({
-    ledgerAccountsInCore: one(ledgerAccountsInCore, {
-      fields: [subledgerFxCostBasisLotDispositionsInCore.ledgerAccountId],
-      references: [ledgerAccountsInCore.id],
-    }),
-    accountingEntitiesInCore: one(accountingEntitiesInCore, {
-      fields: [subledgerFxCostBasisLotDispositionsInCore.accountingEntityId],
-      references: [accountingEntitiesInCore.id],
-    }),
-    journalEntriesInCore: one(journalEntriesInCore, {
-      fields: [subledgerFxCostBasisLotDispositionsInCore.journalEntryId],
-      references: [journalEntriesInCore.id],
-    }),
-    currenciesInCore_quantityCurrency: one(currenciesInCore, {
-      fields: [subledgerFxCostBasisLotDispositionsInCore.quantityCurrency],
-      references: [currenciesInCore.code],
-      relationName:
-        'subledgerFxCostBasisLotDispositionsInCore_quantityCurrency_currenciesInCore_code',
-    }),
     currenciesInCore_costBasisConsumedCurrency: one(currenciesInCore, {
       fields: [
         subledgerFxCostBasisLotDispositionsInCore.costBasisConsumedCurrency,
@@ -821,12 +1178,6 @@ export const subledgerFxCostBasisLotDispositionsInCoreRelations = relations(
       references: [currenciesInCore.code],
       relationName:
         'subledgerFxCostBasisLotDispositionsInCore_costBasisConsumedCurrency_currenciesInCore_code',
-    }),
-    currenciesInCore_proceedsCurrency: one(currenciesInCore, {
-      fields: [subledgerFxCostBasisLotDispositionsInCore.proceedsCurrency],
-      references: [currenciesInCore.code],
-      relationName:
-        'subledgerFxCostBasisLotDispositionsInCore_proceedsCurrency_currenciesInCore_code',
     }),
     currenciesInCore_realizedGainLossCurrency: one(currenciesInCore, {
       fields: [
@@ -836,6 +1187,34 @@ export const subledgerFxCostBasisLotDispositionsInCoreRelations = relations(
       relationName:
         'subledgerFxCostBasisLotDispositionsInCore_realizedGainLossCurrency_currenciesInCore_code',
     }),
+    accountingEntitiesInCore: one(accountingEntitiesInCore, {
+      fields: [subledgerFxCostBasisLotDispositionsInCore.accountingEntityId],
+      references: [accountingEntitiesInCore.id],
+    }),
+    actorsInCore: one(actorsInCore, {
+      fields: [subledgerFxCostBasisLotDispositionsInCore.createdBy],
+      references: [actorsInCore.id],
+    }),
+    journalEntriesInCore: one(journalEntriesInCore, {
+      fields: [subledgerFxCostBasisLotDispositionsInCore.journalEntryId],
+      references: [journalEntriesInCore.id],
+    }),
+    ledgerAccountsInCore: one(ledgerAccountsInCore, {
+      fields: [subledgerFxCostBasisLotDispositionsInCore.ledgerAccountId],
+      references: [ledgerAccountsInCore.id],
+    }),
+    currenciesInCore_proceedsCurrency: one(currenciesInCore, {
+      fields: [subledgerFxCostBasisLotDispositionsInCore.proceedsCurrency],
+      references: [currenciesInCore.code],
+      relationName:
+        'subledgerFxCostBasisLotDispositionsInCore_proceedsCurrency_currenciesInCore_code',
+    }),
+    currenciesInCore_quantityCurrency: one(currenciesInCore, {
+      fields: [subledgerFxCostBasisLotDispositionsInCore.quantityCurrency],
+      references: [currenciesInCore.code],
+      relationName:
+        'subledgerFxCostBasisLotDispositionsInCore_quantityCurrency_currenciesInCore_code',
+    }),
     subledgerFxCostBasisLotDispositionAllocationsInCores: many(
       subledgerFxCostBasisLotDispositionAllocationsInCore
     ),
@@ -844,21 +1223,29 @@ export const subledgerFxCostBasisLotDispositionsInCoreRelations = relations(
 
 export const subledgerFxCostBasisLotDispositionHistoryInAuditRelations =
   relations(subledgerFxCostBasisLotDispositionHistoryInAudit, ({ one }) => ({
-    usersInCore: one(usersInCore, {
-      fields: [subledgerFxCostBasisLotDispositionHistoryInAudit.userId],
-      references: [usersInCore.id],
+    actorsInCore_onBehalfOf: one(actorsInCore, {
+      fields: [subledgerFxCostBasisLotDispositionHistoryInAudit.onBehalfOf],
+      references: [actorsInCore.id],
+      relationName:
+        'subledgerFxCostBasisLotDispositionHistoryInAudit_onBehalfOf_actorsInCore_id',
+    }),
+    actorsInCore_actorId: one(actorsInCore, {
+      fields: [subledgerFxCostBasisLotDispositionHistoryInAudit.actorId],
+      references: [actorsInCore.id],
+      relationName:
+        'subledgerFxCostBasisLotDispositionHistoryInAudit_actorId_actorsInCore_id',
     }),
   }));
 
 export const subledgerFxCostBasisLotDispositionAllocationsInCoreRelations =
   relations(subledgerFxCostBasisLotDispositionAllocationsInCore, ({ one }) => ({
-    currenciesInCore_proceedsCurrency: one(currenciesInCore, {
+    currenciesInCore_costBasisConsumedCurrency: one(currenciesInCore, {
       fields: [
-        subledgerFxCostBasisLotDispositionAllocationsInCore.proceedsCurrency,
+        subledgerFxCostBasisLotDispositionAllocationsInCore.costBasisConsumedCurrency,
       ],
       references: [currenciesInCore.code],
       relationName:
-        'subledgerFxCostBasisLotDispositionAllocationsInCore_proceedsCurrency_currenciesInCore_code',
+        'subledgerFxCostBasisLotDispositionAllocationsInCore_costBasisConsumedCurrency_currenciesInCore_code',
     }),
     currenciesInCore_realizedGainLossCurrency: one(currenciesInCore, {
       fields: [
@@ -867,6 +1254,22 @@ export const subledgerFxCostBasisLotDispositionAllocationsInCoreRelations =
       references: [currenciesInCore.code],
       relationName:
         'subledgerFxCostBasisLotDispositionAllocationsInCore_realizedGainLossCurrency_currenciesInCore_code',
+    }),
+    currenciesInCore_proceedsCurrency: one(currenciesInCore, {
+      fields: [
+        subledgerFxCostBasisLotDispositionAllocationsInCore.proceedsCurrency,
+      ],
+      references: [currenciesInCore.code],
+      relationName:
+        'subledgerFxCostBasisLotDispositionAllocationsInCore_proceedsCurrency_currenciesInCore_code',
+    }),
+    currenciesInCore_quantityCurrency: one(currenciesInCore, {
+      fields: [
+        subledgerFxCostBasisLotDispositionAllocationsInCore.quantityCurrency,
+      ],
+      references: [currenciesInCore.code],
+      relationName:
+        'subledgerFxCostBasisLotDispositionAllocationsInCore_quantityCurrency_currenciesInCore_code',
     }),
     subledgerFxCostBasisLotDispositionsInCore: one(
       subledgerFxCostBasisLotDispositionsInCore,
@@ -877,38 +1280,26 @@ export const subledgerFxCostBasisLotDispositionAllocationsInCoreRelations =
         references: [subledgerFxCostBasisLotDispositionsInCore.id],
       }
     ),
+    actorsInCore: one(actorsInCore, {
+      fields: [subledgerFxCostBasisLotDispositionAllocationsInCore.createdBy],
+      references: [actorsInCore.id],
+    }),
     subledgerFxCostBasisLotsInCore: one(subledgerFxCostBasisLotsInCore, {
       fields: [subledgerFxCostBasisLotDispositionAllocationsInCore.lotId],
       references: [subledgerFxCostBasisLotsInCore.id],
-    }),
-    currenciesInCore_quantityCurrency: one(currenciesInCore, {
-      fields: [
-        subledgerFxCostBasisLotDispositionAllocationsInCore.quantityCurrency,
-      ],
-      references: [currenciesInCore.code],
-      relationName:
-        'subledgerFxCostBasisLotDispositionAllocationsInCore_quantityCurrency_currenciesInCore_code',
-    }),
-    currenciesInCore_costBasisConsumedCurrency: one(currenciesInCore, {
-      fields: [
-        subledgerFxCostBasisLotDispositionAllocationsInCore.costBasisConsumedCurrency,
-      ],
-      references: [currenciesInCore.code],
-      relationName:
-        'subledgerFxCostBasisLotDispositionAllocationsInCore_costBasisConsumedCurrency_currenciesInCore_code',
     }),
   }));
 
 export const jurisdictionAccountingStandardsInCoreRelations = relations(
   jurisdictionAccountingStandardsInCore,
   ({ one }) => ({
-    jurisdictionsInCore: one(jurisdictionsInCore, {
-      fields: [jurisdictionAccountingStandardsInCore.jurisdictionCode],
-      references: [jurisdictionsInCore.code],
-    }),
     accountingStandardsInCore: one(accountingStandardsInCore, {
       fields: [jurisdictionAccountingStandardsInCore.accountingStandardCode],
       references: [accountingStandardsInCore.code],
+    }),
+    jurisdictionsInCore: one(jurisdictionsInCore, {
+      fields: [jurisdictionAccountingStandardsInCore.jurisdictionCode],
+      references: [jurisdictionsInCore.code],
     }),
   })
 );
@@ -919,6 +1310,10 @@ export const bankDetailsInCoreRelations = relations(
     accountingEntitiesInCore: one(accountingEntitiesInCore, {
       fields: [bankDetailsInCore.accountingEntityId],
       references: [accountingEntitiesInCore.id],
+    }),
+    actorsInCore: one(actorsInCore, {
+      fields: [bankDetailsInCore.createdBy],
+      references: [actorsInCore.id],
     }),
     ledgerAccountsInCore: one(ledgerAccountsInCore, {
       fields: [bankDetailsInCore.ledgerAccountId],

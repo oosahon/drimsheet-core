@@ -4,10 +4,10 @@ import {
   TRepoTransactionFn,
 } from '@shared/contracts/repo.contract';
 import { IReadRepoOptions, IWriteRepoOptions } from '@shared/types/repo.types';
+import { TEntityId } from '@shared/types/uuid';
 import eventValue from '@shared/values/events/event.vo';
 import { TAuditedEntity } from '@shared/values/events/types/event.types';
 import historyValue from '@shared/values/history/history.vo';
-import { IHistoryActor } from '@shared/values/history/types/history.types';
 
 import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
 import { ILedgerAccount } from '@domain/ledger/types/ledger.types';
@@ -29,7 +29,7 @@ interface IPayload {
     ILedgerAccount
   >;
   accountingEntity: IAccountingEntity;
-  actor: IHistoryActor;
+  actor: TEntityId;
   repoOptions: IReadRepoOptions;
   persistRelatedRecords?: (
     account: ILedgerAccount,

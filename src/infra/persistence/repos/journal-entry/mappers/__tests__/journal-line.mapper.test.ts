@@ -30,6 +30,7 @@ describe('Journal Line Mapper', () => {
   );
 
   const exchangeRateModel: IExchangeRateModel = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     id: 1n,
     currencyPair: 'USDNGN',
     baseCurrencyCode: 'USD',
@@ -42,6 +43,7 @@ describe('Journal Line Mapper', () => {
   };
 
   const line: IJournalLine = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     id,
     entryId,
     accountId,
@@ -68,6 +70,7 @@ describe('Journal Line Mapper', () => {
   };
 
   const model: IJournalLineModel = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     id,
     entryId,
     accountId,
@@ -111,6 +114,7 @@ describe('Journal Line Mapper', () => {
   describe('toRepo', () => {
     it('maps a journal line to a repo model', () => {
       expect(journalLineMapper.toRepo(line)).toEqual({
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         id,
         entryId,
         accountId,
@@ -134,6 +138,7 @@ describe('Journal Line Mapper', () => {
   describe('toDto', () => {
     it('maps a journal line to a DTO', () => {
       expect(journalLineMapper.toDto(line)).toEqual({
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         id,
         entryId,
         accountId,

@@ -8,6 +8,7 @@ import historyValue from '@shared/values/history/history.vo';
 
 import userEntity from '@domain/user/entities/user.entity';
 import IUserRepo from '@domain/user/repos/user.repo';
+import IActorService from '@domain/user/types/actor.service.types';
 
 import ITokenService, {
   IAuthTokenPayload,
@@ -25,6 +26,7 @@ const validationSchema = z.object({
 });
 
 interface IDependencies {
+  actorService: IActorService;
   tokenService: ITokenService;
   userRepo: IUserRepo;
   appContext: IAppContext;
@@ -60,6 +62,8 @@ export default function makeVerifyEmailAddressUseCase(deps: IDependencies) {
           throw new authError.InvalidToken();
         }
 
+        await deps.actorService.resolveUser(user, { correlationId, tx });
+
         let sessionUser = user;
 
         if (!user.emailVerified) {
@@ -68,7 +72,7 @@ export default function makeVerifyEmailAddressUseCase(deps: IDependencies) {
 
           const history = historyValue.make(
             userAuditDelta!,
-            historyValue.getUserActor(user.id),
+            user.actorId,
             correlationId
           );
 

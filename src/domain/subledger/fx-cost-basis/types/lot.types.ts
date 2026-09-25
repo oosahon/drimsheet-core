@@ -16,6 +16,7 @@ export type UFxCostBasisLotStatus =
   (typeof EFxCostBasisLotStatus)[keyof typeof EFxCostBasisLotStatus];
 
 export interface IFxCostBasisLot {
+  createdBy: TEntityId;
   id: TEntityId;
   ledgerAccountId: TEntityId;
   accountingEntityId: TEntityId;

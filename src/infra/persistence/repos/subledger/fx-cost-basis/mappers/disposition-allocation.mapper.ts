@@ -20,6 +20,7 @@ const fxCostBasisLotDispositionAllocationMapper = {
     payload: IFxCostBasisLotDispositionAllocationModel
   ): IFxCostBasisLotDispositionAllocation {
     return {
+      createdBy: payload.createdBy as TEntityId,
       id: payload.id as TEntityId,
       dispositionId: payload.dispositionId as TEntityId,
       lotId: payload.lotId as TEntityId,
@@ -47,6 +48,7 @@ const fxCostBasisLotDispositionAllocationMapper = {
     payload: IFxCostBasisLotDispositionAllocation
   ): IFxCostBasisLotDispositionAllocationModel {
     return {
+      createdBy: payload.createdBy as TEntityId,
       id: payload.id,
       dispositionId: payload.dispositionId,
       lotId: payload.lotId,

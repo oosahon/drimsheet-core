@@ -1,12 +1,19 @@
 import { ColumnDefinitions, MigrationBuilder } from 'node-pg-migrate';
 
 import { jurisdictionsTable } from '../config/accounting';
+import { actorsTable } from '../config/actors';
 import { currenciesTable } from '../config/currencies';
 
 export const shorthands: ColumnDefinitions | undefined = undefined;
 
 export async function up(pgm: MigrationBuilder): Promise<void> {
   pgm.createTable(jurisdictionsTable, {
+    created_by: {
+      type: 'uuid',
+      notNull: true,
+      references: actorsTable,
+      onDelete: 'RESTRICT',
+    },
     code: {
       type: 'varchar(2)',
       primaryKey: true,

@@ -11,6 +11,7 @@ import accountingPeriodMapper from '@infra/persistence/repos/accounting/mappers/
 describe('accountingPeriodMapper', () => {
   it('maps an accounting period to the repository model', () => {
     const domain: IAccountingPeriod = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: 'uuid-1' as TEntityId,
       name: 'Jan 2026',
       accountingEntityId: 'entity-1' as TEntityId,
@@ -25,6 +26,7 @@ describe('accountingPeriodMapper', () => {
     };
 
     expect(accountingPeriodMapper.toRepo(domain)).toEqual({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: 'uuid-1',
       name: 'Jan 2026',
       accountingEntityId: 'entity-1',
@@ -41,6 +43,7 @@ describe('accountingPeriodMapper', () => {
 
   it('maps a closed accounting period to the repository model with closedAt', () => {
     const domain: IAccountingPeriod = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: 'uuid-1' as TEntityId,
       name: 'Jan 2026',
       accountingEntityId: 'entity-1' as TEntityId,
@@ -61,6 +64,7 @@ describe('accountingPeriodMapper', () => {
 
   it('maps a repository row to the immutable domain period', () => {
     const row = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: '123e4567-e89b-12d3-a456-426614174001',
       name: 'Jan 2026',
       accountingEntityId: '123e4567-e89b-12d3-a456-426614174002',
@@ -77,6 +81,7 @@ describe('accountingPeriodMapper', () => {
     const result = accountingPeriodMapper.toDomain(row);
 
     expect(result).toEqual({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: row.id as TEntityId,
       name: row.name,
       accountingEntityId: row.accountingEntityId as TEntityId,
@@ -94,6 +99,7 @@ describe('accountingPeriodMapper', () => {
 
   it('maps a repository row with null closedAt to the immutable domain period', () => {
     const row = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: '123e4567-e89b-12d3-a456-426614174001',
       name: 'Jan 2026',
       accountingEntityId: '123e4567-e89b-12d3-a456-426614174002',
@@ -110,6 +116,7 @@ describe('accountingPeriodMapper', () => {
     const result = accountingPeriodMapper.toDomain(row);
 
     expect(result).toEqual({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: row.id as TEntityId,
       name: row.name,
       accountingEntityId: row.accountingEntityId as TEntityId,

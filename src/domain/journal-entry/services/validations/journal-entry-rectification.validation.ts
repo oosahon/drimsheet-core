@@ -39,7 +39,7 @@ function validatePayload(payload: IJournalEntryRectificationPayload) {
     (newEntry.sourceType !== undefined &&
       newEntry.sourceType !== originalEntry.sourceType) ||
     (newEntry.createdBy !== undefined &&
-      newEntry.createdBy !== originalEntry.createdBy);
+      !isEqual(newEntry.createdBy, originalEntry.createdBy));
 
   if (changesOwner) {
     throw new journalEntryError.RectificationNotPermitted();

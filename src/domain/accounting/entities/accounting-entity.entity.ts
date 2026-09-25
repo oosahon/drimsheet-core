@@ -31,10 +31,16 @@ function make(
     accountingEntityError.InvalidName
   );
 
+  stringUtils.validateUUID(
+    payload.createdBy,
+    accountingEntityError.InvalidCreatedBy
+  );
+
   const timestamp = new Date();
 
   const entity = Object.freeze({
     id: generateUUID(),
+    createdBy: payload.createdBy,
     name,
     type: payload.type,
     ownerId: payload.ownerId,

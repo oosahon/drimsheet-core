@@ -26,6 +26,7 @@ export interface IJournalLineModel extends InferSelectModel<
 const journalLineMapper = {
   toDomain(payload: IJournalLineModel): IJournalLine {
     return {
+      createdBy: payload.createdBy as TEntityId,
       id: payload.id as TEntityId,
       entryId: payload.entryId as TEntityId,
       accountId: payload.accountId as TEntityId,
@@ -52,6 +53,7 @@ const journalLineMapper = {
 
   toRepo(payload: IJournalLine): IJournalLineModel {
     return {
+      createdBy: payload.createdBy as TEntityId,
       id: payload.id,
       entryId: payload.entryId,
       accountId: payload.accountId,
@@ -72,6 +74,7 @@ const journalLineMapper = {
 
   toDto(payload: IJournalLine): IJournalLineDto {
     return {
+      createdBy: payload.createdBy as TEntityId,
       id: payload.id,
       entryId: payload.entryId,
       accountId: payload.accountId,

@@ -1,4 +1,5 @@
 import deepFreeze from '@shared/utils/deep-freeze';
+import stringUtils from '@shared/utils/string';
 import generateUUID from '@shared/utils/uuid-generator';
 import { TAuditedEntity } from '@shared/values/events/types/event.types';
 
@@ -25,10 +26,16 @@ function make(payload: IMakeCounterpartyPayload): TAuditedCounterparty {
     ? counterpartyValidation.validateStatus(payload.status)
     : ECounterpartyStatus.Active;
 
+  stringUtils.validateUUID(
+    payload.createdBy,
+    counterpartyError.InvalidCreatedBy
+  );
+
   const timestamp = new Date();
 
   const counterparty: ICounterparty = deepFreeze({
     id: generateUUID(),
+    createdBy: payload.createdBy,
     accountingEntityId: payload.accountingEntityId,
     name,
     status,
@@ -74,6 +81,7 @@ function addRole(
 
   const updatedCounterparty: ICounterparty = deepFreeze({
     id: counterparty.id,
+    createdBy: counterparty.createdBy,
     accountingEntityId: counterparty.accountingEntityId,
     name: counterparty.name,
     status: counterparty.status,

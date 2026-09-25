@@ -1,7 +1,7 @@
 import mockRepoService from '@shared/contracts/__mocks__/repo.mock';
 import { IRepoOptions, ITransactionContext } from '@shared/types/repo.types';
+import { TEntityId } from '@shared/types/uuid';
 import { IFileAttachment } from '@shared/values/file-attachments/types/file-attachment.types';
-import { EHistoryActorType } from '@shared/values/history/types/history.types';
 
 import { SYSTEM_JURISDICTIONS } from '@domain/accounting/config/jurisdictions.config';
 import accountingEntityEntity from '@domain/accounting/entities/accounting-entity.entity';
@@ -62,6 +62,8 @@ describe('journalEntryPersistenceService', () => {
 
   async function makeFixture(entryAttachments: IFileAttachment[] = []) {
     const [user] = userEntity.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       email: 'journal.persistence@example.com',
       emailVerified: true,
       firstName: 'Journal',
@@ -69,6 +71,7 @@ describe('journalEntryPersistenceService', () => {
     });
 
     const [accountingEntity] = accountingEntityEntity.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       name: 'Journal Persistence LLC',
       type: EAccountingEntityType.PrivateCompany,
       ownerId: user.id,
@@ -80,7 +83,7 @@ describe('journalEntryPersistenceService', () => {
       {
         name: 'Cash and Cash Equivalents',
         accountingEntity,
-        userId: user.id,
+        createdBy: user.actorId,
       },
       mockOptions
     );
@@ -94,7 +97,7 @@ describe('journalEntryPersistenceService', () => {
         isControlAccount: false,
         controlAccountCode: controlAccount.code,
         accountingEntity,
-        userId: user.id,
+        createdBy: user.actorId,
       },
       mockOptions
     );
@@ -103,7 +106,7 @@ describe('journalEntryPersistenceService', () => {
       await equityAccountService.createOpeningBalanceAccount(
         {
           name: 'Opening Balance Equity',
-          createdBy: user.id,
+          createdBy: user.actorId,
           accountingEntity,
         },
         mockOptions
@@ -116,7 +119,7 @@ describe('journalEntryPersistenceService', () => {
       effectiveDate: timestamp,
       postedAt: timestamp,
       memo: 'Opening balance',
-      createdBy: user.id,
+      createdBy: user.actorId,
       functionalCurrency: SYSTEM_CURRENCIES.NGN,
       attachments: entryAttachments,
       lines: [
@@ -141,19 +144,18 @@ describe('journalEntryPersistenceService', () => {
       ],
     });
 
-    const actor = {
-      type: EHistoryActorType.User,
-      userId: user.id,
-    };
+    const actor = user.id;
     const headerHistory: IJournalEntryHistory = {
       ...audit.header,
-      actor,
+      actorId: actor,
+      onBehalfOf: null,
       correlationId: mockOptions.correlationId,
     };
     const linesHistory: IJournalLineHistory[] = audit.lines.map(
       (lineAudit) => ({
         ...lineAudit,
-        actor,
+        actorId: actor,
+        onBehalfOf: null,
         correlationId: mockOptions.correlationId,
       })
     );

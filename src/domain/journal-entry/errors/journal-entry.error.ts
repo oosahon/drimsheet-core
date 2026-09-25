@@ -12,8 +12,8 @@ class JournalEntryError<K extends TErrorPrefix> extends DomainError<K> {
 }
 
 const EErrorKeys = {
-  InvalidAccountingEntityId: 'journal_entry_error_accounting_entity_id_invalid',
   InvalidCreatedBy: 'journal_entry_error_created_by_invalid',
+  InvalidAccountingEntityId: 'journal_entry_error_accounting_entity_id_invalid',
   InvalidVoidingEntryId: 'journal_entry_error_voiding_entry_id_invalid',
   InvalidAccountingEntity: 'journal_entry_error_accounting_entity_invalid',
   InvalidStatus: 'journal_entry_error_status_invalid',

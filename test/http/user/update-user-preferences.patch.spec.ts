@@ -3,10 +3,12 @@ import request from 'supertest';
 
 import { TEntityId } from '@shared/types/uuid';
 
+import actorEntity from '@domain/user/entities/actor.entity';
 import { IUser } from '@domain/user/types/user.types';
 
 import authError from '@app/auth/errors/auth.error';
 import mockFeatureFlagService from '@app/context/contracts/__mocks__/feature-flag.service.mock';
+import { mockActorService } from '@app/user/contracts/__mocks__/actor.services.mock';
 import {
   EAppThemePreference,
   EAppUsageModePreference,
@@ -16,6 +18,13 @@ import {
 import { tokenService } from '@infra/ioc/services/auth';
 import userRepos from '@infra/persistence/repos/user';
 import { createApplication } from '@infra/server';
+
+jest.mock('@infra/ioc/services/user', () => ({
+  ...jest.requireActual('@infra/ioc/services/user'),
+  actorService: jest.requireActual(
+    '@app/user/contracts/__mocks__/actor.services.mock'
+  ).mockActorService,
+}));
 
 jest.mock(
   '@infra/integrations/launchdarkly/launchdarkly-feature-flag.service',
@@ -57,8 +66,13 @@ describe('PATCH /users/preferences', () => {
   const mockFindPreferences = userRepos.userPreferences.findById as jest.Mock;
   const mockUpdatePreferences = userRepos.userPreferences.update as jest.Mock;
 
-  const user = { id: userId } as IUser;
+  const user = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+    actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+    id: userId,
+  } as IUser;
   const existingPreferences: IUserPreferences = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     userId,
     lastActiveAccountingEntityId: null,
     appPreferences: {
@@ -71,6 +85,13 @@ describe('PATCH /users/preferences', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockActorService.resolveUser.mockReset().mockResolvedValue({
+      ...actorEntity.makeUser({
+        email: 'user@example.com',
+        displayName: 'User',
+      })[0],
+      id: user.actorId,
+    });
     mockGetAuthUser.mockResolvedValue({ id: userId });
     mockFindUser.mockResolvedValue(user);
     mockFindPreferences.mockResolvedValue(existingPreferences);
@@ -87,6 +108,7 @@ describe('PATCH /users/preferences', () => {
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual({
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         userId,
         lastActiveAccountingEntityId: null,
         appPreferences: {
@@ -102,6 +124,7 @@ describe('PATCH /users/preferences', () => {
       );
       expect(mockUpdatePreferences).toHaveBeenCalledWith(
         expect.objectContaining({
+          createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
           userId,
           appPreferences: response.body.appPreferences,
           createdAt: existingPreferences.createdAt,

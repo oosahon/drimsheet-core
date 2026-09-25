@@ -23,6 +23,7 @@ const accountingPeriodMapper = {
   toRepo(domain: IAccountingPeriod): IAccountingPeriodRepoModel {
     return {
       id: domain.id,
+      createdBy: domain.createdBy,
       name: domain.name,
       accountingEntityId: domain.accountingEntityId,
       fiscalYearId: domain.fiscalYearId,
@@ -39,6 +40,7 @@ const accountingPeriodMapper = {
   toDomain(payload: IAccountingPeriodModel): IAccountingPeriod {
     return Object.freeze({
       id: payload.id as TEntityId,
+      createdBy: payload.createdBy as TEntityId,
       name: payload.name,
       accountingEntityId: payload.accountingEntityId as TEntityId,
       fiscalYearId: payload.fiscalYearId as TEntityId,

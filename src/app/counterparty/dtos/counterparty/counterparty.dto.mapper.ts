@@ -36,7 +36,8 @@ function toAddressDto(address: IAddress): IAddressDto {
 const counterpartyDtoMapper = {
   fromDto(
     payload: ICounterpartyCreateReq,
-    accountingEntityId: TEntityId
+    accountingEntityId: TEntityId,
+    createdBy: TEntityId
   ): ICreateCounterpartyPayload {
     let meta: ICreateCounterpartyMeta | undefined;
     if (payload.meta !== undefined) {
@@ -61,6 +62,7 @@ const counterpartyDtoMapper = {
     }
     return {
       accountingEntityId,
+      createdBy,
       name: payload.name,
       type: payload.type,
       status: payload.status,
@@ -87,6 +89,7 @@ const counterpartyDtoMapper = {
       };
     return {
       id: counterparty.id,
+      createdBy: counterparty.createdBy,
       accountingEntityId: counterparty.accountingEntityId,
       name: counterparty.name,
       status: counterparty.status,

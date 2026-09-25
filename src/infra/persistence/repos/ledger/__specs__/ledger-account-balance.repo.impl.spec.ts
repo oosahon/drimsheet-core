@@ -1,5 +1,6 @@
 import { eq } from 'drizzle-orm';
 
+import { TEntityId } from '@shared/types/uuid';
 import generateUUID from '@shared/utils/uuid-generator';
 import repoError from '@shared/values/errors/repo.error';
 
@@ -24,13 +25,23 @@ jest.mock('drizzle-orm', () => {
 
 describe('ledgerAccountBalanceRepo strict adjustments', () => {
   const newBalance = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     ledgerAccountId: generateUUID(),
     accountingEntityId: generateUUID(),
     version: 2,
   } as ILedgerAccountBalance;
-  const adjustment = { id: generateUUID() } as ILedgerAccountBalanceAdjustment;
-  const balanceRow = { version: newBalance.version } as never;
-  const adjustmentRow = { id: adjustment.id } as never;
+  const adjustment = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+    id: generateUUID(),
+  } as ILedgerAccountBalanceAdjustment;
+  const balanceRow = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+    version: newBalance.version,
+  } as never;
+  const adjustmentRow = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+    id: adjustment.id,
+  } as never;
 
   beforeEach(() => {
     jest.clearAllMocks();

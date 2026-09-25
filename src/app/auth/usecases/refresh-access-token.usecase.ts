@@ -1,6 +1,7 @@
 import appError from '@shared/values/errors/app.error';
 
 import IUserRepo from '@domain/user/repos/user.repo';
+import IActorService from '@domain/user/types/actor.service.types';
 
 import ITokenService from '@app/auth/contracts/token-service.contract';
 import IUserSessionPersistenceService from '@app/auth/contracts/user-session-persistence.service.contract';
@@ -9,6 +10,7 @@ import authError from '@app/auth/errors/auth.error';
 import IAppContext from '@app/context/contracts/app-context.contract';
 
 interface IDependencies {
+  actorService: IActorService;
   reqContext: IAppContext;
   userRepo: IUserRepo;
   tokenService: ITokenService;
@@ -38,6 +40,7 @@ export default function makeRefreshAccessTokenUseCase(deps: IDependencies) {
         throw new appError.Unauthorized();
       }
 
+      await deps.actorService.resolveUser(user, { correlationId });
       const preparedSession = await deps.userSessionService.prepare(user);
       const wasRotated = await deps.userSessionPersistenceService.rotateSession(
         {

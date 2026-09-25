@@ -14,6 +14,7 @@ import reportingPeriodAudit from '@domain/accounting/values/reporting-period-aud
 function makeReportingPeriod(
   payload: Pick<
     IReportingPeriod,
+    | 'createdBy'
     | 'name'
     | 'accountingEntityId'
     | 'fiscalYearId'
@@ -51,10 +52,13 @@ function makeReportingPeriod(
     periodError.InvalidDateRange
   );
 
+  stringUtils.validateUUID(payload.createdBy, periodError.InvalidCreatedBy);
+
   const timestamp = new Date();
 
   const entity = Object.freeze({
     id: generateUUID(),
+    createdBy: payload.createdBy,
     name,
     accountingEntityId: payload.accountingEntityId,
     fiscalYearId: payload.fiscalYearId,

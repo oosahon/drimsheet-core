@@ -1,5 +1,4 @@
 import { TEntityId } from '@shared/types/uuid';
-import { EHistoryActorType } from '@shared/values/history/types/history.types';
 
 import { IReportingContext } from '@domain/accounting/types/context.types';
 import { IReportingContextHistory } from '@domain/accounting/types/reporting-context-audit.types';
@@ -15,6 +14,7 @@ describe('reportingContextHistoryMapper', () => {
     const occurredAt = new Date('2026-07-25T12:00:00.000Z');
 
     const reportingContext: IReportingContext = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       accountingEntityId,
     } as IReportingContext;
 
@@ -27,10 +27,8 @@ describe('reportingContextHistoryMapper', () => {
         after: reportingContext,
       },
       occurredAt,
-      actor: {
-        type: EHistoryActorType.User,
-        userId,
-      },
+      actorId: userId,
+      onBehalfOf: null,
       correlationId: 'correlation-id-def',
     };
 
@@ -39,9 +37,10 @@ describe('reportingContextHistoryMapper', () => {
     ).toEqual({
       reportingContextId,
       accountingEntityId,
-      actorType: EHistoryActorType.User,
+      actorId: userId,
+      onBehalfOf: null,
       action: 'updated',
-      userId,
+
       diff: history.diff,
       correlationId: 'correlation-id-def',
       occurredAt: toRepoDate(occurredAt),

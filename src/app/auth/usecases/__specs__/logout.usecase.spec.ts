@@ -1,3 +1,5 @@
+import { TEntityId } from '@shared/types/uuid';
+
 import userEntity from '@domain/user/entities/user.entity';
 
 import mockAuthService from '@app/auth/contracts/__mocks__/token-service.mock';
@@ -13,6 +15,8 @@ describe('makeLogoutUseCase', () => {
   const correlationId = '854e4567-e89b-42d3-a456-426614174001';
 
   const [mockUser] = userEntity.make({
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+    actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     email: 'johndoe@example.com',
     emailVerified: true,
     firstName: 'John',

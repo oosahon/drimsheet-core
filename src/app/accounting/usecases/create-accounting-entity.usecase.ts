@@ -50,7 +50,10 @@ export default function createAccountingEntityUseCase(deps: IDependencies) {
   return async (payload: IAccountingEntityCreationDto) => {
     zodValidationRunner(accountingEntityOnboardingDtoSchema, payload);
 
-    const { user, correlationId } = deps.appContext.get(['user']);
+    const { user, actor, correlationId } = deps.appContext.get([
+      'user',
+      'actor',
+    ]);
     const repoOptions = { correlationId };
 
     const accountingResponse = await deps.accountingEntityService.create(
@@ -58,6 +61,7 @@ export default function createAccountingEntityUseCase(deps: IDependencies) {
         name: payload.name,
         type: payload.entityType,
         ownerId: user.id,
+        createdBy: actor.id,
         functionalCurrencyCode: payload.functionalCurrencyCode,
         reportingCurrencyCode: payload.reportingCurrencyCode,
         jurisdictionCode: payload.jurisdictionCode,
@@ -93,37 +97,35 @@ export default function createAccountingEntityUseCase(deps: IDependencies) {
     const accountingPeriods = accountingPeriodData.map(([entity]) => entity);
     const reportingPeriods = reportingPeriodData.map(([entity]) => entity);
 
-    const actor = historyValue.getUserActor(user.id);
-
     const accountingEntityHistory = historyValue.make(
       accountingEntityAudit,
-      actor,
+      actor.id,
       correlationId
     );
 
     const fiscalYearHistory = historyValue.make(
       fiscalYearAudit,
-      actor,
+      actor.id,
       correlationId
     );
 
     const accountingPeriodHistories = accountingPeriodData.map(([, , audit]) =>
-      historyValue.make(audit, actor, correlationId)
+      historyValue.make(audit, actor.id, correlationId)
     );
 
     const accountingContextHistory = historyValue.make(
       accountingContextAudit,
-      actor,
+      actor.id,
       correlationId
     );
 
     const reportingPeriodHistories = reportingPeriodData.map(([, , audit]) =>
-      historyValue.make(audit, actor, correlationId)
+      historyValue.make(audit, actor.id, correlationId)
     );
 
     const reportingContextHistory = historyValue.make(
       reportingContextAudit,
-      actor,
+      actor.id,
       correlationId
     );
 
@@ -132,7 +134,7 @@ export default function createAccountingEntityUseCase(deps: IDependencies) {
       writeRepoOptions: IRepoOptions
     ) => {
       for (const { account, audit } of entries) {
-        const history = historyValue.make(audit, actor, correlationId);
+        const history = historyValue.make(audit, actor.id, correlationId);
 
         await deps.ledgerAccountPersistenceService.create(
           account,
@@ -144,6 +146,7 @@ export default function createAccountingEntityUseCase(deps: IDependencies) {
 
     const userPreferencesPayload = {
       userId: user.id,
+      createdBy: actor.id,
       lastActiveAccountingEntityId: accountingEntity.id,
       appPreferences: {
         appUsageMode: EAppUsageModePreference.NonPowerUser,
@@ -191,6 +194,7 @@ export default function createAccountingEntityUseCase(deps: IDependencies) {
       const headerBootstrap =
         await deps.headerAccountsBootstrapService.bootstrap(
           accountingEntity,
+          actor.id,
           writeRepoOptions
         );
 
@@ -203,6 +207,7 @@ export default function createAccountingEntityUseCase(deps: IDependencies) {
       const postingBootstrap =
         await deps.postingAccountBootstrapService.bootstrap(
           accountingEntity,
+          actor.id,
           writeRepoOptions
         );
 
@@ -211,6 +216,7 @@ export default function createAccountingEntityUseCase(deps: IDependencies) {
       const suspenseBootstrap =
         await deps.suspenseAccountBootstrapService.bootstrap(
           accountingEntity,
+          actor.id,
           writeRepoOptions
         );
 

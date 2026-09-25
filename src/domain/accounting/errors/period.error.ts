@@ -4,6 +4,7 @@ import errorUtils from '@shared/utils/error';
 import accountingError from './accounting.error';
 
 const EErrorKeys = {
+  InvalidCreatedBy: 'accounting_error_period_created_by_invalid',
   InvalidAccountingEntityId:
     'accounting_error_period_accounting_entity_id_invalid',
   InvalidFiscalYearId: 'accounting_error_period_fiscal_year_id_invalid',

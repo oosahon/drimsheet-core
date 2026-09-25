@@ -1,4 +1,5 @@
 import { TCreationOmits } from '@shared/types/creation-omits.types';
+import { TEntityId } from '@shared/types/uuid';
 
 import userEntity from '@domain/user/entities/user.entity';
 import userError from '@domain/user/errors/user.error';
@@ -19,6 +20,8 @@ describe('User Entity', () => {
   describe('make', () => {
     it('should create a valid user successfully', () => {
       const payload: TCreationOmits<IUser> = {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         email: 'test@example.com',
         firstName: 'John',
         lastName: 'Doe',
@@ -46,6 +49,8 @@ describe('User Entity', () => {
 
     it('should create a valid user with verified email if provided', () => {
       const payload: TCreationOmits<IUser> = {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         email: 'verified@example.com',
         firstName: 'Jane',
         lastName: 'Doe',
@@ -61,6 +66,8 @@ describe('User Entity', () => {
 
     it('should throw an error for invalid firstName length', () => {
       const payload: TCreationOmits<IUser> = {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         email: 'test@example.com',
         firstName: '',
         lastName: 'Doe',
@@ -79,6 +86,8 @@ describe('User Entity', () => {
 
     it('should throw an error for invalid lastName length', () => {
       const payload: TCreationOmits<IUser> = {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         email: 'test@example.com',
         firstName: 'John',
         lastName: '',
@@ -100,6 +109,8 @@ describe('User Entity', () => {
 
     beforeEach(() => {
       [unverifiedUser] = userEntity.make({
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         email: 'test@example.com',
         firstName: 'John',
         lastName: 'Doe',
@@ -107,6 +118,8 @@ describe('User Entity', () => {
       });
 
       [verifiedUser] = userEntity.make({
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         email: 'verified@example.com',
         firstName: 'Jane',
         lastName: 'Doe',
@@ -157,6 +170,8 @@ describe('User Entity', () => {
 
     beforeEach(() => {
       [existingUser] = userEntity.make({
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         email: 'test@example.com',
         firstName: 'Original First',
         lastName: 'Original Last',

@@ -18,6 +18,7 @@ const accountTransactionMapper = {
       side: payload.side,
       description: payload.description,
       version: payload.version,
+      createdBy: payload.createdBy,
       createdAt: payload.createdAt,
       updatedAt: payload.updatedAt,
       header: {

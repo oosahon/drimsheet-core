@@ -47,10 +47,16 @@ function make(
     FxCostBasisLotDispositionError.InvalidDispositionDate
   );
 
+  stringUtils.validateUUID(
+    payload.createdBy,
+    FxCostBasisLotDispositionError.InvalidCreatedBy
+  );
+
   const timestamp = new Date();
 
   const entity: IFxCostBasisLotDisposition = Object.freeze({
     id: generateUUID(),
+    createdBy: payload.createdBy,
     ledgerAccountId: payload.ledgerAccountId,
     accountingEntityId: payload.accountingEntityId,
     journalEntryId: payload.journalEntryId,

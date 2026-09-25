@@ -11,7 +11,7 @@ import { IFxCostBasisLot } from '@domain/subledger/fx-cost-basis/types/lot.types
 
 type TDispositionAllocationSegment = Omit<
   TCreationOmits<IFxCostBasisLotDispositionAllocation>,
-  'dispositionId'
+  'dispositionId' | 'createdBy'
 >;
 
 interface IFifoConsumptionResult {

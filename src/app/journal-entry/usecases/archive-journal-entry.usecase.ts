@@ -5,6 +5,7 @@ import zodValidationRunner from '@shared/utils/zod-validation-runner';
 import eventValue from '@shared/values/events/event.vo';
 import historyValue from '@shared/values/history/history.vo';
 
+import IAccountingEntityService from '@domain/accounting/types/accounting-entity.service.types';
 import journalEntryEntity from '@domain/journal-entry/entities/journal-entry.entity';
 import journalEntryError from '@domain/journal-entry/errors/journal-entry.error';
 import IJournalEntryRepo from '@domain/journal-entry/repos/journal-entry.repo';
@@ -17,6 +18,7 @@ import journalEntryDtoMapper from '@app/journal-entry/dtos/journal-entry/journal
 import journalEntryMutationPolicy from '@app/journal-entry/policies/journal-entry-mutation.policy';
 
 interface IDependencies {
+  accountingEntityService: IAccountingEntityService;
   appContext: IAppContext;
   eventBus: IEventBus;
   journalEntryRepo: IJournalEntryRepo;
@@ -30,8 +32,10 @@ export default function makeArchiveJournalEntryUsecase(deps: IDependencies) {
     stringUtils.validateUUID(id, journalEntryError.InvalidJournalEntry);
     zodValidationRunner(journalEntryArchiveReqValidation, payload);
 
-    const { correlationId, idempotencyKey, accountingEntity, user } =
-      deps.appContext.get(['user', 'accountingEntity']);
+    const { correlationId, idempotencyKey, accountingEntity, user, actor } =
+      deps.appContext.get(['user', 'actor', 'accountingEntity']);
+
+    deps.accountingEntityService.validateAccess(accountingEntity, user.id);
 
     const repoOptions = { correlationId, idempotencyKey };
 
@@ -44,14 +48,12 @@ export default function makeArchiveJournalEntryUsecase(deps: IDependencies) {
       id,
       entry,
       accountingEntityId: accountingEntity.id,
-      userId: user.id,
       expectedVersion: payload.expectedVersion,
     });
 
     const [archivedEntry, events, audit] =
       journalEntryEntity.archive(authorizedEntry);
-    const actor = historyValue.getUserActor(user.id);
-    const history = historyValue.make(audit, actor, correlationId);
+    const history = historyValue.make(audit, actor.id, correlationId);
 
     const {
       lines: _lines,

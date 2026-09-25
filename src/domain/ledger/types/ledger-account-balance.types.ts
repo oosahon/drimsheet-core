@@ -3,6 +3,7 @@ import { TEntityId } from '@shared/types/uuid';
 import { IMoney } from '@domain/money/types/money.types';
 
 export interface ILedgerAccountBalance {
+  createdBy: TEntityId;
   ledgerAccountId: TEntityId;
   accountingEntityId: TEntityId;
   accountMaterializedPath: string;

@@ -222,7 +222,7 @@ function validateUpdate(
     (newEntry.sourceType !== undefined &&
       newEntry.sourceType !== entry.sourceType) ||
     (newEntry.createdBy !== undefined &&
-      newEntry.createdBy !== entry.createdBy);
+      !isEqual(newEntry.createdBy, entry.createdBy));
 
   if (changesOwner) {
     throw new journalEntryError.RectificationNotPermitted();

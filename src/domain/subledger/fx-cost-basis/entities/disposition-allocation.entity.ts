@@ -26,8 +26,14 @@ function make(
   dispositionAllocationValidation.validateFunctionalCurrency(payload);
   dispositionAllocationValidation.validateRealizedGainLossFormula(payload);
 
+  stringUtils.validateUUID(
+    payload.createdBy,
+    fxCostBasisLotDispositionAllocationError.InvalidCreatedBy
+  );
+
   return Object.freeze({
     id: generateUUID(),
+    createdBy: payload.createdBy,
     dispositionId: payload.dispositionId,
     lotId: payload.lotId,
     quantity: payload.quantity,

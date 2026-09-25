@@ -11,6 +11,7 @@ describe('userSessionPersistenceService', () => {
   const priorUserId = '123e4567-e89b-42d3-a456-426614174001' as TEntityId;
   const tx = 'mock-tx' as unknown as ITransactionContext;
   const userSession: IUserSession = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     id: '123e4567-e89b-42d3-a456-426614174002' as TEntityId,
     userId,
     refreshToken: 'new-refresh-token',

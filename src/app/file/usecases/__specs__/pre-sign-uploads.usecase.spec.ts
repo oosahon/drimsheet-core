@@ -33,7 +33,11 @@ describe('preSignUploadsUsecase', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockAppContext.get.mockReturnValue({
-      user: { id: userId },
+      user: {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        id: userId,
+      },
     } as IAppContextData & Required<Pick<IAppContextData, 'user'>>);
     mockFileManagementService.preSignUploads.mockResolvedValue(uploads);
   });

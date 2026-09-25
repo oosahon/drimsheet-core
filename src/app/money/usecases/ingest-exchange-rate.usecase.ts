@@ -8,10 +8,12 @@ import zodValidationRunner from '@shared/utils/zod-validation-runner';
 import IExchangeRateRepo from '@domain/money/repos/exchange-rate.repo';
 import exchangeRateValue from '@domain/money/values/exchange-rate.vo';
 
+import IAppContext from '@app/context/contracts/app-context.contract';
 import { IExchangeRateIngestionDto } from '@app/money/dtos/exchange-rate/exchange-rate.dto';
 import { exchangeRateIngestionDtoValidation } from '@app/money/dtos/exchange-rate/exchange-rate.dto.validation';
 
 interface IDependencies {
+  appContext: IAppContext;
   exchangeRateRepo: IExchangeRateRepo;
   repoService: IRepoService;
 }
@@ -19,6 +21,8 @@ interface IDependencies {
 export default function makeIngestExchangeRateUseCase(deps: IDependencies) {
   return async (payload: IExchangeRateIngestionDto) => {
     zodValidationRunner(exchangeRateIngestionDtoValidation, payload);
+
+    const { actor } = deps.appContext.get(['actor']);
 
     const exchangeRates = payload.exchangeRates.map((exchangeRate) =>
       exchangeRateValue.make({
@@ -60,7 +64,7 @@ export default function makeIngestExchangeRateUseCase(deps: IDependencies) {
     const transactionFn: TRepoTransactionFn = async (tx) => {
       const batches = batchArray(selectedExchangeRates, 100);
       for (const batch of batches) {
-        await deps.exchangeRateRepo.create(batch, {
+        await deps.exchangeRateRepo.create(batch, actor.id, {
           tx,
           correlationId: payload.correlationId,
         });

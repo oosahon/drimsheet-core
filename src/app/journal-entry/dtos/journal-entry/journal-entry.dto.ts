@@ -1,3 +1,4 @@
+import { TEntityId } from '@shared/types/uuid';
 import { IFileAttachment } from '@shared/values/file-attachments/types/file-attachment.types';
 import { IPaginationDto } from '@shared/values/pagination/dto/pagination.dto';
 
@@ -36,6 +37,7 @@ export interface IJournalCounterpartyReq {
 }
 
 export interface IJournalLineDto {
+  createdBy: TEntityId;
   id: string;
   entryId: string;
   accountId: string;
@@ -60,7 +62,7 @@ export interface IJournalHeaderDto {
   voidedAt: Date | null;
   voidingEntryId: string | null;
   version: number;
-  createdBy: string;
+  createdBy: TEntityId;
   createdAt: Date;
   updatedAt: Date;
 }

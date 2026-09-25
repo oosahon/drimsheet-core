@@ -35,6 +35,7 @@ describe('FX Cost-Basis Lot Disposition Mapper', () => {
     rate: IFxCostBasisLotDisposition['officialRate']
   ): IFxCostBasisLotDisposition {
     return {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: 'disposition-1' as TEntityId,
       ledgerAccountId: 'ledger-account-1' as TEntityId,
       accountingEntityId: 'accounting-entity-1' as TEntityId,
@@ -54,6 +55,7 @@ describe('FX Cost-Basis Lot Disposition Mapper', () => {
     rate: IFxCostBasisLotDispositionModel['officialRate']
   ): IFxCostBasisLotDispositionModel {
     return {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: 'disposition-1',
       ledgerAccountId: 'ledger-account-1',
       accountingEntityId: 'accounting-entity-1',
@@ -76,7 +78,7 @@ describe('FX Cost-Basis Lot Disposition Mapper', () => {
   it('maps every disposition field to the repository model', () => {
     expect(
       fxCostBasisLotDispositionMapper.toRepo(makeDisposition(officialRate))
-    ).toEqual(expectedModel(exchangeRateMapper.toRepo(officialRate)));
+    ).toEqual(expectedModel(exchangeRateMapper.toEmbedded(officialRate)));
   });
 
   it('maps a missing official rate to null', () => {

@@ -17,6 +17,13 @@ import accountingRepos from '@infra/persistence/repos/accounting';
 import userRepos from '@infra/persistence/repos/user';
 import { createApplication } from '@infra/server';
 
+jest.mock('@infra/ioc/services/user', () => ({
+  ...jest.requireActual('@infra/ioc/services/user'),
+  actorService: jest.requireActual(
+    '@app/user/contracts/__mocks__/actor.services.mock'
+  ).mockActorService,
+}));
+
 jest.mock(
   '@infra/integrations/launchdarkly/launchdarkly-feature-flag.service',
   () => ({
@@ -66,6 +73,8 @@ const ENDPOINT = `/api/v1/journal-entries/${entryId}`;
 const now = new Date('2026-09-21T09:00:00.000Z');
 
 const user = {
+  createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+  actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
   id: userId,
   version: 1,
   email: 'journal@example.com',
@@ -78,6 +87,7 @@ const user = {
 } satisfies IUser;
 
 const accountingEntity = {
+  createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
   id: accountingEntityId,
   ownerId: userId,
   name: 'Journal Business',

@@ -38,7 +38,7 @@ function make<T extends ILedgerAccount>(
   ledgerAccountValidation.validateAdjunctRule(payload.adjunctAccountRule);
   stringUtils.validateUUID(
     payload.createdBy,
-    ledgerAccountError.InvalidCreatorId
+    ledgerAccountError.InvalidCreatedBy
   );
 
   ledgerAccountValidation.validateSubType(payload.subType);

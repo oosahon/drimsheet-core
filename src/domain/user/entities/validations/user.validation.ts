@@ -10,6 +10,8 @@ function validate(user: IUser) {
   }
 
   stringUtils.validateUUID(user.id, userError.InvalidId);
+  stringUtils.validateUUID(user.actorId, userError.InvalidActorId);
+  stringUtils.validateUUID(user.createdBy, userError.InvalidCreatedBy);
 
   stringUtils.sanitizeAndValidate(
     user.firstName,

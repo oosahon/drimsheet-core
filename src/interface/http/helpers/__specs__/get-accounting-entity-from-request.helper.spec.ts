@@ -82,6 +82,7 @@ describe('getAccountingEntityFromRequest', () => {
 
   it('returns the accounting entity from the repository', async () => {
     const expectedAccountingEntity = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: accountingEntityId,
       ownerId: userId,
     } as IAccountingEntity;

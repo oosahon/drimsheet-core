@@ -5,6 +5,7 @@ import DomainError from '@shared/values/errors/domain.error';
 type TErrorPrefix = TErrorKey<'counterparty_error'>;
 
 const EErrorKeys = {
+  InvalidCreatedBy: 'counterparty_error_created_by_invalid',
   InvalidAccountingEntityId: 'counterparty_error_accounting_entity_id_invalid',
   InvalidCounterpartyId: 'counterparty_error_counterparty_id_invalid',
   InvalidName: 'counterparty_error_name_invalid',

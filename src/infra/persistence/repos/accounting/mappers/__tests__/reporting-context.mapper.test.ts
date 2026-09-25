@@ -9,6 +9,7 @@ import reportingContextMapper from '@infra/persistence/repos/accounting/mappers/
 describe('reportingContextMapper', () => {
   it('should map IReportingContext to IReportingContextRepoModel', () => {
     const domain: IReportingContext = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: 'uuid-1' as TEntityId,
       name: 'Reporting Context',
       description: 'Secondary context',
@@ -25,6 +26,7 @@ describe('reportingContextMapper', () => {
     const result = reportingContextMapper.toRepo(domain);
 
     expect(result).toEqual({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: 'uuid-1',
       name: 'Reporting Context',
       description: 'Secondary context',
@@ -41,6 +43,7 @@ describe('reportingContextMapper', () => {
 
   it('should use provided accountingStandardCode', () => {
     const domain = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: 'uuid-1' as TEntityId,
       name: 'Reporting Context',
       description: null,

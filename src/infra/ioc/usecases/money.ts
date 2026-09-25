@@ -19,6 +19,7 @@ export const getAllCurrenciesUseCase = makeTracedUseCase(
 export const ingestExchangeRateUseCase = makeTracedUseCase(
   'money.ingestExchangeRateUseCase',
   makeIngestExchangeRateUseCase({
+    appContext,
     exchangeRateRepo: currencyRepos.exchangeRate,
     repoService,
   })

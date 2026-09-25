@@ -24,6 +24,7 @@ export interface ICounterpartyModel extends InferSelectModel<
 const counterpartyMapper = {
   toRepo(entity: ICounterparty): ICounterpartyModel {
     return {
+      createdBy: entity.createdBy as TEntityId,
       id: entity.id,
       accountingEntityId: entity.accountingEntityId,
       name: entity.name,
@@ -38,6 +39,7 @@ const counterpartyMapper = {
   toDomain(payload: ICounterpartyModel): ICounterparty {
     const meta = structuredClone(payload.meta) as ICounterpartyMeta;
     return deepFreeze({
+      createdBy: payload.createdBy as TEntityId,
       id: payload.id as TEntityId,
       accountingEntityId: payload.accountingEntityId as TEntityId,
       name: payload.name,

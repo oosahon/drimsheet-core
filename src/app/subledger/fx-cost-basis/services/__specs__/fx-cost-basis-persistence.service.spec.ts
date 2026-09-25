@@ -4,7 +4,6 @@ import { ITransactionContext } from '@shared/types/repo.types';
 import { TEntityId } from '@shared/types/uuid';
 import generateUUID from '@shared/utils/uuid-generator';
 import historyValue from '@shared/values/history/history.vo';
-import { EHistoryActorType } from '@shared/values/history/types/history.types';
 
 import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
 import {
@@ -30,10 +29,7 @@ import makeFxLotCostBasisPersistenceService from '@app/subledger/fx-cost-basis/s
 
 describe('fxCostBasisPersistenceService', () => {
   const correlationId = 'test-corr-id';
-  const actor = {
-    type: EHistoryActorType.User,
-    userId: generateUUID() as TEntityId,
-  };
+  const actor = generateUUID() as TEntityId;
   const mockDate = new Date('2026-03-14T00:00:00.000Z');
 
   const mockRate = {
@@ -59,6 +55,7 @@ describe('fxCostBasisPersistenceService', () => {
 
   const makeAcquisitionBundle = (officialRate: IExchangeRate | null) => {
     const [lot, , lotAudit] = fxCostBasisLotEntity.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       ledgerAccountId: generateUUID(),
       accountingEntityId: generateUUID(),
       status: EFxCostBasisLotStatus.Open,
@@ -71,6 +68,7 @@ describe('fxCostBasisPersistenceService', () => {
     });
     const [acquisition, , acquisitionAudit] =
       fxCostBasisLotAcquisitionEntity.make({
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         ledgerAccountId: lot.ledgerAccountId,
         accountingEntityId: lot.accountingEntityId,
         lotId: lot.id,
@@ -97,7 +95,7 @@ describe('fxCostBasisPersistenceService', () => {
               effectKind: EMissingOfficialFxRateEffectKind.Acquisition,
               journalEntryId: acquisition.journalEntryId,
               accountingEntityId: acquisition.accountingEntityId,
-              createdBy: actor.userId,
+              createdBy: actor,
               effectiveDate: acquisition.acquisitionDate,
             },
           }
@@ -118,6 +116,7 @@ describe('fxCostBasisPersistenceService', () => {
     const proceeds = moneyValue.make(15000, SYSTEM_CURRENCIES.NGN, false);
     const realizedGainLoss = moneyValue.subtract(proceeds, costBasis);
     const [openLot] = fxCostBasisLotEntity.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       ledgerAccountId: generateUUID(),
       accountingEntityId: generateUUID(),
       status: EFxCostBasisLotStatus.Open,
@@ -135,6 +134,7 @@ describe('fxCostBasisPersistenceService', () => {
     );
     const [disposition, , dispositionAudit] =
       fxCostBasisLotDispositionEntity.make({
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         ledgerAccountId: lot.ledgerAccountId,
         accountingEntityId: lot.accountingEntityId,
         journalEntryId: generateUUID(),
@@ -147,6 +147,7 @@ describe('fxCostBasisPersistenceService', () => {
         dispositionDate: mockDate,
       });
     const allocation = fxCostBasisLotDispositionAllocationEntity.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       dispositionId: disposition.id,
       lotId: lot.id,
       quantity,
@@ -175,7 +176,7 @@ describe('fxCostBasisPersistenceService', () => {
                 effectKind: EMissingOfficialFxRateEffectKind.Disposition,
                 journalEntryId: disposition.journalEntryId,
                 accountingEntityId: disposition.accountingEntityId,
-                createdBy: actor.userId,
+                createdBy: actor,
                 effectiveDate: disposition.dispositionDate,
               },
             }
@@ -196,6 +197,7 @@ describe('fxCostBasisPersistenceService', () => {
     const service = getService();
 
     const [mockLot, mockLotEvents, mockLotAudit] = fxCostBasisLotEntity.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       ledgerAccountId: generateUUID(),
       accountingEntityId: generateUUID(),
       status: EFxCostBasisLotStatus.Open,
@@ -209,6 +211,7 @@ describe('fxCostBasisPersistenceService', () => {
 
     const [mockAcquisition, mockAcquisitionEvents, mockAcquisitionAudit] =
       fxCostBasisLotAcquisitionEntity.make({
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         ledgerAccountId: mockLot.ledgerAccountId,
         accountingEntityId: mockLot.accountingEntityId,
         lotId: mockLot.id,
@@ -237,7 +240,7 @@ describe('fxCostBasisPersistenceService', () => {
         effectKind: EMissingOfficialFxRateEffectKind.Acquisition,
         journalEntryId: mockAcquisition.journalEntryId,
         accountingEntityId: mockAcquisition.accountingEntityId,
-        createdBy: actor.userId,
+        createdBy: actor,
         effectiveDate: mockAcquisition.acquisitionDate,
       },
     };
@@ -340,7 +343,7 @@ describe('fxCostBasisPersistenceService', () => {
           effectKind: EMissingOfficialFxRateEffectKind.Disposition,
           journalEntryId: disposition.journalEntryId,
           accountingEntityId: disposition.accountingEntityId,
-          createdBy: actor.userId,
+          createdBy: actor,
           effectiveDate: disposition.dispositionDate,
         },
       },

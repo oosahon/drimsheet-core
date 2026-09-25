@@ -10,16 +10,20 @@ import mockAppContext, {
   mockClientSession,
 } from '@app/context/contracts/__mocks__/app-context.mock';
 import { IAppContextData } from '@app/context/contracts/app-context.contract';
+import { mockActorService } from '@app/user/contracts/__mocks__/actor.services.mock';
 
 describe('makeOauthUsecase', () => {
   const correlationId = 'test-corr-id';
   const webAppUrl = 'http://localhost:3000';
   const userId = '123e4567-e89b-42d3-a456-426614174000' as TEntityId;
   const user = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+    actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     id: userId,
     email: emailValue.make('johndoe@example.com'),
   } as unknown as IUser;
   const userSession = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     id: '123e4567-e89b-42d3-a456-426614174001' as TEntityId,
     userId,
     refreshToken: 'new-refresh-token',
@@ -29,6 +33,7 @@ describe('makeOauthUsecase', () => {
 
   const getUseCase = () =>
     makeOauthUsecase({
+      actorService: mockActorService,
       reqContext: mockAppContext,
       userSessionService: mockUserSessionService,
       userSessionPersistenceService: mockUserSessionPersistenceService,

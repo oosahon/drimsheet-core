@@ -12,6 +12,7 @@ function makeTransition(
 ): IUserAuth {
   return Object.freeze({
     userId: userAuth.userId,
+    createdBy: userAuth.createdBy,
     password: values.password,
     failedLoginAttempts: values.failedLoginAttempts,
     strategy: Object.freeze([...values.strategy]) as UAuthStrategy[],
@@ -28,6 +29,7 @@ function makeUserAuth(): IUserAuthService['make'] {
 
     return Object.freeze({
       userId: payload.userId,
+      createdBy: payload.createdBy,
       password: payload.password,
       failedLoginAttempts: 0,
       strategy: Object.freeze([payload.strategy]) as UAuthStrategy[],

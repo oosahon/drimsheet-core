@@ -1,11 +1,25 @@
 import { MigrationBuilder } from 'node-pg-migrate';
 
+import { actorsTable } from '../config/actors';
 import { usersTable } from '../config/users';
 
 export const up = (pgm: MigrationBuilder) => {
   pgm.createTable(
     usersTable,
     {
+      actor_id: {
+        type: 'uuid',
+        notNull: true,
+        unique: true,
+        references: actorsTable,
+        onDelete: 'RESTRICT',
+      },
+      created_by: {
+        type: 'uuid',
+        notNull: true,
+        references: actorsTable,
+        onDelete: 'RESTRICT',
+      },
       id: {
         type: 'uuid',
         primaryKey: true,
@@ -16,7 +30,7 @@ export const up = (pgm: MigrationBuilder) => {
 
       last_name: { type: 'varchar(100)', notNull: true },
 
-      email: { type: 'varchar(200)', notNull: true, unique: true },
+      email: { type: 'varchar(254)', notNull: true, unique: true },
 
       email_verified: { type: 'boolean', notNull: true },
 
@@ -44,6 +58,7 @@ export const up = (pgm: MigrationBuilder) => {
   pgm.addConstraint(usersTable, 'users_version_positive_ck', {
     check: 'version > 0',
   });
+  pgm.createIndex(usersTable, 'created_by');
 };
 
 export const down = (pgm: MigrationBuilder) => {

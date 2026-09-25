@@ -1,5 +1,7 @@
 import { InferInsertModel } from 'drizzle-orm';
 
+import { TEntityId } from '@shared/types/uuid';
+
 import { IAccountingContext } from '@domain/accounting/types/context.types';
 
 import { accountingContextsInCore } from '@infra/config/drizzle/schema';
@@ -12,6 +14,7 @@ export interface IAccountingContextRepoModel extends InferInsertModel<
 const accountingContextMapper = {
   toRepo(domain: IAccountingContext): IAccountingContextRepoModel {
     return {
+      createdBy: domain.createdBy as TEntityId,
       id: domain.id,
       name: domain.name,
       description: domain.description,

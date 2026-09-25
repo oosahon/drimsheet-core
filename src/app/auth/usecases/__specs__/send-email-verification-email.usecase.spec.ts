@@ -52,6 +52,8 @@ describe('makeSendEmailVerificationEmailUseCase', () => {
 
   it('logs and returns when the email is already verified', async () => {
     const user: IUser = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: 'test-user-id' as TEntityId,
       email: emailValue.make('verified@example.com'),
       emailVerified: true,
@@ -79,6 +81,8 @@ describe('makeSendEmailVerificationEmailUseCase', () => {
 
   it('delegates delivery for an unverified user', async () => {
     const user: IUser = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: 'test-user-id' as TEntityId,
       email: emailValue.make('unverified@example.com'),
       emailVerified: false,

@@ -19,6 +19,7 @@ import {
 } from './period.types';
 
 export interface IAccountingEntityCreationInput {
+  createdBy: TEntityId;
   name: string;
   type: UAccountingEntityType;
   ownerId: TEntityId;

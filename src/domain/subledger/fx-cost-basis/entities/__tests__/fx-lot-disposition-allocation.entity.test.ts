@@ -1,3 +1,4 @@
+import { TEntityId } from '@shared/types/uuid';
 import generateUUID from '@shared/utils/uuid-generator';
 
 import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
@@ -8,6 +9,7 @@ import fxCostBasisLotDispositionAllocationError from '@domain/subledger/fx-cost-
 
 describe('fxCostBasisLotDispositionAllocationEntity', () => {
   const payload = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     dispositionId: generateUUID(),
     lotId: generateUUID(),
     quantity: moneyValue.make(10, SYSTEM_CURRENCIES.USD, false),

@@ -17,13 +17,13 @@ type TReturnType = TAuditedEntity<
 
 interface ICreateHeaderPayload {
   name: string;
-  userId: TEntityId;
+  createdBy: TEntityId;
   accountingEntity: IAccountingEntity;
 }
 
 interface ICreateReceivableSubAccountPayload {
   name: string;
-  userId: TEntityId;
+  createdBy: TEntityId;
   accountingEntity: IAccountingEntity;
   currency: ICurrency;
   isControlAccount: boolean;

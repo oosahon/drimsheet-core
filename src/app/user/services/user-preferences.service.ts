@@ -38,6 +38,7 @@ export default function makeUserPreferencesService(
 
       const preferences = {
         userId: payload.userId,
+        createdBy: existingPreferences?.createdBy ?? payload.createdBy,
         lastActiveAccountingEntityId:
           payload.lastActiveAccountingEntityId !== undefined
             ? payload.lastActiveAccountingEntityId

@@ -18,6 +18,13 @@ import accountingRepos from '@infra/persistence/repos/accounting';
 import userRepos from '@infra/persistence/repos/user';
 import { createApplication } from '@infra/server';
 
+jest.mock('@infra/ioc/services/user', () => ({
+  ...jest.requireActual('@infra/ioc/services/user'),
+  actorService: jest.requireActual(
+    '@app/user/contracts/__mocks__/actor.services.mock'
+  ).mockActorService,
+}));
+
 jest.mock(
   '@infra/integrations/launchdarkly/launchdarkly-feature-flag.service',
   () => ({
@@ -84,6 +91,7 @@ const validPayload: IAccountingEntityCreationDto = {
 };
 
 const createdEntity: IAccountingEntity = {
+  createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
   id: '123e4567-e89b-12d3-a456-426614174001' as TEntityId,
   name: validPayload.name,
   type: 'individual',
@@ -107,7 +115,11 @@ describe('POST /accounting/accounting-entity', () => {
     jest.clearAllMocks();
     mockFeatureFlagService.canAccessAlpha1.mockResolvedValue(true);
     mockGetAuthUser.mockResolvedValue({ id: userId });
-    mockFindUser.mockResolvedValue({ id: userId } as IUser);
+    mockFindUser.mockResolvedValue({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      id: userId,
+    } as IUser);
     mockFindAccountingEntity.mockResolvedValue(null);
     mockCreateAccountingEntity.mockResolvedValue(createdEntity);
     app = createApplication();

@@ -15,7 +15,7 @@ import accountingPeriodAudit from '@domain/accounting/values/accounting-period-a
 
 interface IMakePayload extends Pick<
   IAccountingPeriod,
-  'accountingEntityId' | 'unit' | 'count'
+  'createdBy' | 'accountingEntityId' | 'unit' | 'count'
 > {
   fiscalYear: IFiscalYear;
 }
@@ -36,12 +36,15 @@ function make(
     count: payload.count,
   });
 
+  stringUtils.validateUUID(payload.createdBy, periodError.InvalidCreatedBy);
+
   const timestamp = new Date();
 
   const accountingPeriods: IAccountingPeriod[] = intervals.map(
     (interval, index) =>
       Object.freeze({
         id: stringUtils.generateUUID(),
+        createdBy: payload.createdBy,
         name: `Accounting Period ${index + 1}`,
         accountingEntityId: payload.accountingEntityId,
         unit: payload.unit,

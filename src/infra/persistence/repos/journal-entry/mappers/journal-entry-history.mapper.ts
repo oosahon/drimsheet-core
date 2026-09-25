@@ -21,8 +21,8 @@ const journalEntryHistoryMapper = {
     return {
       journalEntryId: history.entityId,
       accountingEntityId: header.accountingEntityId,
-      userId: history.actor.userId,
-      actorType: history.actor.type,
+      actorId: history.actorId,
+      onBehalfOf: history.onBehalfOf,
       action: history.action,
       diff: history.diff,
       correlationId: history.correlationId,

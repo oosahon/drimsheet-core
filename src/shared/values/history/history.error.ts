@@ -3,7 +3,8 @@ import errorUtils from '@shared/utils/error';
 import DomainError from '@shared/values/errors/domain.error';
 
 const EErrorKeys = {
-  InvalidActor: 'history_error_invalid_actor_unexpected',
+  InvalidActorId: 'history_error_actor_id_unexpected',
+  InvalidOnBehalfOf: 'history_error_on_behalf_of_unexpected',
   InvalidAction: 'history_error_invalid_action_unexpected',
   InvalidDiff: 'history_error_invalid_diff_unexpected',
   InvalidNote: 'history_error_invalid_note_unexpected',

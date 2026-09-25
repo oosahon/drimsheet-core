@@ -1,23 +1,37 @@
 import { Express } from 'express';
 import request from 'supertest';
 
+import mockEventBus from '@shared/contracts/__mocks__/event-bus.mock';
 import { TEntityId } from '@shared/types/uuid';
 import appError from '@shared/values/errors/app.error';
 
 import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
+import makeCounterpartyService from '@domain/counterparty/services/counterparty.service';
+import actorEntity from '@domain/user/entities/actor.entity';
 import { IUser } from '@domain/user/types/user.types';
 
 import mockFeatureFlagService from '@app/context/contracts/__mocks__/feature-flag.service.mock';
+import { mockCounterpartyRepo } from '@app/counterparty/contracts/__mocks__/counterparty.repos.mock';
 import {
   ICounterpartyCreateReq,
   ICounterpartyDto,
 } from '@app/counterparty/dtos/counterparty/counterparty.dto';
+import makeCreateCounterpartyUsecase from '@app/counterparty/usecases/create-counterparty.usecase';
+import { mockActorService } from '@app/user/contracts/__mocks__/actor.services.mock';
 
 import { tokenService } from '@infra/ioc/services/auth';
 import * as counterpartyUseCases from '@infra/ioc/usecases/counterparty';
 import accountingRepos from '@infra/persistence/repos/accounting';
 import userRepos from '@infra/persistence/repos/user';
+import appContext from '@infra/runtime/app-context';
 import { createApplication } from '@infra/server';
+
+jest.mock('@infra/ioc/services/user', () => ({
+  ...jest.requireActual('@infra/ioc/services/user'),
+  actorService: jest.requireActual(
+    '@app/user/contracts/__mocks__/actor.services.mock'
+  ).mockActorService,
+}));
 
 jest.mock(
   '@infra/integrations/launchdarkly/launchdarkly-feature-flag.service',
@@ -55,6 +69,13 @@ jest.mock('../../../src/infra/persistence/repos/user', () => ({
 }));
 
 const ENDPOINT = '/api/v1/counterparties';
+const actor = {
+  ...actorEntity.makeUser({
+    email: 'user@example.com',
+    displayName: 'User',
+  })[0],
+  id: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+};
 const userId = '123e4567-e89b-12d3-a456-426614174001' as TEntityId;
 const accountingEntityId = '123e4567-e89b-12d3-a456-426614174002' as TEntityId;
 const counterpartyId = '123e4567-e89b-12d3-a456-426614174003' as TEntityId;
@@ -66,6 +87,7 @@ const validPayload: ICounterpartyCreateReq = {
 };
 
 const accountingEntity = {
+  createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
   id: accountingEntityId,
   ownerId: userId,
   functionalCurrencyCode: 'NGN',
@@ -73,6 +95,7 @@ const accountingEntity = {
 } as IAccountingEntity;
 
 const createdCounterparty: ICounterpartyDto = {
+  createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
   id: counterpartyId,
   accountingEntityId,
   name: validPayload.name,
@@ -95,9 +118,14 @@ describe('POST /counterparties', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockActorService.resolveUser.mockReset().mockResolvedValue(actor);
     mockFeatureFlagService.canAccessAlpha1.mockResolvedValue(true);
     mockGetAuthUser.mockResolvedValue({ id: userId });
-    mockFindUser.mockResolvedValue({ id: userId } as IUser);
+    mockFindUser.mockResolvedValue({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      id: userId,
+    } as IUser);
     mockFindAccountingEntity.mockResolvedValue(accountingEntity);
     mockCreateCounterparty.mockResolvedValue(createdCounterparty);
     app = createApplication();
@@ -111,6 +139,32 @@ describe('POST /counterparties', () => {
       .send(payload);
 
   describe('201 Response', () => {
+    it('attributes the persisted counterparty and history to the HTTP context actor', async () => {
+      mockCreateCounterparty.mockImplementationOnce(
+        makeCreateCounterpartyUsecase({
+          appContext,
+          counterpartyService: makeCounterpartyService(),
+          counterpartyRepo: mockCounterpartyRepo,
+          eventBus: mockEventBus,
+        })
+      );
+
+      const response = await makeRequest().set('x-actor-id', 'forged-actor');
+
+      expect(response.status).toBe(201);
+      expect(response.body.createdBy).toBe(actor.id);
+      expect(mockCounterpartyRepo.create).toHaveBeenCalledWith(
+        expect.objectContaining({ createdBy: actor.id, accountingEntityId }),
+        expect.objectContaining({
+          history: expect.objectContaining({ actorId: actor.id }),
+        })
+      );
+      expect(mockActorService.resolveUser).toHaveBeenCalledWith(
+        expect.objectContaining({ id: userId, actorId: actor.id }),
+        expect.objectContaining({ correlationId: expect.any(String) })
+      );
+    });
+
     it('returns 201 with the created counterparty DTO', async () => {
       const response = await makeRequest();
 

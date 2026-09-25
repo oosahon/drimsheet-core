@@ -1,4 +1,5 @@
 import { IReadRepoOptions } from '@shared/types/repo.types';
+import { TEntityId } from '@shared/types/uuid';
 
 import { IJournalEntry } from '@domain/journal-entry/types/journal-entry.types';
 import { ILedgerAccount } from '@domain/ledger/types/ledger.types';
@@ -10,6 +11,7 @@ import fxCostBasisLotEntity from '@domain/subledger/fx-cost-basis/entities/lot.e
 import { IFxCostBasisLotDispositionAllocation } from './disposition.types';
 
 export interface IFxCostBasisLotOperationPayload {
+  createdBy: TEntityId;
   journalEntry: IJournalEntry;
   account: ILedgerAccount;
   officialRate: IExchangeRate | null;

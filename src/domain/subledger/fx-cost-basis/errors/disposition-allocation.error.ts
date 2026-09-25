@@ -3,6 +3,8 @@ import errorUtils from '@shared/utils/error';
 import DomainError from '@shared/values/errors/domain.error';
 
 const EErrorKeys = {
+  InvalidCreatedBy:
+    'fx_cost_basis_lot_disposition_allocation_created_by_invalid',
   InvalidDispositionId:
     'fx_cost_basis_lot_disposition_allocation_disposition_id_invalid',
   InvalidLotId: 'fx_cost_basis_lot_disposition_allocation_lot_id_invalid',

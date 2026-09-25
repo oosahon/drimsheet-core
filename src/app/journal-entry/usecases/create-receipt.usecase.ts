@@ -56,8 +56,8 @@ export default function makeCreateReceiptUsecase(deps: IDependencies) {
   return async (payload: IReceiptEntryReq): Promise<IJournalEntryDto> => {
     zodValidationRunner(receiptEntryReqValidation, payload);
 
-    const { correlationId, accountingEntity, user, idempotencyKey } =
-      deps.appContext.get(['user', 'accountingEntity']);
+    const { correlationId, accountingEntity, user, actor, idempotencyKey } =
+      deps.appContext.get(['user', 'actor', 'accountingEntity']);
 
     const repoOptions = { correlationId, idempotencyKey };
 
@@ -67,7 +67,7 @@ export default function makeCreateReceiptUsecase(deps: IDependencies) {
       effectiveDate: payload.effectiveDate,
       postedAt: payload.postedAt,
       functionalCurrencyCode: accountingEntity.functionalCurrencyCode,
-      createdBy: user.id,
+      createdBy: actor.id,
     };
 
     const sourceAccounts: ILedgerAccount[] = [];
@@ -97,6 +97,7 @@ export default function makeCreateReceiptUsecase(deps: IDependencies) {
       await deps.counterpartyAppService.findOrCreateMany(
         allCounterpartiesPayload,
         accountingEntity.id,
+        actor.id,
         repoOptions
       );
 
@@ -172,20 +173,18 @@ export default function makeCreateReceiptUsecase(deps: IDependencies) {
     const [journalEntry, journalEntryEvents, journalEntryAudit] =
       await deps.journalEntryService.createReceipt(receiptPayload, repoOptions);
 
-    const userActor = historyValue.getUserActor(user.id);
-
     const journalHeaderHistory = historyValue.make(
       journalEntryAudit.header,
-      userActor,
+      actor.id,
       correlationId
     );
     const journalLinesHistory = journalEntryAudit.lines.map((line) =>
-      historyValue.make(line, userActor, correlationId)
+      historyValue.make(line, actor.id, correlationId)
     );
 
     const newCounterparties = getNewCounterpartiesHelper(
       allCounterparties,
-      userActor,
+      actor.id,
       correlationId
     );
 
@@ -193,7 +192,7 @@ export default function makeCreateReceiptUsecase(deps: IDependencies) {
       journalEntry.status === EJournalEntryStatus.Posted;
 
     const fxResult = await deps.fxLotAppService.acquire(
-      { journalEntry, account: destinationAccount, actor: userActor },
+      { journalEntry, account: destinationAccount, actor: actor.id },
       repoOptions
     );
 

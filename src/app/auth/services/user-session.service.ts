@@ -37,6 +37,7 @@ function makePrepare(deps: IDependencies): IUserSessionService['prepare'] {
 
     const userSession = Object.freeze({
       id: generateUUID(),
+      createdBy: user.actorId,
       userId: user.id,
       refreshToken,
       lastLoginAt: timestamp,

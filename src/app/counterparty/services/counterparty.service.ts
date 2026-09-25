@@ -32,7 +32,7 @@ function getKey(input: ICounterpartyFindOrCreatePayload) {
 function makeFindOrCreate(
   deps: IDependencies
 ): ICounterpartyAppService['findOrCreate'] {
-  return async (payload, accountingEntityId, repoOptions) => {
+  return async (payload, accountingEntityId, createdBy, repoOptions) => {
     if (payload.id) {
       const counterparty = await deps.counterpartyRepo.findById(
         payload.id as TEntityId,
@@ -55,6 +55,7 @@ function makeFindOrCreate(
     const counterparty = deps.counterpartyService.create({
       name: payload.name,
       accountingEntityId,
+      createdBy,
       type: payload.type ?? ECounterpartyType.Individual,
     });
 
@@ -68,7 +69,7 @@ function makeFindOrCreate(
 function makeFindOrCreateMany(
   deps: IDependencies
 ): ICounterpartyAppService['findOrCreateMany'] {
-  return async (payload, accountingEntityId, repoOptions) => {
+  return async (payload, accountingEntityId, createdBy, repoOptions) => {
     const findOrCreate = makeFindOrCreate(deps);
     const counterparties: Map<string, ICounterpartyFindOrCreateRes> = new Map();
 
@@ -80,6 +81,7 @@ function makeFindOrCreateMany(
       const counterparty = await findOrCreate(
         input,
         accountingEntityId,
+        createdBy,
         repoOptions
       );
 

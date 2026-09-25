@@ -20,6 +20,7 @@ import {
 } from '@infra/ioc/services/auth';
 import { transactionalEmailService } from '@infra/ioc/services/notification';
 import { repoService } from '@infra/ioc/services/repo';
+import { actorService, userIdentityService } from '@infra/ioc/services/user';
 import messaging from '@infra/messaging';
 import observability from '@infra/observability';
 import { makeTracedUseCase } from '@infra/observability/usecase-tracing';
@@ -47,6 +48,9 @@ export const sendEmailVerificationEmailUseCase = makeTracedUseCase(
 export const signupWithEmailUseCase = makeTracedUseCase(
   'auth.signupWithEmailUseCase',
   makeSignupWithEmailUsecase({
+    actorRepo: userRepos.actor,
+    actorService,
+    userIdentityService,
     appContext: appContext,
     userRepo: userRepos.user,
     passwordService,
@@ -61,6 +65,7 @@ export const signupWithEmailUseCase = makeTracedUseCase(
 export const verifyEmailUseCase = makeTracedUseCase(
   'auth.verifyEmailUseCase',
   makeVerifyEmailAddressUseCase({
+    actorService,
     tokenService,
     userRepo: userRepos.user,
     appContext: appContext,
@@ -74,6 +79,7 @@ export const verifyEmailUseCase = makeTracedUseCase(
 export const loginWithEmailUseCase = makeTracedUseCase(
   'auth.loginWithEmailUseCase',
   makeLoginWithEmailUseCase({
+    actorService,
     reqContext: appContext,
     userRepo: userRepos.user,
     passwordService,
@@ -101,6 +107,7 @@ export const getPasswordResetLinkUseCase = makeTracedUseCase(
 export const resetPasswordUseCase = makeTracedUseCase(
   'auth.resetPasswordUseCase',
   makeResetPasswordUseCase({
+    actorService,
     appContext: appContext,
     userRepo: userRepos.user,
     passwordService,
@@ -116,6 +123,7 @@ export const resetPasswordUseCase = makeTracedUseCase(
 );
 
 const oAuthUseCaseComposition = makeOauthUsecase({
+  actorService,
   reqContext: appContext,
   userSessionService,
   userSessionPersistenceService,
@@ -133,6 +141,9 @@ export const oAuthUseCase = {
 export const loginWithGoogleUseCase = makeTracedUseCase(
   'auth.loginWithGoogleUseCase',
   makeLoginWithGoogleUseCase({
+    actorRepo: userRepos.actor,
+    actorService,
+    userIdentityService,
     eventBus: messaging.eventBus,
     appContext,
     userRepo: userRepos.user,
@@ -145,6 +156,7 @@ export const loginWithGoogleUseCase = makeTracedUseCase(
 export const refreshAccessTokenUseCase = makeTracedUseCase(
   'auth.refreshAccessTokenUseCase',
   makeRefreshAccessTokenUseCase({
+    actorService,
     reqContext: appContext,
     userRepo: userRepos.user,
     tokenService,

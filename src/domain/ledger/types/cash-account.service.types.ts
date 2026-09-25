@@ -14,7 +14,7 @@ import { ILedgerAccount } from './ledger.types';
 
 interface IMakeHeaderPayload {
   name: string;
-  userId: TEntityId;
+  createdBy: TEntityId;
   accountingEntity: IAccountingEntity;
 }
 
@@ -22,7 +22,7 @@ interface IMakePettyCashPayload {
   name: string;
   currency: ICurrency;
   isControlAccount: boolean;
-  userId: TEntityId;
+  createdBy: TEntityId;
   accountingEntity: IAccountingEntity;
   controlAccountCode: TCashLedgerCode;
 }
@@ -31,7 +31,7 @@ interface IMakeBankPayload {
   name: string;
   currency: ICurrency;
   isControlAccount: boolean;
-  userId: TEntityId;
+  createdBy: TEntityId;
   accountingEntity: IAccountingEntity;
   controlAccountCode: TCashLedgerCode;
   bankDetails: IBankDetails;

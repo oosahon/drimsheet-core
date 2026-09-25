@@ -1,5 +1,6 @@
 import { eq } from 'drizzle-orm';
 
+import { TEntityId } from '@shared/types/uuid';
 import generateUUID from '@shared/utils/uuid-generator';
 import repoError from '@shared/values/errors/repo.error';
 
@@ -26,7 +27,10 @@ describe('FX Cost-Basis Lot Repo', () => {
 
   it('reads open account lots in repository FIFO order', async () => {
     const row = { id: 'row' };
-    const lot = { id: generateUUID() } as IFxCostBasisLot;
+    const lot = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      id: generateUUID(),
+    } as IFxCostBasisLot;
     const orderedQuery = {
       then: (resolve: (value: unknown[]) => void) => resolve([row]),
     };
@@ -58,10 +62,22 @@ describe('FX Cost-Basis Lot Repo', () => {
   });
 
   it('updates a lot and appends its history in one repository transaction', async () => {
-    const lot = { id: generateUUID(), version: 2 } as IFxCostBasisLot;
+    const lot = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      id: generateUUID(),
+      version: 2,
+    } as IFxCostBasisLot;
     const history = { entityId: lot.id, entityVersion: 2 } as never;
-    const lotRow = { id: lot.id, version: lot.version } as never;
-    const historyRow = { lotId: lot.id } as never;
+    const lotRow = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      id: lot.id,
+      version: lot.version,
+    } as never;
+    const historyRow = {
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      onBehalfOf: null,
+      lotId: lot.id,
+    } as never;
     const where = jest.fn().mockResolvedValue({ rowCount: 1 });
     const set = jest.fn().mockReturnValue({ where });
     const update = jest.fn().mockReturnValue({ set });
@@ -87,7 +103,11 @@ describe('FX Cost-Basis Lot Repo', () => {
   });
 
   it('throws a version conflict without appending history for a stale update', async () => {
-    const lot = { id: generateUUID(), version: 2 } as IFxCostBasisLot;
+    const lot = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      id: generateUUID(),
+      version: 2,
+    } as IFxCostBasisLot;
     const history = { entityId: lot.id, entityVersion: 2 } as never;
     const where = jest.fn().mockResolvedValue({ rowCount: 0 });
     const set = jest.fn().mockReturnValue({ where });
@@ -111,12 +131,21 @@ describe('FX Cost-Basis Lot Repo', () => {
   });
 
   it('rejects a history-version mismatch before opening a transaction', async () => {
-    const lot = { id: generateUUID(), version: 2 } as IFxCostBasisLot;
+    const lot = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      id: generateUUID(),
+      version: 2,
+    } as IFxCostBasisLot;
 
     await expect(
       fxCostBasisLotRepo.update(lot, {
         correlationId: 'corr-id',
-        history: { entityId: lot.id, entityVersion: 3 } as never,
+        history: {
+          actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+          onBehalfOf: null,
+          entityId: lot.id,
+          entityVersion: 3,
+        } as never,
         expectedVersion: 1,
       })
     ).rejects.toBeInstanceOf(repoError.VersionMismatch);

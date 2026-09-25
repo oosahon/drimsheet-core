@@ -1,3 +1,4 @@
+import { TEntityId } from '@shared/types/uuid';
 import generateUUID from '@shared/utils/uuid-generator';
 
 import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
@@ -13,6 +14,7 @@ import fxCostBasisLotAudit from '@domain/subledger/fx-cost-basis/values/lot-audi
 describe('fxCostBasisLotAudit', () => {
   const createdAt = new Date('2026-04-01T00:00:00.000Z');
   const makePayload: Parameters<typeof fxCostBasisLotEntity.make>[0] = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     ledgerAccountId: generateUUID(),
     accountingEntityId: generateUUID(),
     status: EFxCostBasisLotStatus.Open,

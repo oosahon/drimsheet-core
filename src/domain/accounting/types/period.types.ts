@@ -15,6 +15,7 @@ export const EPeriodUnit = {
 export type UPeriodUnit = (typeof EPeriodUnit)[keyof typeof EPeriodUnit];
 
 export interface IPeriod {
+  createdBy: TEntityId;
   id: TEntityId;
   name: string;
   accountingEntityId: TEntityId;

@@ -17,6 +17,13 @@ import middlewares from '@infra/ioc/middlewares/http';
 import * as authUseCase from '@infra/ioc/usecases/auth';
 import { createApplication } from '@infra/server';
 
+jest.mock('@infra/ioc/services/user', () => ({
+  ...jest.requireActual('@infra/ioc/services/user'),
+  actorService: jest.requireActual(
+    '@app/user/contracts/__mocks__/actor.services.mock'
+  ).mockActorService,
+}));
+
 jest.mock(
   '@infra/integrations/launchdarkly/launchdarkly-feature-flag.service',
   () => ({

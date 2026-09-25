@@ -19,6 +19,7 @@ describe('accountingEntityServiceValidation', () => {
   const ownerId = '123e4567-e89b-12d3-a456-426614174000' as TEntityId;
   const repoOptions: IReadRepoOptions = { correlationId: 'correlation-id' };
   const input: IAccountingEntityCreationInput = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     name: 'Test Business',
     type: EAccountingEntityType.Individual,
     ownerId,
@@ -76,7 +77,11 @@ describe('accountingEntityServiceValidation', () => {
     });
 
     it('rejects an individual entity when the owner already has one', async () => {
-      repo.findByUserId.mockResolvedValue([{} as IAccountingEntity]);
+      repo.findByUserId.mockResolvedValue([
+        {
+          createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        } as IAccountingEntity,
+      ]);
 
       await expect(
         accountingEntityServiceValidation.validateExistingIndividualEntity(

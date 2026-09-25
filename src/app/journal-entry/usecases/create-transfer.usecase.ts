@@ -53,10 +53,8 @@ export default function makeCreateTransferUsecase(deps: IDependencies) {
   return async (payload: ITransferEntryReq): Promise<IJournalEntryDto> => {
     zodValidationRunner(transferEntryReqValidation, payload);
 
-    const { correlationId, accountingEntity, user, idempotencyKey } =
-      deps.appContext.get(['user', 'accountingEntity']);
-
-    const userActor = historyValue.getUserActor(user.id);
+    const { correlationId, accountingEntity, user, actor, idempotencyKey } =
+      deps.appContext.get(['user', 'actor', 'accountingEntity']);
 
     const repoOptions = { correlationId, idempotencyKey };
 
@@ -88,6 +86,7 @@ export default function makeCreateTransferUsecase(deps: IDependencies) {
       await deps.counterpartyAppService.findOrCreateMany(
         chargeCounterpartiesPayload,
         accountingEntity.id,
+        actor.id,
         repoOptions
       );
 
@@ -120,7 +119,7 @@ export default function makeCreateTransferUsecase(deps: IDependencies) {
       effectiveDate: payload.effectiveDate,
       postedAt: payload.postedAt,
       functionalCurrencyCode: accountingEntity.functionalCurrencyCode,
-      createdBy: user.id,
+      createdBy: actor.id,
     };
 
     const transferPayload: ICreateTransferEntryPayload = {
@@ -140,25 +139,25 @@ export default function makeCreateTransferUsecase(deps: IDependencies) {
 
     const journalHeaderHistory = historyValue.make(
       journalEntryAudit.header,
-      userActor,
+      actor.id,
       correlationId
     );
     const journalLinesHistory = journalEntryAudit.lines.map((line) =>
-      historyValue.make(line, userActor, correlationId)
+      historyValue.make(line, actor.id, correlationId)
     );
 
     const newCounterparties = getNewCounterpartiesHelper(
       allCounterparties,
-      userActor,
+      actor.id,
       correlationId
     );
 
     const dispositionResult = await deps.fxLotAppService.dispose(
-      { journalEntry, account: sourceAccount, actor: userActor },
+      { journalEntry, account: sourceAccount, actor: actor.id },
       repoOptions
     );
     const acquisitionResult = await deps.fxLotAppService.acquire(
-      { journalEntry, account: destinationAssetAccount, actor: userActor },
+      { journalEntry, account: destinationAssetAccount, actor: actor.id },
       repoOptions
     );
 

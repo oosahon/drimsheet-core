@@ -13,6 +13,7 @@ import { mockSuspenseAccountService } from '@app/ledger/contracts/__mocks__/ledg
 import makeSuspenseAccountBootstrapService from '@app/ledger/services/suspense-account-bootstrap.service';
 
 const accountingEntity = {
+  createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
   id: '123e4567-e89b-12d3-a456-426614174001' as TEntityId,
   ownerId: '123e4567-e89b-12d3-a456-426614174002' as TEntityId,
   type: EAccountingEntityType.Individual,
@@ -24,6 +25,7 @@ function makeAuditedAccount(
   name: string
 ): TAuditedEntity<ILedgerAccount, ILedgerAccount, ILedgerAccount> {
   const account = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     id: `${name}-id` as TEntityId,
     name,
   } as ILedgerAccount;
@@ -60,13 +62,17 @@ describe('suspenseAccountBootstrapService', () => {
   });
 
   it('creates both suspense accounts with functional currency and preserves tuple order', async () => {
-    const result = await service.bootstrap(accountingEntity, repoOptions);
+    const result = await service.bootstrap(
+      accountingEntity,
+      'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      repoOptions
+    );
 
     expect(mockSuspenseAccountService.createAssetSuspense).toHaveBeenCalledWith(
       {
         accountingEntityId: accountingEntity.id,
         currency: SYSTEM_CURRENCIES.USD,
-        createdBy: accountingEntity.ownerId,
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         name: 'Asset Suspense Account',
       },
       repoOptions
@@ -77,7 +83,7 @@ describe('suspenseAccountBootstrapService', () => {
       {
         accountingEntityId: accountingEntity.id,
         currency: SYSTEM_CURRENCIES.USD,
-        createdBy: accountingEntity.ownerId,
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         name: 'Liability Suspense Account',
       },
       repoOptions
@@ -95,9 +101,13 @@ describe('suspenseAccountBootstrapService', () => {
       domainFailure
     );
 
-    await expect(service.bootstrap(accountingEntity, repoOptions)).rejects.toBe(
-      domainFailure
-    );
+    await expect(
+      service.bootstrap(
+        accountingEntity,
+        'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        repoOptions
+      )
+    ).rejects.toBe(domainFailure);
     expect(
       mockSuspenseAccountService.createLiabilitySuspense
     ).not.toHaveBeenCalled();

@@ -2,6 +2,7 @@ import {
   ITransactionContext,
   IWriteRepoOptions,
 } from '@shared/types/repo.types';
+import { TEntityId } from '@shared/types/uuid';
 
 import {
   IFxCostBasisLotDisposition,
@@ -22,8 +23,13 @@ jest.mock('../mappers/disposition.mapper');
 jest.mock('../mappers/disposition-history.mapper');
 
 describe('FX Cost-Basis Lot Disposition Repo', () => {
-  const payload = { id: 'disposition-1' } as IFxCostBasisLotDisposition;
+  const payload = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+    id: 'disposition-1',
+  } as IFxCostBasisLotDisposition;
   const history = {
+    actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+    onBehalfOf: null,
     entityId: payload.id,
   } as IFxCostBasisLotDispositionHistory;
   const outerTx = 'outer-transaction' as unknown as ITransactionContext;
@@ -36,8 +42,15 @@ describe('FX Cost-Basis Lot Disposition Repo', () => {
   beforeEach(() => jest.clearAllMocks());
 
   it('persists disposition and history in one transaction', async () => {
-    const dispositionRow = { id: payload.id };
-    const historyRow = { dispositionId: payload.id };
+    const dispositionRow = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      id: payload.id,
+    };
+    const historyRow = {
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      onBehalfOf: null,
+      dispositionId: payload.id,
+    };
     const values = jest.fn().mockResolvedValue(undefined);
     const tx = { insert: jest.fn().mockReturnValue({ values }) };
     const query = {

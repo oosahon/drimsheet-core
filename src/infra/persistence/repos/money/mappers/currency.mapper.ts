@@ -1,5 +1,7 @@
 import { InferSelectModel } from 'drizzle-orm';
 
+import { TEntityId } from '@shared/types/uuid';
+
 import {
   SYSTEM_CURRENCIES,
   UCurrencyCode,
@@ -14,11 +16,17 @@ export interface ICurrencyModel extends InferSelectModel<
 > {}
 
 const currencyMapper = {
-  toRepo(currency: ICurrency): ICurrencyModel {
+  toRepo(currency: ICurrency, createdBy: TEntityId): ICurrencyModel {
     return {
-      ...currency,
+      code: currency.code,
+      name: currency.name,
+      symbol: currency.symbol,
+      createdBy,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      deletedAt: null,
       minorUnit: currency.minorUnit,
-    } as ICurrencyModel;
+    };
   },
 
   toDomain(currency: ICurrencyModel): ICurrency {

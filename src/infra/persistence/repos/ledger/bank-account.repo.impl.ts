@@ -33,12 +33,19 @@ const bankAccountRepoImpl: IBankAccountRepo = {
     return result ? bankAccountMapper.toDomain(result) : null;
   },
 
-  create: async (ledgerAccountId, accountingEntityId, bankValue, options) => {
+  create: async (
+    ledgerAccountId,
+    accountingEntityId,
+    bankValue,
+    createdBy,
+    options
+  ) => {
     try {
       const model = bankAccountMapper.toRepo(
         ledgerAccountId,
         accountingEntityId,
-        bankValue
+        bankValue,
+        createdBy
       );
       await getDbQuery(options).insert(bankDetailsInCore).values(model);
     } catch (err: unknown) {

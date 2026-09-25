@@ -1,3 +1,4 @@
+import { TEntityId } from '@shared/types/uuid';
 import generateUUID from '@shared/utils/uuid-generator';
 
 import accountingEntityEntity from '@domain/accounting/entities/accounting-entity.entity';
@@ -15,6 +16,7 @@ describe('getControlAccountHelper', () => {
   const correlationId = 'test-correlation-id';
   const createdBy = generateUUID();
   const [accountingEntity] = accountingEntityEntity.make({
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     name: 'Test Accounting Entity',
     ownerId: createdBy,
     type: EAccountingEntityType.Individual,
@@ -42,7 +44,7 @@ describe('getControlAccountHelper', () => {
     [defaultControlAccount] = await cashAccountService.createHeader(
       {
         name: 'Cash and Cash Equivalents',
-        userId: createdBy,
+        createdBy: createdBy,
         accountingEntity,
       },
       { correlationId }

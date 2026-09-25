@@ -49,6 +49,7 @@ describe('cashAccountService', () => {
   it('creates the cash header in functional currency', async () => {
     const ownerId = generateUUID();
     const accountingEntity = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: generateUUID(),
       ownerId,
       functionalCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
@@ -56,7 +57,11 @@ describe('cashAccountService', () => {
     mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(null);
 
     const [account] = await service.createHeader(
-      { name: 'Cash', userId: ownerId, accountingEntity },
+      {
+        name: 'Cash',
+        createdBy: ownerId,
+        accountingEntity,
+      },
       mockOptions
     );
 
@@ -66,6 +71,7 @@ describe('cashAccountService', () => {
   it('rejects a duplicate cash header', async () => {
     const ownerId = generateUUID();
     const accountingEntity = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: generateUUID(),
       ownerId,
       functionalCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
@@ -73,7 +79,11 @@ describe('cashAccountService', () => {
     mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(null);
 
     const [existingHeader] = await service.createHeader(
-      { name: 'Cash', userId: ownerId, accountingEntity },
+      {
+        name: 'Cash',
+        createdBy: ownerId,
+        accountingEntity,
+      },
       mockOptions
     );
 
@@ -81,7 +91,11 @@ describe('cashAccountService', () => {
 
     await expect(
       service.createHeader(
-        { name: 'Cash', userId: ownerId, accountingEntity },
+        {
+          name: 'Cash',
+          createdBy: ownerId,
+          accountingEntity,
+        },
         mockOptions
       )
     ).rejects.toMatchObject({
@@ -97,6 +111,7 @@ describe('cashAccountService', () => {
     const latestAccountId = generateUUID();
 
     const validAccountingEntity = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: entityId,
       ownerId,
     } as IAccountingEntity;
@@ -109,6 +124,7 @@ describe('cashAccountService', () => {
     };
 
     const mockControlAccount = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: controlAccountId,
       code: ASSET_LEDGER_CODES.CASH_AND_EQUIVALENTS.HEADER,
       materializedPath: ASSET_LEDGER_CODES.CASH_AND_EQUIVALENTS.HEADER,
@@ -121,6 +137,7 @@ describe('cashAccountService', () => {
     } as ILedgerAccount;
 
     const mockLatestAccount = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: latestAccountId,
       code: '100001' as TCashLedgerCode,
       materializedPath:
@@ -131,7 +148,7 @@ describe('cashAccountService', () => {
       name: 'Main Petty Cash',
       currency: validCurrency,
       isControlAccount: false,
-      userId: ownerId,
+      createdBy: ownerId,
       accountingEntity: validAccountingEntity,
       controlAccountCode: ASSET_LEDGER_CODES.CASH_AND_EQUIVALENTS.HEADER,
     };
@@ -257,10 +274,10 @@ describe('cashAccountService', () => {
         ).rejects.toThrow();
       });
 
-      it('should throw if userId (createdBy) is an invalid UUID', async () => {
+      it('should throw if createdBy contains an invalid user ID', async () => {
         const payload = {
           ...validPayload,
-          userId: 'invalid-uuid' as TEntityId,
+          createdBy: 'invalid-uuid' as TEntityId,
           accountingEntity: {
             ...validAccountingEntity,
             ownerId: 'invalid-uuid' as TEntityId,
@@ -294,6 +311,7 @@ describe('cashAccountService', () => {
     const controlAccountId = generateUUID();
 
     const validAccountingEntity = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: entityId,
       ownerId,
     } as IAccountingEntity;
@@ -306,6 +324,7 @@ describe('cashAccountService', () => {
     };
 
     const mockControlAccount = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: controlAccountId,
       code: ASSET_LEDGER_CODES.CASH_AND_EQUIVALENTS.HEADER,
       materializedPath: ASSET_LEDGER_CODES.CASH_AND_EQUIVALENTS.HEADER,
@@ -328,7 +347,7 @@ describe('cashAccountService', () => {
       name: 'Chase Operating Account',
       currency: validCurrency,
       isControlAccount: false,
-      userId: ownerId,
+      createdBy: ownerId,
       accountingEntity: validAccountingEntity,
       controlAccountCode: ASSET_LEDGER_CODES.CASH_AND_EQUIVALENTS.HEADER,
       bankDetails: validBankValue,

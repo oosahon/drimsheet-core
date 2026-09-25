@@ -1,3 +1,4 @@
+import { TEntityId } from '@shared/types/uuid';
 import generateUUID from '@shared/utils/uuid-generator';
 
 import { IJournalEntry } from '@domain/journal-entry/types/journal-entry.types';
@@ -24,6 +25,7 @@ describe('ledgerAccountBalanceAdjustmentService', () => {
     subType = 'cash'
   ) =>
     ({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id,
       accountingEntityId,
       materializedPath,
@@ -51,6 +53,7 @@ describe('ledgerAccountBalanceAdjustmentService', () => {
     currency = SYSTEM_CURRENCIES.USD
   ) =>
     ({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       accountId,
       side,
       amount: { amount, currency },
@@ -62,6 +65,7 @@ describe('ledgerAccountBalanceAdjustmentService', () => {
 
   const journal = (lines: IJournalLine[]) =>
     ({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: generateUUID(),
       accountingEntityId,
       lines,

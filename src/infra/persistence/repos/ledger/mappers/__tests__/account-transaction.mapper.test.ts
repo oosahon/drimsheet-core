@@ -26,6 +26,7 @@ describe('Account Transaction Mapper', () => {
   const voidedAt = new Date('2026-05-01T03:00:00.000Z');
 
   const transaction: IAccountTransaction = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     id,
     entryId,
     accountId,
@@ -49,13 +50,14 @@ describe('Account Transaction Mapper', () => {
       voidedAt,
       voidingEntryId: null,
       version: 1,
-      createdBy,
+      createdBy: createdBy,
       createdAt,
       updatedAt,
     },
   };
 
   const lineModel: IJournalLineModel = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     id,
     entryId,
     accountId,
@@ -85,7 +87,7 @@ describe('Account Transaction Mapper', () => {
     voidedAt: voidedAt.toISOString(),
     voidingEntryId: null,
     version: 1,
-    createdBy,
+    createdBy: createdBy,
     createdAt: createdAt.toISOString(),
     updatedAt: updatedAt.toISOString(),
   };
@@ -114,7 +116,7 @@ describe('Account Transaction Mapper', () => {
           voidedAt: null,
           voidingEntryId: null,
           version: 1,
-          createdBy,
+          createdBy: createdBy,
           createdAt: createdAt.toISOString(),
           updatedAt: updatedAt.toISOString(),
         },
@@ -135,6 +137,7 @@ describe('Account Transaction Mapper', () => {
   describe('toDto', () => {
     it('maps an account transaction to a DTO', () => {
       expect(accountTransactionMapper.toDto(transaction)).toEqual({
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         id,
         entryId,
         accountId,
@@ -165,7 +168,7 @@ describe('Account Transaction Mapper', () => {
           voidedAt,
           voidingEntryId: null,
           version: transaction.header.version,
-          createdBy,
+          createdBy: createdBy,
           createdAt,
           updatedAt,
         },
@@ -174,6 +177,7 @@ describe('Account Transaction Mapper', () => {
 
     it('maps nullable journal fields to DTO nulls', () => {
       const result = accountTransactionMapper.toDto({
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         id,
         entryId,
         accountId,
@@ -197,7 +201,7 @@ describe('Account Transaction Mapper', () => {
           voidedAt: null,
           voidingEntryId: null,
           version: 1,
-          createdBy,
+          createdBy: createdBy,
           createdAt,
           updatedAt,
         },

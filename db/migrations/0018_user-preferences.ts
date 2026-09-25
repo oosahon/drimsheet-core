@@ -1,12 +1,19 @@
 import { ColumnDefinitions, MigrationBuilder } from 'node-pg-migrate';
 
 import { accountingEntitiesTable } from '../config/accounting-entity';
+import { actorsTable } from '../config/actors';
 import { userPreferencesTable, usersTable } from '../config/users';
 
 export const shorthands: ColumnDefinitions | undefined = undefined;
 
 export async function up(pgm: MigrationBuilder): Promise<void> {
   pgm.createTable(userPreferencesTable, {
+    created_by: {
+      type: 'uuid',
+      notNull: true,
+      references: actorsTable,
+      onDelete: 'RESTRICT',
+    },
     id: {
       type: 'uuid',
       primaryKey: true,

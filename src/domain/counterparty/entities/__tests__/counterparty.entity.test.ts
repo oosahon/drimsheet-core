@@ -27,6 +27,7 @@ describe('Counterparty Entity', () => {
   describe('make', () => {
     it('should create a valid counterparty with empty roles array', () => {
       const payload: IMakeCounterpartyPayload = {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         accountingEntityId,
         name: '  Acme Corp  ',
         type: ECounterpartyType.Organization,
@@ -59,6 +60,7 @@ describe('Counterparty Entity', () => {
 
     it('should allow explicitly passing status', () => {
       const payload: IMakeCounterpartyPayload = {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         accountingEntityId,
         name: 'John Doe',
         type: ECounterpartyType.Individual,
@@ -72,6 +74,7 @@ describe('Counterparty Entity', () => {
 
     it('should throw InvalidAccountingEntityId if accountingEntityId is invalid', () => {
       const payload: IMakeCounterpartyPayload = {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         accountingEntityId: 'invalid-id' as TEntityId,
         name: 'Jane Doe',
         type: ECounterpartyType.Individual,
@@ -84,6 +87,7 @@ describe('Counterparty Entity', () => {
 
     it('should throw InvalidName if name is empty', () => {
       const payload: IMakeCounterpartyPayload = {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         accountingEntityId,
         name: '',
         type: ECounterpartyType.Individual,
@@ -98,6 +102,7 @@ describe('Counterparty Entity', () => {
   describe('addRole', () => {
     it('should add a role to the counterparty successfully', () => {
       const [initialCounterparty] = counterpartyEntity.make({
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         accountingEntityId,
         name: 'Vendor Inc',
         type: ECounterpartyType.Organization,
@@ -127,6 +132,7 @@ describe('Counterparty Entity', () => {
 
     it('should throw RoleAlreadyAssigned if role is already assigned', () => {
       const [initialCounterparty] = counterpartyEntity.make({
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         accountingEntityId,
         name: 'Vendor Inc',
         type: ECounterpartyType.Organization,
@@ -147,6 +153,7 @@ describe('Counterparty Entity', () => {
 
     it('should throw InvalidRole for invalid role', () => {
       const [initialCounterparty] = counterpartyEntity.make({
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         accountingEntityId,
         name: 'Vendor Inc',
         type: ECounterpartyType.Organization,
@@ -164,6 +171,7 @@ describe('Counterparty Entity', () => {
 
 describe('Counterparty role metadata transitions', () => {
   const [generic] = counterpartyEntity.make({
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     accountingEntityId: generateUUID(),
     name: 'Party',
     type: 'organization',

@@ -155,6 +155,7 @@ describe('bankAccountRepoImpl', () => {
         ledgerAccountId,
         accountingEntityId,
         bankDetails,
+        'a1111111-1111-4111-8111-111111111111' as TEntityId,
         { correlationId: 'test-id' }
       );
 
@@ -186,6 +187,7 @@ describe('bankAccountRepoImpl', () => {
           ledgerAccountId,
           accountingEntityId,
           bankDetails,
+          'a1111111-1111-4111-8111-111111111111' as TEntityId,
           { correlationId: 'test-id' }
         )
       ).rejects.toBeInstanceOf(ledgerAccountError.DuplicateBankAccount);
@@ -209,6 +211,7 @@ describe('bankAccountRepoImpl', () => {
           ledgerAccountId,
           accountingEntityId,
           bankDetails,
+          'a1111111-1111-4111-8111-111111111111' as TEntityId,
           { correlationId: 'test-id' }
         )
       ).rejects.toBe(dbErr);

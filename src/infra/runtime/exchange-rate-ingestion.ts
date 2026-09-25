@@ -4,6 +4,9 @@ import ITracer from '@shared/contracts/tracer.contract';
 import { ELogOutcome } from '@shared/types/observability.types';
 import generateUUID from '@shared/utils/uuid-generator';
 
+import IActorService from '@domain/user/types/actor.service.types';
+
+import IAppContext from '@app/context/contracts/app-context.contract';
 import { IExchangeRateDto } from '@app/money/dtos/exchange-rate/exchange-rate.dto';
 
 import { postgres } from '@infra/config/postgres.config';
@@ -14,8 +17,10 @@ import {
 } from '@infra/integrations/cbn/cbn-exchange-rate.client';
 import { mapCbnExchangeRates } from '@infra/integrations/cbn/cbn-exchange-rate.mapper';
 import { TCbnExchangeRateRecord } from '@infra/integrations/cbn/cbn-exchange-rate.schema';
+import { actorService } from '@infra/ioc/services/user';
 import { ingestExchangeRateUseCase } from '@infra/ioc/usecases/money';
 import observability from '@infra/observability';
+import appContext from '@infra/runtime/app-context';
 import observabilityLifecycle from '@infra/runtime/observability-lifecycle';
 
 const MAX_ATTEMPTS = 3;
@@ -52,6 +57,8 @@ interface IExchangeRateIngestionSummary {
 }
 
 interface IRuntimeDependencies {
+  actorService: IActorService;
+  appContext: IAppContext;
   closeDatabase(): Promise<void>;
   fetchExchangeRates(signal: AbortSignal): Promise<TCbnExchangeRateRecord[]>;
   generateCorrelationId(): string;
@@ -136,10 +143,17 @@ export function makeExchangeRateIngestionRuntime(deps: IRuntimeDependencies) {
       });
     }
 
-    const ingestion = await deps.ingestExchangeRates({
+    const actor = await deps.actorService.resolveByUsername('drimsheet-core', {
       correlationId,
-      exchangeRates: mapping.exchangeRates,
     });
+    const ingestion = await deps.appContext.init(
+      { actor, correlationId, idempotencyKey: '' },
+      () =>
+        deps.ingestExchangeRates({
+          correlationId,
+          exchangeRates: mapping.exchangeRates,
+        })
+    );
 
     return {
       fetchedCount: records.length,
@@ -272,6 +286,8 @@ export function makeExchangeRateIngestionRuntime(deps: IRuntimeDependencies) {
 }
 
 const exchangeRateIngestionRuntime = makeExchangeRateIngestionRuntime({
+  actorService,
+  appContext,
   closeDatabase: () => postgres.$client.end(),
   fetchExchangeRates: fetchCbnExchangeRates,
   generateCorrelationId: generateUUID,

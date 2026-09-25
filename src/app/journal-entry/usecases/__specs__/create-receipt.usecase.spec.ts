@@ -19,6 +19,7 @@ import makeServicesAccountService from '@domain/ledger/services/revenue-account/
 import { ICashAndCashEquivalentAccount } from '@domain/ledger/types/asset-account.types';
 import { IServicesAccount } from '@domain/ledger/types/revenue-account.types';
 import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
+import actorEntity from '@domain/user/entities/actor.entity';
 import { IUser } from '@domain/user/types/user.types';
 
 import mockAppContext, {
@@ -43,11 +44,21 @@ import mockFxLotCostBasisService from '@app/subledger/fx-cost-basis/contracts/__
 import mockFxLotAppService from '@app/subledger/fx-cost-basis/contracts/__mocks__/fx-lot.service.mock';
 import { TFxLotAcquisitionAppResult } from '@app/subledger/fx-cost-basis/types/fx-lot.service.types';
 
+const actor = {
+  ...actorEntity.makeUser({
+    email: 'actor@example.com',
+    displayName: 'Actor',
+  })[0],
+  id: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+};
+
 describe('makeCreateReceiptUsecase', () => {
   const correlationId = 'test-correlation-id';
   const idempotencyKey = 'test-idempotency-key';
 
   const user: IUser = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+    actorId: 'b2222222-2222-4222-8222-222222222222' as TEntityId,
     id: generateUUID(),
     version: 1,
     email: 'user@example.com',
@@ -60,6 +71,7 @@ describe('makeCreateReceiptUsecase', () => {
   };
 
   const [accountingEntity] = accountingEntityEntity.make({
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     name: 'Test Entity',
     ownerId: user.id,
     type: EAccountingEntityType.Individual,
@@ -78,12 +90,14 @@ describe('makeCreateReceiptUsecase', () => {
 
   const counterpartyService = makeCounterpartyService();
   const newCounterparty = counterpartyService.create({
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     accountingEntityId: accountingEntity.id,
     name: 'Jane Doe',
     type: ECounterpartyType.Individual,
   });
 
   const existingCounterparty = counterpartyService.create({
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     accountingEntityId: accountingEntity.id,
     name: 'Jane Doe',
     type: ECounterpartyType.Individual,
@@ -110,7 +124,7 @@ describe('makeCreateReceiptUsecase', () => {
       {
         name: 'Services',
         accountingEntity,
-        createdBy: user.id,
+        createdBy: actor.id,
       },
       { correlationId }
     );
@@ -122,7 +136,7 @@ describe('makeCreateReceiptUsecase', () => {
         accountingEntityId: accountingEntity.id,
         isControlAccount: false,
         controlAccountCode: servicesHeader.code,
-        createdBy: user.id,
+        createdBy: actor.id,
       },
       { correlationId }
     );
@@ -131,7 +145,7 @@ describe('makeCreateReceiptUsecase', () => {
       {
         name: 'Cash',
         accountingEntity,
-        userId: user.id,
+        createdBy: actor.id,
       },
       { correlationId }
     );
@@ -142,7 +156,7 @@ describe('makeCreateReceiptUsecase', () => {
         effectiveDate: new Date('2026-08-06T00:00:00.000Z'),
         postedAt: new Date('2026-08-06T00:00:00.000Z'),
         memo: 'Receipt',
-        createdBy: user.id,
+        createdBy: actor.id,
         functionalCurrency: SYSTEM_CURRENCIES.NGN,
         lines: [
           {
@@ -173,6 +187,7 @@ describe('makeCreateReceiptUsecase', () => {
     jest.clearAllMocks();
 
     mockAppContext.get.mockReturnValue({
+      actor,
       correlationId,
       idempotencyKey,
       user,
@@ -285,7 +300,7 @@ describe('makeCreateReceiptUsecase', () => {
       {
         journalEntry,
         account: destinationAccount,
-        actor: expect.objectContaining({ userId: user.id }),
+        actor: actor.id,
       },
       { correlationId, idempotencyKey }
     );
@@ -311,6 +326,7 @@ describe('makeCreateReceiptUsecase', () => {
         payload.destinationLine.counterparty,
       ]),
       accountingEntity.id,
+      'a1111111-1111-4111-8111-111111111111' as TEntityId,
       repoOptions
     );
 
@@ -786,7 +802,7 @@ describe('makeCreateReceiptUsecase', () => {
       {
         journalEntry: draftJournalEntry,
         account: destinationAccount,
-        actor: expect.objectContaining({ userId: user.id }),
+        actor: actor.id,
       },
       { correlationId, idempotencyKey }
     );

@@ -2,6 +2,7 @@ import generateUUID from '@shared/utils/uuid-generator';
 
 import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
 
+import { actorService } from '@infra/ioc/services/user';
 import observability from '@infra/observability';
 import currencyRepos from '@infra/persistence/repos/money';
 
@@ -11,8 +12,11 @@ export default async function bootstrapCurrencies() {
     bootstrapCorrelationId: correlationId,
   });
 
+  const actor = await actorService.resolveByUsername('drimsheet-core', {
+    correlationId: 'currency-bootstrap',
+  });
   for (const currency of Object.values(SYSTEM_CURRENCIES)) {
-    await currencyRepos.currency.create(currency, {
+    await currencyRepos.currency.create(currency, actor.id, {
       correlationId,
     });
   }

@@ -34,6 +34,7 @@ describe('getControlAccountScope', () => {
     correlationId: 'test-correlation-id',
   };
   const controlAccount = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     id: controlAccountId,
     code: ASSET_LEDGER_CODES.CASH_AND_EQUIVALENTS.HEADER,
     materializedPath: ASSET_LEDGER_CODES.CASH_AND_EQUIVALENTS.HEADER,

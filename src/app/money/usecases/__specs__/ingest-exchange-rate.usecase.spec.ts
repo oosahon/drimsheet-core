@@ -1,12 +1,15 @@
 import mockRepoService from '@shared/contracts/__mocks__/repo.mock';
 import { ITransactionContext } from '@shared/types/repo.types';
+import runtimeError from '@shared/values/errors/runtime.error';
 
 import exchangeRateError from '@domain/money/errors/exchange-rate.error';
 import {
   EExchangeRateType,
   IExchangeRate,
 } from '@domain/money/types/exchange-rate.types';
+import actorEntity from '@domain/user/entities/actor.entity';
 
+import mockAppContext from '@app/context/contracts/__mocks__/app-context.mock';
 import { mockExchangeRateRepo } from '@app/money/contracts/__mocks__/money.repos.mock';
 import {
   IExchangeRateDto,
@@ -15,6 +18,9 @@ import {
 import makeIngestExchangeRateUseCase from '@app/money/usecases/ingest-exchange-rate.usecase';
 
 describe('makeIngestExchangeRateUseCase', () => {
+  const [systemActor] = actorEntity.makeSystem(
+    actorEntity.makeMigration()[0].id
+  );
   const correlationId = '019cde0f-5b78-775a-bf29-8f02a947760a';
 
   const makeExchangeRate = (
@@ -49,12 +55,18 @@ describe('makeIngestExchangeRateUseCase', () => {
 
   const makeUseCase = () =>
     makeIngestExchangeRateUseCase({
+      appContext: mockAppContext,
       exchangeRateRepo: mockExchangeRateRepo,
       repoService: mockRepoService,
     });
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockAppContext.get.mockReset().mockReturnValue({
+      actor: systemActor,
+      correlationId,
+      idempotencyKey: '',
+    });
     jest.useFakeTimers();
     jest.setSystemTime(new Date('2026-06-11T12:00:00.000Z'));
     mockExchangeRateRepo.create.mockResolvedValue(undefined);
@@ -66,6 +78,21 @@ describe('makeIngestExchangeRateUseCase', () => {
 
   afterEach(() => {
     jest.useRealTimers();
+  });
+
+  it('requires an actor before reading or persisting rates', async () => {
+    mockAppContext.get.mockImplementationOnce(() => {
+      throw new runtimeError.ContextNotFound();
+    });
+
+    await expect(
+      makeUseCase()(makePayload([makeExchangeRate()]))
+    ).rejects.toThrow(runtimeError.ContextNotFound);
+
+    expect(mockAppContext.get).toHaveBeenCalledWith(['actor']);
+    expect(mockExchangeRateRepo.findLatest).not.toHaveBeenCalled();
+    expect(mockExchangeRateRepo.create).not.toHaveBeenCalled();
+    expect(mockRepoService.runInTransaction).not.toHaveBeenCalled();
   });
 
   it('filters before batching and persists selected rates in one transaction', async () => {
@@ -103,6 +130,7 @@ describe('makeIngestExchangeRateUseCase', () => {
           type: 'official',
         }),
       ]),
+      systemActor.id,
       { correlationId, tx: 'mock-tx' }
     );
     expect(
@@ -159,6 +187,7 @@ describe('makeIngestExchangeRateUseCase', () => {
           currencyPair: 'EUR/NGN',
         }),
       ]),
+      systemActor.id,
       { correlationId, tx: 'mock-tx' }
     );
   });

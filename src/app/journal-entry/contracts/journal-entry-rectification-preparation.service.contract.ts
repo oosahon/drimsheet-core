@@ -1,6 +1,5 @@
 import { IReadRepoOptions } from '@shared/types/repo.types';
 import { TEntityId } from '@shared/types/uuid';
-import { IUserHistoryActor } from '@shared/values/history/types/history.types';
 
 import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
 import { IJournalEntryRectificationResult } from '@domain/journal-entry/types/journal-entry-rectification.types';
@@ -18,8 +17,7 @@ export interface IJournalEntryRectificationPreparationPayload {
   originalEntry: IJournalEntry;
   requestedEntry: TJournalEntryRectificationReq;
   accountingEntity: IAccountingEntity;
-  createdBy: TEntityId;
-  actor: IUserHistoryActor;
+  actor: TEntityId;
 }
 
 export interface IPreparedJournalEntryRectification {

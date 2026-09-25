@@ -4,6 +4,7 @@ import { IReadRepoOptions } from '@shared/types/repo.types';
 
 import IAccountingEntityRepo from '@domain/accounting/repos/accounting-entity.repo';
 import IUserRepo from '@domain/user/repos/user.repo';
+import IActorService from '@domain/user/types/actor.service.types';
 
 import ITokenService from '@app/auth/contracts/token-service.contract';
 import IAppContext from '@app/context/contracts/app-context.contract';
@@ -15,7 +16,8 @@ export default function makeAppContextEnrichmentMiddleware(
   appContext: IAppContext,
   accountingEntityRepo: IAccountingEntityRepo,
   tokenService: ITokenService,
-  userRepo: IUserRepo
+  userRepo: IUserRepo,
+  actorService: IActorService
 ): RequestHandler {
   return async (req, _res, next) => {
     const { correlationId } = appContext.get();
@@ -28,6 +30,10 @@ export default function makeAppContextEnrichmentMiddleware(
       repoOptions
     );
 
+    const actor = user
+      ? await actorService.resolveUser(user, repoOptions)
+      : undefined;
+
     const accountingEntity = await getAccountingEntityFromRequest(
       req,
       accountingEntityRepo,
@@ -37,7 +43,7 @@ export default function makeAppContextEnrichmentMiddleware(
 
     if (user || accountingEntity) {
       appContext.set({
-        ...(user && { user }),
+        ...(user && { user, actor }),
         ...(accountingEntity && { accountingEntity }),
       });
     }

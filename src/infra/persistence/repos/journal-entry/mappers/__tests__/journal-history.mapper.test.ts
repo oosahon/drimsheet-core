@@ -46,62 +46,70 @@ describe('journal history mappers', () => {
       ],
     });
 
-  it('maps a journal header history record', () => {
-    const [entry, , audit] = makeJournalEntry();
-    const { lines: _lines, ...header } = entry;
-    const history = historyValue.make(
-      audit.header,
-      historyValue.getUserActor(actorId),
-      correlationId
-    );
+  it.each([
+    actorId,
+    accountingEntityId,
+    'b2222222-2222-4222-8222-222222222222' as TEntityId,
+    'c3333333-3333-4333-8333-333333333333' as TEntityId,
+  ])(
+    'preserves complete $type attribution in journal header storage',
+    (actor) => {
+      const [entry, , audit] = makeJournalEntry();
+      const { lines: _lines, ...header } = entry;
+      const history = historyValue.make(audit.header, actor, correlationId);
 
-    expect(journalEntryHistoryMapper.toRepo(header, history)).toEqual({
-      journalEntryId: entry.id,
-      accountingEntityId,
-      userId: actorId,
-      actorType: 'user',
-      action: 'created',
-      diff: history.diff,
-      correlationId,
-      entityVersion: 1,
-      occurredAt: entry.updatedAt.toISOString(),
-    });
-  });
-
-  it('maps journal line snapshots into JSON-safe repository values', () => {
-    const [entry, , audit] = makeJournalEntry();
-    const history = historyValue.make(
-      audit.lines[0],
-      historyValue.getUserActor(actorId),
-      correlationId
-    );
-
-    const result = journalLineHistoryMapper.toRepo(
-      entry.lines[0],
-      history,
-      accountingEntityId
-    );
-
-    expect(result).toEqual(
-      expect.objectContaining({
-        journalLineId: entry.lines[0].id,
+      expect(journalEntryHistoryMapper.toRepo(header, history)).toEqual({
         journalEntryId: entry.id,
         accountingEntityId,
-        userId: actorId,
-        actorType: 'user',
+        actorId: actor,
+        onBehalfOf: null,
         action: 'created',
+        diff: history.diff,
         correlationId,
         entityVersion: 1,
-        occurredAt: entry.lines[0].updatedAt.toISOString(),
-      })
-    );
-    expect(result.diff).toEqual({
-      before: null,
-      after: expect.objectContaining({
-        id: entry.lines[0].id,
-        amount: 1000,
-        currencyCode: SYSTEM_CURRENCIES.NGN.code,
-      }),
-    });
-  });
+        occurredAt: entry.updatedAt.toISOString(),
+      });
+    }
+  );
+
+  it.each([
+    actorId,
+    accountingEntityId,
+    'b2222222-2222-4222-8222-222222222222' as TEntityId,
+    'c3333333-3333-4333-8333-333333333333' as TEntityId,
+  ])(
+    'preserves complete $type attribution in JSON-safe journal line storage',
+    (actor) => {
+      const [entry, , audit] = makeJournalEntry();
+      const history = historyValue.make(audit.lines[0], actor, correlationId);
+
+      const result = journalLineHistoryMapper.toRepo(
+        entry.lines[0],
+        history,
+        accountingEntityId
+      );
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          journalLineId: entry.lines[0].id,
+          journalEntryId: entry.id,
+          accountingEntityId,
+          actorId: actor,
+          onBehalfOf: null,
+          action: 'created',
+          correlationId,
+          entityVersion: 1,
+          occurredAt: entry.lines[0].updatedAt.toISOString(),
+        })
+      );
+      expect(result.diff).toEqual({
+        before: null,
+        after: expect.objectContaining({
+          id: entry.lines[0].id,
+          amount: 1000,
+          currencyCode: SYSTEM_CURRENCIES.NGN.code,
+        }),
+      });
+    }
+  );
 });

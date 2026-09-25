@@ -1,4 +1,7 @@
+import { TEntityId } from '@shared/types/uuid';
 import runtimeError from '@shared/values/errors/runtime.error';
+
+import actorEntity from '@domain/user/entities/actor.entity';
 
 import { IAppContextData } from '@app/context/contracts/app-context.contract';
 
@@ -23,8 +26,13 @@ describe('appContext', () => {
   });
 
   it('returns a store when every required key is present', () => {
-    const user = { id: 'user-id' } as IAppContextData['user'];
+    const user = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      id: 'user-id',
+    } as IAppContextData['user'];
     const accountingEntity = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: 'accounting-entity-id',
     } as IAppContextData['accountingEntity'];
     const store = { ...makeStore(), user, accountingEntity };
@@ -78,7 +86,11 @@ describe('appContext', () => {
 
   it('enriches the active store through set', () => {
     const store = makeStore();
-    const user = { id: 'user-id' } as IAppContextData['user'];
+    const user = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      id: 'user-id',
+    } as IAppContextData['user'];
 
     appContext.init(store, () => {
       appContext.set({ user });
@@ -118,28 +130,55 @@ describe('appContext', () => {
   });
 
   it('isolates concurrent stores', async () => {
+    const [firstActor] = actorEntity.makeUser({
+      email: 'first@example.com',
+      displayName: 'First',
+    });
+    const [secondActor] = actorEntity.makeSystem(firstActor.id);
     let releaseFirst: (() => void) | undefined;
     const firstCanFinish = new Promise<void>((resolve) => {
       releaseFirst = resolve;
     });
 
-    const first = appContext.init(makeStore('first-correlation'), async () => {
-      await firstCanFinish;
-      return appContext.get().correlationId;
-    });
+    const first = appContext.init(
+      { ...makeStore('first-correlation'), actor: firstActor },
+      async () => {
+        await firstCanFinish;
+        return appContext.get(['actor']);
+      }
+    );
 
     const second = appContext.init(
-      makeStore('second-correlation'),
+      { ...makeStore('second-correlation'), actor: secondActor },
       async () => {
         expect(appContext.get().correlationId).toBe('second-correlation');
         releaseFirst?.();
-        return appContext.get().correlationId;
+        return appContext.get(['actor']);
       }
     );
 
     await expect(Promise.all([first, second])).resolves.toEqual([
-      'first-correlation',
-      'second-correlation',
+      { ...makeStore('first-correlation'), actor: firstActor },
+      { ...makeStore('second-correlation'), actor: secondActor },
     ]);
+    expect(() => appContext.get()).toThrow(runtimeError.StoreNotFound);
+  });
+
+  it('does not substitute a user actor link for a missing context actor', () => {
+    const [actor] = actorEntity.makeUser({
+      email: 'user@example.com',
+      displayName: 'User',
+    });
+    appContext.init(
+      {
+        ...makeStore(),
+        user: { actorId: actor.id } as IAppContextData['user'],
+      },
+      () => {
+        expect(() => appContext.get(['actor'])).toThrow(
+          runtimeError.ContextNotFound
+        );
+      }
+    );
   });
 });

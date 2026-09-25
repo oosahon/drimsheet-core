@@ -1,4 +1,5 @@
 import { IReadRepoOptions } from '@shared/types/repo.types';
+import { TEntityId } from '@shared/types/uuid';
 import generateUUID from '@shared/utils/uuid-generator';
 
 import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
@@ -39,6 +40,7 @@ describe('directCostsAccountService', () => {
   });
   const createdBy = generateUUID();
   const accountingEntity = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     id: generateUUID(),
     ownerId: createdBy,
     functionalCurrencyCode: SYSTEM_CURRENCIES.USD.code,
@@ -67,13 +69,13 @@ describe('directCostsAccountService', () => {
       status: ELedgerAccountStatus.Active,
       contraAccountRule: EContraAccountRule.ContraNotPermitted,
       adjunctAccountRule: EAdjunctAccountRule.AdjunctNotPermitted,
-      createdBy,
+      createdBy: createdBy,
       ...overrides,
     })[0];
 
   const subAccountPayload = {
     name: 'Direct Costs (Default)',
-    createdBy,
+    createdBy: createdBy,
     accountingEntityId: accountingEntity.id,
     behavior: EExpenseAccountBehavior.DefaultDirectCost,
     isControlAccount: false,
@@ -96,7 +98,7 @@ describe('directCostsAccountService', () => {
     const [account, events, audit] = await service.createHeader(
       {
         name: 'Direct Costs',
-        createdBy,
+        createdBy: createdBy,
         accountingEntity,
         behavior: EExpenseAccountBehavior.DefaultDirectCost,
       },
@@ -124,7 +126,7 @@ describe('directCostsAccountService', () => {
       status: ELedgerAccountStatus.Active,
       contraAccountRule: EContraAccountRule.ContraNotPermitted,
       adjunctAccountRule: EAdjunctAccountRule.AdjunctNotPermitted,
-      createdBy,
+      createdBy: createdBy,
     });
     expect(Object.isFrozen(service)).toBe(true);
     expect(Object.isFrozen(account)).toBe(true);
@@ -140,7 +142,7 @@ describe('directCostsAccountService', () => {
       service.createHeader(
         {
           name: 'Direct Costs',
-          createdBy,
+          createdBy: createdBy,
           accountingEntity,
           behavior: EExpenseAccountBehavior.DefaultDirectCost,
         },
@@ -192,7 +194,7 @@ describe('directCostsAccountService', () => {
         status: ELedgerAccountStatus.Active,
         contraAccountRule: EContraAccountRule.ContraNotPermitted,
         adjunctAccountRule: EAdjunctAccountRule.AdjunctNotPermitted,
-        createdBy,
+        createdBy: createdBy,
       });
       expect(Object.isFrozen(account)).toBe(true);
       expect(events).toHaveLength(1);
@@ -267,7 +269,7 @@ describe('directCostsAccountService', () => {
       const [header] = await service.createHeader(
         {
           name: 'Direct Costs',
-          createdBy,
+          createdBy: createdBy,
           accountingEntity,
           behavior,
         },

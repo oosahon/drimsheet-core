@@ -1,6 +1,8 @@
 import { createMcpHandler } from '@modelcontextprotocol/server';
 
 import mockReporter from '@shared/contracts/__mocks__/reporter.mock';
+import { TEntityId } from '@shared/types/uuid';
+import generateUUID from '@shared/utils/uuid-generator';
 import appError from '@shared/values/errors/app.error';
 
 import { IJournalEntryListDto } from '@app/journal-entry/dtos/journal-entry/journal-entry.dto';
@@ -116,7 +118,7 @@ describe('MCP server', () => {
       voidedAt: null,
       voidingEntryId: null,
       version: 1,
-      createdBy: 'user',
+      createdBy: generateUUID(),
       createdAt: now,
       updatedAt: now,
       attachments: [],

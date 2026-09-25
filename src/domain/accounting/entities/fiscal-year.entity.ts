@@ -13,7 +13,7 @@ import fiscalYearAudit from '@domain/accounting/values/fiscal-year-audit.vo';
 
 interface IMakePayload extends Pick<
   IFiscalYear,
-  'accountingEntityId' | 'startDate' | 'endDate' | 'status'
+  'createdBy' | 'accountingEntityId' | 'startDate' | 'endDate' | 'status'
 > {
   name?: string;
 }
@@ -34,10 +34,13 @@ function make(
     payload.name ?? null,
     false
   );
+  stringUtils.validateUUID(payload.createdBy, periodError.InvalidCreatedBy);
+
   const timestamp = new Date();
 
   const entity = Object.freeze({
     id: generateUUID(),
+    createdBy: payload.createdBy,
     name,
     accountingEntityId: payload.accountingEntityId,
     unit: EPeriodUnit.Month,

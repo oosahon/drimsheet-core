@@ -15,9 +15,9 @@ const userHistoryMapper = {
   ): Omit<IUserProfileHistory, 'id' | 'recordedAt'> {
     return {
       userProfileId: history.entityId,
-      actorType: history.actor.type,
       action: history.action,
-      userId: history.actor.userId,
+      actorId: history.actorId,
+      onBehalfOf: history.onBehalfOf,
       diff: history.diff,
       correlationId: history.correlationId,
       occurredAt: toRepoDate(history.occurredAt),

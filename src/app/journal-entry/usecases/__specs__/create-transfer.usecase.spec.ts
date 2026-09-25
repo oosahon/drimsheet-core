@@ -29,6 +29,7 @@ import {
 import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
 import { EExchangeRateType } from '@domain/money/types/exchange-rate.types';
 import exchangeRateValue from '@domain/money/values/exchange-rate.vo';
+import actorEntity from '@domain/user/entities/actor.entity';
 import { IUser } from '@domain/user/types/user.types';
 
 import mockAppContext, {
@@ -56,11 +57,21 @@ import {
   TFxLotDispositionAppResult,
 } from '@app/subledger/fx-cost-basis/types/fx-lot.service.types';
 
+const actor = {
+  ...actorEntity.makeUser({
+    email: 'actor@example.com',
+    displayName: 'Actor',
+  })[0],
+  id: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+};
+
 describe('makeCreateTransferUsecase', () => {
   const correlationId = 'transfer-correlation-id';
   const idempotencyKey = 'transfer-idempotency-key';
   const effectiveDate = new Date('2026-08-30T00:00:00.000Z');
   const user: IUser = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+    actorId: 'b2222222-2222-4222-8222-222222222222' as TEntityId,
     id: generateUUID(),
     version: 1,
     email: 'transfer@example.com',
@@ -72,6 +83,7 @@ describe('makeCreateTransferUsecase', () => {
     deletedAt: null,
   };
   const [accountingEntity] = accountingEntityEntity.make({
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     name: 'Transfer Entity',
     ownerId: user.id,
     type: EAccountingEntityType.Individual,
@@ -100,7 +112,7 @@ describe('makeCreateTransferUsecase', () => {
       contraAccountRule: EContraAccountRule.ContraPermitted,
       adjunctAccountRule: EAdjunctAccountRule.AdjunctPermitted,
       meta: {},
-      createdBy: user.id,
+      createdBy: actor.id,
     });
 
     return account;
@@ -137,9 +149,10 @@ describe('makeCreateTransferUsecase', () => {
     contraAccountRule: EContraAccountRule.ContraPermitted,
     adjunctAccountRule: EAdjunctAccountRule.AdjunctPermitted,
     meta: {},
-    createdBy: user.id,
+    createdBy: actor.id,
   });
   const bankCounterparty = counterpartyEntity.make({
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     accountingEntityId: accountingEntity.id,
     name: 'Transfer provider',
     type: ECounterpartyType.Organization,
@@ -188,7 +201,7 @@ describe('makeCreateTransferUsecase', () => {
       effectiveDate,
       postedAt,
       memo: 'Cash transfer',
-      createdBy: user.id,
+      createdBy: actor.id,
       functionalCurrency: SYSTEM_CURRENCIES.NGN,
       attachments,
       lines: [
@@ -239,6 +252,7 @@ describe('makeCreateTransferUsecase', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockAppContext.get.mockReturnValue({
+      actor,
       correlationId,
       idempotencyKey,
       user,
@@ -305,7 +319,7 @@ describe('makeCreateTransferUsecase', () => {
           effectiveDate: payload.effectiveDate,
           postedAt: payload.postedAt,
           functionalCurrencyCode: accountingEntity.functionalCurrencyCode,
-          createdBy: user.id,
+          createdBy: actor.id,
         },
         sourceLine: expect.objectContaining({
           account: sourceAccount,
@@ -341,7 +355,7 @@ describe('makeCreateTransferUsecase', () => {
       {
         journalEntry: postedJournalEntry[0],
         account: sourceAccount,
-        actor: expect.objectContaining({ userId: user.id }),
+        actor: actor.id,
       },
       { correlationId, idempotencyKey }
     );
@@ -349,7 +363,7 @@ describe('makeCreateTransferUsecase', () => {
       {
         journalEntry: postedJournalEntry[0],
         account: destinationAccount,
-        actor: expect.objectContaining({ userId: user.id }),
+        actor: actor.id,
       },
       { correlationId, idempotencyKey }
     );
@@ -418,6 +432,7 @@ describe('makeCreateTransferUsecase', () => {
     expect(mockCounterpartyAppService.findOrCreateMany).toHaveBeenCalledWith(
       [payload.chargeLines[0].counterparty],
       accountingEntity.id,
+      'a1111111-1111-4111-8111-111111111111' as TEntityId,
       { correlationId, idempotencyKey }
     );
     expect(mockJournalEntryService.createTransfer).toHaveBeenCalledWith(
@@ -738,7 +753,7 @@ describe('makeCreateTransferUsecase', () => {
       effectiveDate,
       postedAt: effectiveDate,
       memo: payload.memo,
-      createdBy: user.id,
+      createdBy: actor.id,
       functionalCurrency: SYSTEM_CURRENCIES.NGN,
       attachments,
       lines: [
@@ -802,7 +817,7 @@ describe('makeCreateTransferUsecase', () => {
       {
         journalEntry: foreignJournalEntry[0],
         account: usdSourceAccount,
-        actor: expect.objectContaining({ userId: user.id }),
+        actor: actor.id,
       },
       { correlationId, idempotencyKey }
     );
@@ -810,7 +825,7 @@ describe('makeCreateTransferUsecase', () => {
       {
         journalEntry: foreignJournalEntry[0],
         account: usdDestinationAccount,
-        actor: expect.objectContaining({ userId: user.id }),
+        actor: actor.id,
       },
       { correlationId, idempotencyKey }
     );

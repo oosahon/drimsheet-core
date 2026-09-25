@@ -27,6 +27,7 @@ describe('ledgerAccountBalanceEntity', () => {
   describe('make', () => {
     const validPayload: Parameters<typeof ledgerAccountBalanceEntity.make>[0] =
       {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         ledgerAccountId: '123e4567-e89b-12d3-a456-426614174000' as TEntityId,
         accountingEntityId: '923e4567-e89b-12d3-a456-426614174000' as TEntityId,
         accountMaterializedPath: '100000',
@@ -38,6 +39,7 @@ describe('ledgerAccountBalanceEntity', () => {
       const balance = ledgerAccountBalanceEntity.make(validPayload);
 
       expect(balance).toEqual({
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         ledgerAccountId: validPayload.ledgerAccountId,
         accountingEntityId: validPayload.accountingEntityId,
         accountMaterializedPath: validPayload.accountMaterializedPath,
@@ -101,6 +103,7 @@ describe('ledgerAccountBalanceEntity', () => {
     const validMakePayload: Parameters<
       typeof ledgerAccountBalanceEntity.make
     >[0] = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       ledgerAccountId: '123e4567-e89b-12d3-a456-426614174000' as TEntityId,
       accountingEntityId: '923e4567-e89b-12d3-a456-426614174000' as TEntityId,
       accountMaterializedPath: '100000',
@@ -127,6 +130,20 @@ describe('ledgerAccountBalanceEntity', () => {
       journalEntryId: '223e4567-e89b-12d3-a456-426614174001' as TEntityId,
       createdBy: '423e4567-e89b-12d3-a456-426614174003' as TEntityId,
     };
+
+    it.each([
+      '123e4567-e89b-42d3-a456-426614174000' as TEntityId,
+      '123e4567-e89b-42d3-a456-426614174001' as TEntityId,
+      'b2222222-2222-4222-8222-222222222222' as TEntityId,
+      'c3333333-3333-4333-8333-333333333333' as TEntityId,
+    ])('preserves immutable $type creation attribution', (createdBy) => {
+      const { adjustment: entity } = ledgerAccountBalanceEntity.adjust(
+        existingBalance,
+        { ...validAdjustmentPayload, createdBy }
+      );
+      expect(entity.createdBy).toBe(createdBy);
+      expect(Object.isFrozen(entity.createdBy)).toBe(true);
+    });
 
     it('should create a valid ledger account balance adjustment', () => {
       const data = ledgerAccountBalanceEntity.adjust(
@@ -207,7 +224,7 @@ describe('ledgerAccountBalanceEntity', () => {
       ).toThrow();
     });
 
-    it('should throw if createdBy is invalid UUID', () => {
+    it('should throw if createdBy is an invalid actor', () => {
       const payload = {
         ...validAdjustmentPayload,
         createdBy: 'invalid' as unknown as TEntityId,
@@ -297,6 +314,7 @@ describe('ledgerAccountBalanceEntity', () => {
         id: TEntityId,
         accountId: TEntityId
       ): IJournalLine => ({
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         id,
         entryId: '423e4567-e89b-12d3-a456-426614174003' as TEntityId,
         accountId,

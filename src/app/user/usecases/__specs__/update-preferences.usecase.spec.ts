@@ -1,5 +1,6 @@
 import { TEntityId } from '@shared/types/uuid';
 
+import actorEntity from '@domain/user/entities/actor.entity';
 import { IUser } from '@domain/user/types/user.types';
 
 import mockAppContext from '@app/context/contracts/__mocks__/app-context.mock';
@@ -10,6 +11,14 @@ import {
   IUserPreferences,
 } from '@app/user/types/user-preferences.types';
 import makeUpdateUserPreferencesUsecase from '@app/user/usecases/update-preferences.usecase';
+
+const actor = {
+  ...actorEntity.makeUser({
+    email: 'actor@example.com',
+    displayName: 'Actor',
+  })[0],
+  id: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+};
 
 describe('makeUpdateUserPreferencesUsecase', () => {
   const userId = '123e4567-e89b-12d3-a456-426614174000' as TEntityId;
@@ -22,7 +31,12 @@ describe('makeUpdateUserPreferencesUsecase', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockAppContext.get.mockReturnValue({
-      user: { id: userId } as IUser,
+      actor,
+      user: {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        actorId: 'b2222222-2222-4222-8222-222222222222' as TEntityId,
+        id: userId,
+      } as IUser,
       correlationId,
     } as ReturnType<typeof mockAppContext.get>);
   });
@@ -40,6 +54,7 @@ describe('makeUpdateUserPreferencesUsecase', () => {
       appUsageMode: EAppUsageModePreference.NonPowerUser,
     };
     const updatedPreferences: IUserPreferences = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       userId,
       lastActiveAccountingEntityId: null,
       appPreferences,
@@ -51,7 +66,11 @@ describe('makeUpdateUserPreferencesUsecase', () => {
     await expect(usecase(appPreferences)).resolves.toEqual(updatedPreferences);
 
     expect(mockUserPreferencesService.update).toHaveBeenCalledWith(
-      { userId, appPreferences },
+      {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        userId,
+        appPreferences,
+      },
       { correlationId }
     );
   });

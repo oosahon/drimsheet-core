@@ -17,6 +17,8 @@ describe('makeUserEmailVerifiedEventHandler', () => {
   const validUserId = '00000000-0000-0000-0000-000000000001' as TEntityId;
 
   const validUserData: IUser = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+    actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     id: validUserId,
     version: 1,
     firstName: 'John',

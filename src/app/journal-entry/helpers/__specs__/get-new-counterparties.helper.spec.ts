@@ -1,5 +1,5 @@
+import { TEntityId } from '@shared/types/uuid';
 import generateUUID from '@shared/utils/uuid-generator';
-import historyValue from '@shared/values/history/history.vo';
 
 import counterpartyEntity from '@domain/counterparty/entities/counterparty.entity';
 import { ECounterpartyType } from '@domain/counterparty/types/counterparty.types';
@@ -11,14 +11,16 @@ describe('getNewCounterpartiesHelper', () => {
   it('prepares histories and flat events only for new counterparties', () => {
     const accountingEntityId = generateUUID();
     const userId = generateUUID();
-    const actor = historyValue.getUserActor(userId);
+    const actor = userId;
     const correlationId = 'counterparty-preparation-correlation-id';
     const newCounterparty = counterpartyEntity.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       accountingEntityId,
       name: 'New counterparty',
       type: ECounterpartyType.Organization,
     });
     const existingCounterparty = counterpartyEntity.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       accountingEntityId,
       name: 'Existing counterparty',
       type: ECounterpartyType.Organization,
@@ -38,7 +40,7 @@ describe('getNewCounterpartiesHelper', () => {
       [
         newCounterparty[0],
         expect.objectContaining({
-          actor,
+          actorId: actor,
           correlationId,
           entityId: newCounterparty[0].id,
         }),

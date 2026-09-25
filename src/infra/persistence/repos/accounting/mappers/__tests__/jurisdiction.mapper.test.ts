@@ -1,3 +1,5 @@
+import { TEntityId } from '@shared/types/uuid';
+
 import { EAccountingEntityType } from '@domain/accounting/types/accounting-entity.types';
 import { IJurisdiction } from '@domain/accounting/types/jurisdiction.types';
 import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
@@ -19,7 +21,13 @@ describe('Jurisdiction Mapper', () => {
         },
       };
 
-      expect(jurisdictionMapper.toRepo(jurisdiction)).toEqual({
+      expect(
+        jurisdictionMapper.toRepo(
+          jurisdiction,
+          'a1111111-1111-4111-8111-111111111111' as TEntityId
+        )
+      ).toEqual({
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         code: 'NG',
         name: 'Nigeria',
         currencyCode: SYSTEM_CURRENCIES.NGN.code,

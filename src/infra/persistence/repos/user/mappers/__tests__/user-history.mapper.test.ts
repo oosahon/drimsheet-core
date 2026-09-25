@@ -1,5 +1,4 @@
 import { TEntityId } from '@shared/types/uuid';
-import { EHistoryActorType } from '@shared/values/history/types/history.types';
 
 import { IUserHistory } from '@domain/user/types/user-audit.types';
 
@@ -18,21 +17,22 @@ describe('userHistoryMapper', () => {
       action: 'created',
       diff: {
         before: null,
-        after: {} as any,
+        after: {
+          createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+          actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        } as any,
       },
       occurredAt,
-      actor: {
-        type: EHistoryActorType.User,
-        userId,
-      },
+      actorId: userId,
+      onBehalfOf: null,
       correlationId: 'correlation-id-xyz',
     };
 
     expect(userHistoryMapper.toRepo(history)).toEqual({
       userProfileId,
-      actorType: EHistoryActorType.User,
+      actorId: userId,
+      onBehalfOf: null,
       action: 'created',
-      userId,
       diff: history.diff,
       correlationId: 'correlation-id-xyz',
       occurredAt: toRepoDate(occurredAt),

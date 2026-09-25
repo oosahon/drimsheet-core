@@ -1,7 +1,9 @@
 import mockEventBus from '@shared/contracts/__mocks__/event-bus.mock';
 import mockRepoService from '@shared/contracts/__mocks__/repo.mock';
 import { ITransactionContext } from '@shared/types/repo.types';
+import { TEntityId } from '@shared/types/uuid';
 
+import makeUserIdentityService from '@domain/user/services/user-identity.service';
 import { IUser } from '@domain/user/types/user.types';
 import emailValue from '@domain/user/values/email.vo';
 
@@ -12,7 +14,14 @@ import { IOAuthProfile } from '@app/auth/dtos/auth/auth.dto';
 import makeLoginWithGoogleUseCase from '@app/auth/usecases/login-with-google.usecase';
 import mockAppContext from '@app/context/contracts/__mocks__/app-context.mock';
 import { IAppContextData } from '@app/context/contracts/app-context.contract';
-import { mockUserRepo } from '@app/user/contracts/__mocks__/user.repos.mock';
+import {
+  mockActorService,
+  mockUserIdentityService,
+} from '@app/user/contracts/__mocks__/actor.services.mock';
+import {
+  mockActorRepo,
+  mockUserRepo,
+} from '@app/user/contracts/__mocks__/user.repos.mock';
 
 describe('makeLoginWithGoogleUseCase', () => {
   const correlationId = '854e4567-e89b-42d3-a456-426614174001';
@@ -20,6 +29,11 @@ describe('makeLoginWithGoogleUseCase', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockUserIdentityService.create
+      .mockReset()
+      .mockImplementation(makeUserIdentityService().create);
+    mockActorRepo.create.mockReset().mockResolvedValue(undefined);
+    mockActorService.resolveUser.mockReset();
     mockRepoService.runInTransaction
       .mockReset()
       .mockImplementation(async (transactionFn) =>
@@ -41,6 +55,7 @@ describe('makeLoginWithGoogleUseCase', () => {
       const timestamp = new Date();
 
       return {
+        createdBy: payload.createdBy,
         userId: payload.userId,
         password: payload.password,
         failedLoginAttempts: 0,
@@ -68,6 +83,7 @@ describe('makeLoginWithGoogleUseCase', () => {
 
   const getMockUserAuth = (overrides = {}) =>
     ({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       userId: 'existing-user-id',
       password: 'hashed-password',
       failedLoginAttempts: 0,
@@ -80,6 +96,9 @@ describe('makeLoginWithGoogleUseCase', () => {
 
   const getUseCase = () =>
     makeLoginWithGoogleUseCase({
+      actorService: mockActorService,
+      actorRepo: mockActorRepo,
+      userIdentityService: mockUserIdentityService,
       eventBus: mockEventBus,
       appContext: mockAppContext,
       userRepo: mockUserRepo,

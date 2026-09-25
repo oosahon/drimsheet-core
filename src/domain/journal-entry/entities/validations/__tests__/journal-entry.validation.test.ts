@@ -55,6 +55,7 @@ describe('journalEntryValidation', () => {
 
   describe('validateBalancePropagation', () => {
     const baseEntry = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: generateUUID(),
       postedAt: new Date('2026-09-22T00:00:00.000Z'),
     } as IJournalEntry;
@@ -104,16 +105,28 @@ describe('journalEntryValidation', () => {
   describe('isUniqueSequenceOrder', () => {
     it('should return true for unique sequence orders', () => {
       const lines = [
-        { sequenceOrder: 1 } as IJournalLine,
-        { sequenceOrder: 2 } as IJournalLine,
+        {
+          createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+          sequenceOrder: 1,
+        } as IJournalLine,
+        {
+          createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+          sequenceOrder: 2,
+        } as IJournalLine,
       ];
       expect(journalEntryValidation.isUniqueSequenceOrder(lines)).toBe(true);
     });
 
     it('should return false for duplicate sequence orders', () => {
       const lines = [
-        { sequenceOrder: 1 } as IJournalLine,
-        { sequenceOrder: 1 } as IJournalLine,
+        {
+          createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+          sequenceOrder: 1,
+        } as IJournalLine,
+        {
+          createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+          sequenceOrder: 1,
+        } as IJournalLine,
       ];
       expect(journalEntryValidation.isUniqueSequenceOrder(lines)).toBe(false);
     });
@@ -121,6 +134,7 @@ describe('journalEntryValidation', () => {
 
   describe('validateLine', () => {
     const validDebitLine: IJournalLine = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: 'l1' as TEntityId,
       entryId: 'e1' as TEntityId,
       accountId: 'a1' as TEntityId,
@@ -281,6 +295,7 @@ describe('journalEntryValidation', () => {
   describe('validateCounterparties', () => {
     it('should reject a counterparty on a transfer credit line', () => {
       const sourceLineWithCounterparty = {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         counterpartyId: 'cp1' as TEntityId,
         side: EJournalSide.Credit,
       } as IJournalLine;
@@ -295,6 +310,7 @@ describe('journalEntryValidation', () => {
 
     it('should allow a counterparty on a transfer debit line', () => {
       const destinationLineWithCounterparty = {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         counterpartyId: 'cp1' as TEntityId,
         side: EJournalSide.Debit,
       } as IJournalLine;
@@ -309,6 +325,7 @@ describe('journalEntryValidation', () => {
 
     it('should allow counterparties on non-transfer lines', () => {
       const sourceLineWithCounterparty = {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         counterpartyId: 'cp1' as TEntityId,
         side: EJournalSide.Credit,
       } as IJournalLine;
@@ -425,6 +442,17 @@ describe('journalEntryValidation', () => {
           ...update,
         })
       ).toThrow(journalEntryError.RectificationNotPermitted);
+    });
+
+    it('accepts an equivalent actor after serialization', () => {
+      const entry = makeEntry();
+      expect(() =>
+        journalEntryValidation.validateUpdate(entry, {
+          id: entry.id,
+          createdBy: entry.createdBy,
+          memo: 'changed',
+        })
+      ).not.toThrow();
     });
 
     it('rejects changing the owner of an entry', () => {

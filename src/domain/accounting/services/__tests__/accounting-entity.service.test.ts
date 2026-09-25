@@ -29,6 +29,7 @@ describe('accountingEntityService', () => {
 
   describe('create', () => {
     const input = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       name: 'Test Business',
       type: EAccountingEntityType.Individual,
       ownerId: '123e4567-e89b-12d3-a456-426614174000' as TEntityId,
@@ -130,7 +131,9 @@ describe('accountingEntityService', () => {
 
     it('rejects an existing individual accounting entity', async () => {
       accountingEntityRepo.findByUserId.mockResolvedValue([
-        {} as IAccountingEntity,
+        {
+          createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        } as IAccountingEntity,
       ]);
 
       await expect(service.create(input, repoOptions)).rejects.toThrow(
@@ -188,12 +191,18 @@ describe('accountingEntityService', () => {
 
   describe('grantUserAccess', () => {
     it('should return true if user is owner', () => {
-      const entity = { ownerId: 'user-1' as TEntityId } as IAccountingEntity;
+      const entity = {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        ownerId: 'user-1' as TEntityId,
+      } as IAccountingEntity;
       expect(service.grantUserAccess(entity, 'user-1' as TEntityId)).toBe(true);
     });
 
     it('should return false if user is not owner', () => {
-      const entity = { ownerId: 'user-1' as TEntityId } as IAccountingEntity;
+      const entity = {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        ownerId: 'user-1' as TEntityId,
+      } as IAccountingEntity;
       expect(service.grantUserAccess(entity, 'user-2' as TEntityId)).toBe(
         false
       );
@@ -202,14 +211,20 @@ describe('accountingEntityService', () => {
 
   describe('validateAccess', () => {
     it('should not throw if user is owner', () => {
-      const entity = { ownerId: 'user-1' as TEntityId } as IAccountingEntity;
+      const entity = {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        ownerId: 'user-1' as TEntityId,
+      } as IAccountingEntity;
       expect(() =>
         service.validateAccess(entity, 'user-1' as TEntityId)
       ).not.toThrow();
     });
 
     it('should throw UnauthorizedUserAccess if user is not owner', () => {
-      const entity = { ownerId: 'user-1' as TEntityId } as IAccountingEntity;
+      const entity = {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        ownerId: 'user-1' as TEntityId,
+      } as IAccountingEntity;
       expect(() =>
         service.validateAccess(entity, 'user-2' as TEntityId)
       ).toThrow();

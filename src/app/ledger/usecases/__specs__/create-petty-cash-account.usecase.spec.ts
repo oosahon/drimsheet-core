@@ -16,6 +16,7 @@ import { ASSET_LEDGER_CODES } from '@domain/ledger/config/asset-codes.config';
 import ledgerAccountError from '@domain/ledger/errors/ledger-account.error';
 import makeCashAccountService from '@domain/ledger/services/asset-account/cash-account.service';
 import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
+import actorEntity from '@domain/user/entities/actor.entity';
 import { IUser } from '@domain/user/types/user.types';
 
 import { mockAccountingPeriodService } from '@app/accounting/contracts/__mocks__/accounting.domain.services.mock';
@@ -37,15 +38,26 @@ import mockFxLotCostBasisService from '@app/subledger/fx-cost-basis/contracts/__
 import mockFxLotAppService from '@app/subledger/fx-cost-basis/contracts/__mocks__/fx-lot.service.mock';
 import { TFxLotAcquisitionAppResult } from '@app/subledger/fx-cost-basis/types/fx-lot.service.types';
 
+const actor = {
+  ...actorEntity.makeUser({
+    email: 'actor@example.com',
+    displayName: 'Actor',
+  })[0],
+  id: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+};
+
 describe('createPettyCashSubAccountUseCase', () => {
   const correlationId = 'test-corr-id';
 
   const mockUser = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+    actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     id: '123e4567-e89b-12d3-a456-426614174001' as TEntityId,
     email: 'test@example.com',
   } as IUser;
 
   const [mockAccountingEntity] = accountingEntityEntity.make({
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     name: 'Test Accounting Entity',
     ownerId: mockUser.id,
     type: EAccountingEntityType.Individual,
@@ -87,7 +99,7 @@ describe('createPettyCashSubAccountUseCase', () => {
       {
         name: 'Cash and Equivalents',
         accountingEntity: mockAccountingEntity,
-        userId: mockUser.id,
+        createdBy: mockUser.actorId,
       },
       { correlationId }
     );
@@ -99,7 +111,7 @@ describe('createPettyCashSubAccountUseCase', () => {
           name: validPayload.name,
           currency: SYSTEM_CURRENCIES.NGN,
           isControlAccount: false,
-          userId: mockUser.id,
+          createdBy: mockUser.actorId,
           controlAccountCode: mockControlAccount.code,
           accountingEntity: mockAccountingEntity,
         },
@@ -115,7 +127,7 @@ describe('createPettyCashSubAccountUseCase', () => {
       effectiveDate: validOpeningBalance.date,
       postedAt: validOpeningBalance.date,
       memo: 'Opening balance',
-      createdBy: mockUser.id,
+      createdBy: mockUser.actorId,
       functionalCurrency: SYSTEM_CURRENCIES.NGN,
       lines: [
         {
@@ -151,9 +163,9 @@ describe('createPettyCashSubAccountUseCase', () => {
     mockLedgerAccountBalanceAdjustmentQueue.add.mockReset().mockResolvedValue();
 
     mockAppContext.get.mockReturnValue({
+      actor,
       correlationId,
       clientSession: mockClientSession,
-      user: mockUser,
       accountingEntity: mockAccountingEntity,
     } as unknown as IAppContextData);
 
@@ -222,7 +234,7 @@ describe('createPettyCashSubAccountUseCase', () => {
         name: validPayload.name,
         currency: SYSTEM_CURRENCIES.NGN,
         isControlAccount: false,
-        userId: mockUser.id,
+        createdBy: mockUser.actorId,
         accountingEntity: mockAccountingEntity,
         controlAccountCode: mockControlAccount.code,
       }),
@@ -435,18 +447,13 @@ describe('createPettyCashSubAccountUseCase', () => {
     ).rejects.toThrow();
   });
 
-  it('should throw error if user is not authorized to create account for entity', async () => {
+  it('propagates account service rejection without a user context', async () => {
     const useCase = getUseCase();
 
-    const anotherUser = {
-      ...mockUser,
-      id: '123e4567-e89b-12d3-a456-426614174006' as TEntityId,
-    };
-
     mockAppContext.get.mockReturnValue({
+      actor,
       correlationId,
       clientSession: mockClientSession,
-      user: anotherUser,
       accountingEntity: mockAccountingEntity,
     } as unknown as IAppContextData);
 
@@ -485,7 +492,7 @@ describe('createPettyCashSubAccountUseCase', () => {
           name: foreignPayload.name,
           currency: SYSTEM_CURRENCIES.USD,
           isControlAccount: false,
-          userId: mockUser.id,
+          createdBy: mockUser.actorId,
           controlAccountCode: mockControlAccount.code,
           accountingEntity: mockAccountingEntity,
         },
@@ -585,7 +592,7 @@ describe('createPettyCashSubAccountUseCase', () => {
       {
         journalEntry: expect.anything(),
         account: expect.objectContaining({ currency: SYSTEM_CURRENCIES.USD }),
-        actor: expect.objectContaining({ userId: mockUser.id }),
+        actor: mockUser.actorId,
       },
       { correlationId }
     );

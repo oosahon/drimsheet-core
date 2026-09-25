@@ -1,6 +1,7 @@
 import { ColumnDefinitions, MigrationBuilder } from 'node-pg-migrate';
 
 import { accountingEntitiesTable } from '../config/accounting-entity';
+import { actorsTable } from '../config/actors';
 import { bankAccountsTable } from '../config/bank-accounts';
 import { ledgerAccountsTable } from '../config/ledger-accounts';
 
@@ -10,6 +11,12 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
   pgm.createTable(
     bankAccountsTable,
     {
+      created_by: {
+        type: 'uuid',
+        notNull: true,
+        references: actorsTable,
+        onDelete: 'RESTRICT',
+      },
       bank_name: {
         type: 'varchar(100)',
         notNull: true,

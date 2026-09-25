@@ -17,6 +17,7 @@ export interface IUserSessionModel extends InferSelectModel<
 const userSessionMapper = {
   toRepo(userSession: IUserSession): IUserSessionModel {
     return Object.freeze({
+      createdBy: userSession.createdBy as TEntityId,
       id: userSession.id,
       userId: userSession.userId,
       refreshToken: userSession.refreshToken,
@@ -29,6 +30,7 @@ const userSessionMapper = {
 
   toDomain(userSession: IUserSessionModel): IUserSession {
     return Object.freeze({
+      createdBy: userSession.createdBy as TEntityId,
       id: userSession.id as TEntityId,
       userId: userSession.userId as TEntityId,
       refreshToken: userSession.refreshToken,

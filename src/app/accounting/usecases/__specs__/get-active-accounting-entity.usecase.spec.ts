@@ -16,6 +16,7 @@ describe('getActiveAccountingEntityUseCase', () => {
   const mockUserId = '123e4567-e89b-12d3-a456-426614174000' as TEntityId;
 
   const [mockAccountingEntity] = accountingEntityEntity.make({
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     name: 'Test Accounting Entity',
     type: EAccountingEntityType.Individual,
     ownerId: mockUserId,
@@ -23,6 +24,7 @@ describe('getActiveAccountingEntityUseCase', () => {
     jurisdictionCode: 'US',
   });
   const mockPreferences: IUserPreferences = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     userId: mockUserId,
     lastActiveAccountingEntityId: mockAccountingEntity.id,
     appPreferences: { appUsageMode: 'non_power_user' },
@@ -42,7 +44,11 @@ describe('getActiveAccountingEntityUseCase', () => {
 
     mockAppContext.get.mockReturnValue({
       correlationId,
-      user: { id: mockUserId } as IUser,
+      user: {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        id: mockUserId,
+      } as IUser,
     } as unknown as ReturnType<typeof mockAppContext.get>);
     mockUserPreferencesRepo.findById
       .mockReset()

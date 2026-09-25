@@ -51,6 +51,7 @@ describe('Journal Entry Details Mapper', () => {
       ],
       journalLinesInCores: [
         {
+          createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
           id: '123e4567-e89b-12d3-a456-426614174006',
           entryId,
           accountId,

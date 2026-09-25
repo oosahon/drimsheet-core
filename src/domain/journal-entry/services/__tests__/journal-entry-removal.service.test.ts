@@ -1,3 +1,4 @@
+import { TEntityId } from '@shared/types/uuid';
 import generateUUID from '@shared/utils/uuid-generator';
 
 import journalEntryEntity from '@domain/journal-entry/entities/journal-entry.entity';
@@ -23,7 +24,9 @@ describe('makeJournalEntryRemovalService', () => {
   const journalEntryRectificationService: jest.Mocked<IJournalEntryRectificationService> =
     {
       rectify: jest.fn(),
-      reverse: jest.fn((_originalEntry: IJournalEntry) => reversalResult),
+      reverse: jest.fn(
+        (_originalEntry: IJournalEntry, _actorId: TEntityId) => reversalResult
+      ),
     };
   const service = makeJournalEntryRemovalService({
     journalEntryRectificationService,
@@ -86,7 +89,12 @@ describe('makeJournalEntryRemovalService', () => {
       },
     ],
   ])('selects total deletion for a %s entry', (_, entry) => {
-    expect(service.prepare(entry)).toEqual({
+    expect(
+      service.prepare(
+        entry,
+        'a1111111-1111-4111-8111-111111111111' as TEntityId
+      )
+    ).toEqual({
       mode: EJournalEntryRemovalMode.Delete,
       originalJournalEntryId: entry.id,
     });
@@ -103,12 +111,18 @@ describe('makeJournalEntryRemovalService', () => {
       },
     ],
   ])('prepares reversal for a %s entry', (_, entry) => {
-    expect(service.prepare(entry)).toEqual({
+    expect(
+      service.prepare(
+        entry,
+        'a1111111-1111-4111-8111-111111111111' as TEntityId
+      )
+    ).toEqual({
       mode: EJournalEntryRemovalMode.Reverse,
       ...reversalResult,
     });
     expect(journalEntryRectificationService.reverse).toHaveBeenCalledWith(
-      entry
+      entry,
+      'a1111111-1111-4111-8111-111111111111' as TEntityId
     );
   });
 
@@ -120,9 +134,12 @@ describe('makeJournalEntryRemovalService', () => {
     },
     makeEntry(EJournalEntrySourceType.Reversal, null),
   ])('rejects reversal source type before mode selection', (entry) => {
-    expect(() => service.prepare(entry)).toThrow(
-      journalEntryError.DeletionNotPermitted
-    );
+    expect(() =>
+      service.prepare(
+        entry,
+        'a1111111-1111-4111-8111-111111111111' as TEntityId
+      )
+    ).toThrow(journalEntryError.DeletionNotPermitted);
     expect(journalEntryRectificationService.reverse).not.toHaveBeenCalled();
   });
 
@@ -140,9 +157,12 @@ describe('makeJournalEntryRemovalService', () => {
       postedAt: null,
     },
   ] satisfies IJournalEntry[])('rejects an invalid removal state', (entry) => {
-    expect(() => service.prepare(entry)).toThrow(
-      journalEntryError.DeletionNotPermitted
-    );
+    expect(() =>
+      service.prepare(
+        entry,
+        'a1111111-1111-4111-8111-111111111111' as TEntityId
+      )
+    ).toThrow(journalEntryError.DeletionNotPermitted);
     expect(journalEntryRectificationService.reverse).not.toHaveBeenCalled();
   });
 });

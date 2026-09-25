@@ -20,6 +20,7 @@ describe('FX Cost-Basis Lot Mapper', () => {
       const acquisitionDate = new Date('2026-04-09T00:00:00.000Z');
 
       const domainLot: IFxCostBasisLot = {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         id: 'lot-1' as TEntityId,
         ledgerAccountId: 'ledger-account-1' as TEntityId,
         accountingEntityId: 'accounting-entity-1' as TEntityId,
@@ -49,6 +50,7 @@ describe('FX Cost-Basis Lot Mapper', () => {
       };
 
       const expectedRepoModel: IFxCostBasisLotModel = {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         id: 'lot-1',
         ledgerAccountId: 'ledger-account-1',
         accountingEntityId: 'accounting-entity-1',

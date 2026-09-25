@@ -12,6 +12,7 @@ import accountingContextAudit from '@domain/accounting/values/accounting-context
 describe('accountingContextAudit', () => {
   const makeAccountingContext = () =>
     accountingContextEntity.make({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       name: 'Primary Ledger',
       description: 'The primary US GAAP ledger',
       accountingEntityId: '123e4567-e89b-12d3-a456-426614174000' as TEntityId,

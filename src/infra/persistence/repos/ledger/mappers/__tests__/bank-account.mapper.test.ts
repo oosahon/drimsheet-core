@@ -18,7 +18,8 @@ describe('bankAccountMapper', () => {
     const result = bankAccountMapper.toRepo(
       ledgerAccountId,
       accountingEntityId,
-      domainValue
+      domainValue,
+      'a1111111-1111-4111-8111-111111111111' as TEntityId
     );
 
     expect(result.ledgerAccountId).toBe(ledgerAccountId);
@@ -31,6 +32,7 @@ describe('bankAccountMapper', () => {
 
   it('maps repository model back to domain bank value', () => {
     const model: Parameters<typeof bankAccountMapper.toDomain>[0] = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       bankName: 'Guaranty Trust Bank',
       accountNumber: '0123456789',
       accountName: 'Treasury Account',

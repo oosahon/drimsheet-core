@@ -8,8 +8,8 @@ import stringUtils from '@shared/utils/string';
 import zodValidationRunner from '@shared/utils/zod-validation-runner';
 import eventValue from '@shared/values/events/event.vo';
 import { IEvent } from '@shared/values/events/types/event.types';
-import historyValue from '@shared/values/history/history.vo';
 
+import IAccountingEntityService from '@domain/accounting/types/accounting-entity.service.types';
 import journalEntryError from '@domain/journal-entry/errors/journal-entry.error';
 import IJournalEntryRepo from '@domain/journal-entry/repos/journal-entry.repo';
 import {
@@ -29,6 +29,7 @@ import IFxCostBasisPersistenceService from '@app/subledger/fx-cost-basis/contrac
 import IFxLotAppService from '@app/subledger/fx-cost-basis/contracts/fx-lot.service.contract';
 
 interface IDependencies {
+  accountingEntityService: IAccountingEntityService;
   appContext: IAppContext;
   eventBus: IEventBus;
   fxCostBasisPersistenceService: IFxCostBasisPersistenceService;
@@ -49,8 +50,10 @@ export default function makeDeleteJournalEntryUsecase(deps: IDependencies) {
     stringUtils.validateUUID(id, journalEntryError.InvalidJournalEntry);
     zodValidationRunner(journalEntryDeletionReqValidation, payload);
 
-    const { correlationId, idempotencyKey, accountingEntity, user } =
-      deps.appContext.get(['user', 'accountingEntity']);
+    const { correlationId, idempotencyKey, accountingEntity, user, actor } =
+      deps.appContext.get(['user', 'actor', 'accountingEntity']);
+
+    deps.accountingEntityService.validateAccess(accountingEntity, user.id);
 
     const repoOptions = { correlationId, idempotencyKey };
 
@@ -63,11 +66,13 @@ export default function makeDeleteJournalEntryUsecase(deps: IDependencies) {
       id,
       entry: storedEntry,
       accountingEntityId: accountingEntity.id,
-      userId: user.id,
       expectedVersion: payload.expectedVersion,
     });
 
-    const removal = deps.journalEntryRemovalService.prepare(originalEntry);
+    const removal = deps.journalEntryRemovalService.prepare(
+      originalEntry,
+      actor.id
+    );
 
     if (removal.mode === EJournalEntryRemovalMode.Delete) {
       await deps.journalEntryPersistenceService.delete(
@@ -81,17 +86,15 @@ export default function makeDeleteJournalEntryUsecase(deps: IDependencies) {
       return;
     }
 
-    const actor = historyValue.getUserActor(user.id);
-
     const fxReversal = await deps.fxLotAppService.reverse(
       originalEntry.id,
-      actor,
+      actor.id,
       repoOptions
     );
 
     const journalPersistencePayload = getJournalEntryPersistencePayloadHelper(
       removal,
-      actor,
+      actor.id,
       correlationId
     );
     const reversingJournalEntry = removal.reversingJournalEntry;

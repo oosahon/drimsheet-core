@@ -1,5 +1,4 @@
 import { TEntityId } from '@shared/types/uuid';
-import { EHistoryActorType } from '@shared/values/history/types/history.types';
 
 import { IAccountingContextHistory } from '@domain/accounting/types/accounting-context-audit.types';
 import { IAccountingContext } from '@domain/accounting/types/context.types';
@@ -15,6 +14,7 @@ describe('accountingContextHistoryMapper', () => {
     const userId = '123e4567-e89b-12d3-a456-426614174002' as TEntityId;
     const occurredAt = new Date('2026-06-14T00:00:00.000Z');
     const accountingContext = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       accountingEntityId,
     } as IAccountingContext;
     const history: IAccountingContextHistory = {
@@ -26,10 +26,8 @@ describe('accountingContextHistoryMapper', () => {
         after: accountingContext,
       },
       occurredAt,
-      actor: {
-        type: EHistoryActorType.User,
-        userId,
-      },
+      actorId: userId,
+      onBehalfOf: null,
       correlationId: 'correlation-id',
     };
 
@@ -38,9 +36,9 @@ describe('accountingContextHistoryMapper', () => {
     ).toEqual({
       accountingContextId,
       accountingEntityId,
-      actorType: EHistoryActorType.User,
+      actorId: userId,
+      onBehalfOf: null,
       action: history.action,
-      userId,
       diff: history.diff,
       correlationId: history.correlationId,
       occurredAt: occurredAt.toISOString(),

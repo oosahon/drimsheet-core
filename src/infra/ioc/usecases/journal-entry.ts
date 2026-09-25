@@ -7,6 +7,7 @@ import makeGetJournalEntriesUsecase from '@app/journal-entry/usecases/get-journa
 import makeGetJournalEntryUsecase from '@app/journal-entry/usecases/get-journal-entry.usecase';
 import makeRectifyJournalEntryUsecase from '@app/journal-entry/usecases/rectify-journal-entry.usecase';
 
+import { accountingEntityService } from '@infra/ioc/services/accounting';
 import { counterpartyAppService } from '@infra/ioc/services/counterparty';
 import { fileManagementService } from '@infra/ioc/services/file';
 import {
@@ -39,6 +40,7 @@ export const getJournalEntryUseCase = makeTracedUseCase(
 export const archiveJournalEntryUseCase = makeTracedUseCase(
   'journalEntry.archiveJournalEntryUseCase',
   makeArchiveJournalEntryUsecase({
+    accountingEntityService,
     appContext,
     eventBus: messaging.eventBus,
     journalEntryRepo: journalEntryRepos.journalEntry,
@@ -48,6 +50,7 @@ export const archiveJournalEntryUseCase = makeTracedUseCase(
 export const deleteJournalEntryUseCase = makeTracedUseCase(
   'journalEntry.deleteJournalEntryUseCase',
   makeDeleteJournalEntryUsecase({
+    accountingEntityService,
     appContext,
     eventBus: messaging.eventBus,
     fxCostBasisPersistenceService,
@@ -129,6 +132,7 @@ export const createTransferUseCase = makeTracedUseCase(
 export const rectifyJournalEntryUseCase = makeTracedUseCase(
   'journalEntry.rectifyJournalEntryUseCase',
   makeRectifyJournalEntryUsecase({
+    accountingEntityService,
     counterpartyRepo: counterpartyRepos.counterparty,
     appContext,
     journalEntryRepo: journalEntryRepos.journalEntry,

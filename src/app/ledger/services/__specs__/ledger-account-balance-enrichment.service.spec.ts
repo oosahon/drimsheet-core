@@ -28,6 +28,7 @@ describe('ledgerAccountBalanceEnrichmentService', () => {
     correlationId: 'balance-enrichment-correlation-id',
   };
   const accountingEntity: IAccountingEntity = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     id: accountingEntityId,
     ownerId: userId,
     name: 'Balance Enrichment Entity',
@@ -75,6 +76,7 @@ describe('ledgerAccountBalanceEnrichmentService', () => {
     currency: ICurrency
   ): ILedgerAccountBalance {
     return {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       ledgerAccountId: account.id,
       accountingEntityId,
       accountMaterializedPath: account.materializedPath,

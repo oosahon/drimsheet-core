@@ -109,9 +109,10 @@ describe('journalEntryQueryRepo', () => {
 
   it('finds and maps an enriched entry scoped to its accounting entity', async () => {
     const persistedEntry = { id: journalEntryId };
-    const mappedEntry = { id: journalEntryId } as ReturnType<
-      typeof journalEntryDetailsMapper.toDetails
-    >;
+    const mappedEntry = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      id: journalEntryId,
+    } as ReturnType<typeof journalEntryDetailsMapper.toDetails>;
     jest.mocked(getDbQuery).mockReturnValue({
       query: {
         journalEntriesInCore: {
@@ -295,9 +296,10 @@ describe('journalEntryQueryRepo', () => {
       .mockReturnValueOnce({ from: counterpartyParticipantFrom })
       .mockReturnValueOnce({ from: countFrom });
     const persistedEntry = { id: journalEntryId };
-    const mappedEntry = { id: journalEntryId } as ReturnType<
-      typeof journalEntryDetailsMapper.toDetails
-    >;
+    const mappedEntry = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      id: journalEntryId,
+    } as ReturnType<typeof journalEntryDetailsMapper.toDetails>;
 
     jest.mocked(getDbQuery).mockReturnValue({
       select,

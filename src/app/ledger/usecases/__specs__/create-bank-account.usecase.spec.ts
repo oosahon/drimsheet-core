@@ -21,6 +21,7 @@ import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
 import currencyEntity from '@domain/money/entities/currency.entity';
 import { EExchangeRateType } from '@domain/money/types/exchange-rate.types';
 import exchangeRateValue from '@domain/money/values/exchange-rate.vo';
+import actorEntity from '@domain/user/entities/actor.entity';
 
 import { mockAccountingPeriodService } from '@app/accounting/contracts/__mocks__/accounting.domain.services.mock';
 import mockAppContext from '@app/context/contracts/__mocks__/app-context.mock';
@@ -42,9 +43,18 @@ import mockFxLotCostBasisService from '@app/subledger/fx-cost-basis/contracts/__
 import mockFxLotAppService from '@app/subledger/fx-cost-basis/contracts/__mocks__/fx-lot.service.mock';
 import { TFxLotAcquisitionAppResult } from '@app/subledger/fx-cost-basis/types/fx-lot.service.types';
 
+const actor = {
+  ...actorEntity.makeUser({
+    email: 'actor@example.com',
+    displayName: 'Actor',
+  })[0],
+  id: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+};
+
 describe('makeCreateBankAccountUseCase', () => {
   const userId = '123e4567-e89b-12d3-a456-426614174001' as TEntityId;
   const [accountingEntity] = accountingEntityEntity.make({
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     name: 'Test Accounting Entity',
     ownerId: userId,
     type: EAccountingEntityType.PrivateCompany,
@@ -93,7 +103,7 @@ describe('makeCreateBankAccountUseCase', () => {
       {
         name: 'Cash and Cash Equivalents',
         accountingEntity,
-        userId,
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       },
       { correlationId: 'test-correlation-id' }
     );
@@ -106,7 +116,7 @@ describe('makeCreateBankAccountUseCase', () => {
           name: validReq.name,
           currency: currencyEntity.getByCode('NGN'),
           isControlAccount: false,
-          userId,
+          createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
           controlAccountCode: mockControlAccount.code,
           accountingEntity,
           bankDetails,
@@ -123,7 +133,7 @@ describe('makeCreateBankAccountUseCase', () => {
       effectiveDate: new Date('2026-03-01T00:00:00.000Z'),
       postedAt: new Date('2026-03-01T00:00:00.000Z'),
       memo: 'Opening balance',
-      createdBy: userId,
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       functionalCurrency: SYSTEM_CURRENCIES.NGN,
       lines: [
         {
@@ -168,8 +178,8 @@ describe('makeCreateBankAccountUseCase', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockAppContext.get.mockReturnValue({
+      actor,
       correlationId: 'test-correlation-id',
-      user: { id: userId },
       accountingEntity,
     } as IAppContextData);
     mockRepoService.runInTransaction.mockImplementation((transactionFn) =>
@@ -219,6 +229,7 @@ describe('makeCreateBankAccountUseCase', () => {
       mockAccount.id,
       accountingEntityId,
       bankDetails,
+      'a1111111-1111-4111-8111-111111111111' as TEntityId,
       expect.anything()
     );
     expect(mockOutboxService.createBalancePropagation).not.toHaveBeenCalled();
@@ -381,7 +392,7 @@ describe('makeCreateBankAccountUseCase', () => {
         name: foreignReq.name,
         currency: currencyEntity.getByCode('USD'),
         isControlAccount: false,
-        userId,
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         controlAccountCode: mockControlAccount.code,
         accountingEntity,
         bankDetails: bankDetailsValue.make({
@@ -410,7 +421,7 @@ describe('makeCreateBankAccountUseCase', () => {
       effectiveDate: openingBalanceDate,
       postedAt: openingBalanceDate,
       memo: 'Opening balance',
-      createdBy: userId,
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       functionalCurrency: SYSTEM_CURRENCIES.NGN,
       lines: [
         {
@@ -495,7 +506,7 @@ describe('makeCreateBankAccountUseCase', () => {
       {
         journalEntry: expect.anything(),
         account: expect.objectContaining({ id: foreignMockAccount.id }),
-        actor: expect.objectContaining({ userId }),
+        actor: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       },
       { correlationId: 'test-correlation-id' }
     );

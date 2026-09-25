@@ -41,6 +41,7 @@ describe('makeGetPermittedPostingAccountsUsecase', () => {
   const usdCurrency = currencyEntity.getByCode('USD');
 
   const accountingEntity: IAccountingEntity = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     id: accountingEntityId,
     ownerId: userId,
     name: 'Posting Accounts Entity',
@@ -76,7 +77,10 @@ describe('makeGetPermittedPostingAccountsUsecase', () => {
     deletedAt: null,
   };
 
-  const enrichedDto = { id: accountId } as ILedgerAccountDto;
+  const enrichedDto = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+    id: accountId,
+  } as ILedgerAccountDto;
 
   const validQuery: IGetPermittedPostingAccountsQuery = {
     sourceType: EJournalEntrySourceType.Receipt,

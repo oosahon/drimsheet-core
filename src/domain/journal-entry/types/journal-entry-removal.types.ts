@@ -22,5 +22,8 @@ export type TJournalEntryRemovalPreparation =
   | IJournalEntryReversalPreparation;
 
 export interface IJournalEntryRemovalService {
-  prepare(entry: IJournalEntry): TJournalEntryRemovalPreparation;
+  prepare(
+    entry: IJournalEntry,
+    actorId: TEntityId
+  ): TJournalEntryRemovalPreparation;
 }

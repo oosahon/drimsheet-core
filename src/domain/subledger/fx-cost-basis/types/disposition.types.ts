@@ -8,6 +8,7 @@ import { IExchangeRate } from '@domain/money/types/exchange-rate.types';
 import { IMoney } from '@domain/money/types/money.types';
 
 export interface IFxCostBasisLotDisposition {
+  createdBy: TEntityId;
   id: TEntityId;
   ledgerAccountId: TEntityId;
   accountingEntityId: TEntityId;
@@ -23,6 +24,7 @@ export interface IFxCostBasisLotDisposition {
 }
 
 export interface IFxCostBasisLotDispositionAllocation {
+  createdBy: TEntityId;
   id: TEntityId;
   dispositionId: TEntityId;
   lotId: TEntityId;

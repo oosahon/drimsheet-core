@@ -1,4 +1,5 @@
 import { IWriteRepoOptions } from '@shared/types/repo.types';
+import { TEntityId } from '@shared/types/uuid';
 
 import {
   IAccountingEntity,
@@ -16,6 +17,7 @@ jest.mock('../accounting-entity-history.repo.impl');
 
 describe('AccountingEntityRepoImpl', () => {
   const domain = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     id: '123e4567-e89b-12d3-a456-426614174001',
   } as IAccountingEntity;
   const options = {

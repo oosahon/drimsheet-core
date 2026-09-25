@@ -17,6 +17,7 @@ export interface IUserAuthModel extends InferSelectModel<
 const userAuthMapper = {
   toRepo(userAuth: IUserAuth): IUserAuthModel {
     return Object.freeze({
+      createdBy: userAuth.createdBy as TEntityId,
       userId: userAuth.userId,
       password: userAuth.password ?? null,
       failedLoginAttempts: userAuth.failedLoginAttempts,
@@ -29,6 +30,7 @@ const userAuthMapper = {
 
   toDomain(userAuth: IUserAuthModel): IUserAuth {
     return Object.freeze({
+      createdBy: userAuth.createdBy as TEntityId,
       userId: userAuth.userId as TEntityId,
       password: userAuth.password ?? null,
       failedLoginAttempts: userAuth.failedLoginAttempts ?? 0,

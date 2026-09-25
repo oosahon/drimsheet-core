@@ -18,6 +18,8 @@ describe('makeGetAuthUserProfileUseCase', () => {
 
   it('should get user profile successfully', async () => {
     const mockUser = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: 'test-user-id' as TEntityId,
       email: 'test@example.com',
     } as IUser;
@@ -53,7 +55,10 @@ describe('makeGetAuthUserProfileUseCase', () => {
 
   it('should throw appError.Unauthorized if user is empty object sentinel', async () => {
     mockAppContext.get.mockReturnValue({
-      user: {} as IUser,
+      user: {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      } as IUser,
     } as IAppContextData);
 
     const usecase = makeGetAuthUserProfileUseCase({
@@ -67,6 +72,8 @@ describe('makeGetAuthUserProfileUseCase', () => {
 
   it('should propagate error if mapper throws', async () => {
     const mockUser = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: 'test-user-id' as TEntityId,
       email: 'test@example.com',
     } as IUser;

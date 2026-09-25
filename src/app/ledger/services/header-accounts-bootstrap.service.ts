@@ -1,3 +1,4 @@
+import { TEntityId } from '@shared/types/uuid';
 import { TAuditedEntity } from '@shared/values/events/types/event.types';
 
 import { IAssetDisposalLossAccountService } from '@domain/ledger/types/asset-disposal-loss.service.types';
@@ -66,9 +67,9 @@ export default function makeHeaderAccountsBootstrapService(
 ): IHeaderAccountsBootstrapService {
   const bootstrap: IHeaderAccountsBootstrapService['bootstrap'] = async (
     accountingEntity,
+    createdBy,
     repoOptions
   ) => {
-    const createdBy = accountingEntity.ownerId;
     const bootstrapResult: ILedgerAccountBootstrapResult = {
       entries: [],
       events: [],
@@ -83,7 +84,7 @@ export default function makeHeaderAccountsBootstrapService(
       await deps.cashAccountService.createHeader(
         {
           name: 'Cash and Cash Equivalents',
-          userId: createdBy,
+          createdBy,
           accountingEntity,
         },
         repoOptions
@@ -92,7 +93,11 @@ export default function makeHeaderAccountsBootstrapService(
     appendAccount(
       bootstrapResult,
       await deps.receivablesAccountService.createHeader(
-        { name: 'Receivables', userId: createdBy, accountingEntity },
+        {
+          name: 'Receivables',
+          createdBy,
+          accountingEntity,
+        },
         repoOptions
       )
     );
@@ -106,7 +111,7 @@ export default function makeHeaderAccountsBootstrapService(
       await deps.shortTermLoanAccountService.createHeader(
         {
           name: 'Short Term Debt',
-          userId: createdBy,
+          userId: accountingEntity.ownerId,
           createdBy,
           accountingEntity,
         },

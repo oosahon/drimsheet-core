@@ -1,3 +1,5 @@
+import { TEntityId } from '@shared/types/uuid';
+
 import getOppositeJournalSide from '@domain/journal-entry/entities/helpers/get-opposite-side.helper';
 import journalEntryEntity from '@domain/journal-entry/entities/journal-entry.entity';
 import journalEntryRectificationValidation from '@domain/journal-entry/services/validations/journal-entry-rectification.validation';
@@ -35,7 +37,8 @@ function updateEntry(
 ): IJournalEntryRectificationResult {
   const [currentJournalEntry, events, audit] = journalEntryEntity.update(
     payload.originalEntry,
-    payload.newEntry
+    payload.newEntry,
+    payload.actorId
   );
   const originalLineIds = new Set(
     payload.originalEntry.lines.map((line) => line.id)
@@ -90,7 +93,7 @@ function voidAndReplace(
     effectiveDate: newEntry.effectiveDate ?? originalEntry.effectiveDate,
     postedAt: timestamp,
     memo: newEntry.memo === undefined ? originalEntry.memo : newEntry.memo,
-    createdBy: originalEntry.createdBy,
+    createdBy: payload.actorId,
     functionalCurrency,
     attachments: newEntry.attachments ?? originalEntry.attachments,
     lines: correctedLines.map((line) => ({
@@ -105,7 +108,7 @@ function voidAndReplace(
     })),
   });
   const [correctedJournalEntry, correctedEvents] = correctedEntry;
-  const reversal = reverseEntry(originalEntry, timestamp);
+  const reversal = reverseEntry(originalEntry, timestamp, payload.actorId);
 
   return {
     mode: EJournalEntryRectificationMode.VoidAndReplace,
@@ -120,7 +123,8 @@ function voidAndReplace(
 
 function reverseEntry(
   originalEntry: IJournalEntryRectificationPayload['originalEntry'],
-  timestamp: Date
+  timestamp: Date,
+  actorId: TEntityId
 ): IJournalEntryReversalResult {
   const functionalCurrency = originalEntry.lines[0].functionalAmount.currency;
   const reversalEntry = journalEntryEntity.make({
@@ -129,7 +133,7 @@ function reverseEntry(
     effectiveDate: timestamp,
     postedAt: timestamp,
     memo: 'Journal entry reversal',
-    createdBy: originalEntry.createdBy,
+    createdBy: actorId,
     functionalCurrency,
     lines: originalEntry.lines.map((line) => ({
       accountId: line.accountId,
@@ -191,7 +195,8 @@ function makeRectify(): IJournalEntryRectificationService['rectify'] {
  * transition without performing persistence or publishing events.
  */
 function makeReverse(): IJournalEntryRectificationService['reverse'] {
-  return (originalEntry) => reverseEntry(originalEntry, new Date());
+  return (originalEntry, actorId) =>
+    reverseEntry(originalEntry, new Date(), actorId);
 }
 
 export default function makeJournalEntryRectificationService(): IJournalEntryRectificationService {

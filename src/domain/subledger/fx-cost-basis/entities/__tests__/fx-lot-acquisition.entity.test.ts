@@ -1,4 +1,5 @@
 import { TCreationOmits } from '@shared/types/creation-omits.types';
+import { TEntityId } from '@shared/types/uuid';
 import generateUUID from '@shared/utils/uuid-generator';
 
 import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
@@ -49,6 +50,7 @@ describe('fxCostBasisLotAcquisitionEntity', () => {
     };
 
     validPayload = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       ledgerAccountId: generateUUID(),
       accountingEntityId: generateUUID(),
       lotId: generateUUID(),

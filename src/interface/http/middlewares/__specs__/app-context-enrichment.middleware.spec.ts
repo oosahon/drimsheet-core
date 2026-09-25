@@ -4,17 +4,27 @@ import { TEntityId } from '@shared/types/uuid';
 import appError from '@shared/values/errors/app.error';
 
 import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
+import actorEntity from '@domain/user/entities/actor.entity';
+import actorError from '@domain/user/errors/actor.error';
 import { IUser } from '@domain/user/types/user.types';
 
 import { mockAccountingEntityRepo } from '@app/accounting/contracts/__mocks__/accounting.repos.mock';
 import mockTokenService from '@app/auth/contracts/__mocks__/token-service.mock';
 import mockAppContext from '@app/context/contracts/__mocks__/app-context.mock';
 import { IAppContextData } from '@app/context/contracts/app-context.contract';
+import { mockActorService } from '@app/user/contracts/__mocks__/actor.services.mock';
 import { mockUserRepo } from '@app/user/contracts/__mocks__/user.repos.mock';
 
 import makeAppContextEnrichmentMiddleware from '@interface/http/middlewares/app-context-enrichment.middleware';
 
 describe('makeAppContextEnrichmentMiddleware', () => {
+  const actor = {
+    ...actorEntity.makeUser({
+      email: 'user@example.com',
+      displayName: 'User',
+    })[0],
+    id: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+  };
   const correlationId = 'request-correlation-id';
   const userId = 'user-id' as TEntityId;
   const accountingEntityId =
@@ -25,7 +35,8 @@ describe('makeAppContextEnrichmentMiddleware', () => {
   let mockNext: jest.MockedFunction<NextFunction>;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    jest.resetAllMocks();
+    mockActorService.resolveUser.mockResolvedValue(actor);
 
     mockAppContext.get.mockReturnValue({
       correlationId,
@@ -42,7 +53,8 @@ describe('makeAppContextEnrichmentMiddleware', () => {
       mockAppContext,
       mockAccountingEntityRepo,
       mockTokenService,
-      mockUserRepo
+      mockUserRepo,
+      mockActorService
     );
   }
 
@@ -59,7 +71,11 @@ describe('makeAppContextEnrichmentMiddleware', () => {
   });
 
   it('enriches context with an authenticated user', async () => {
-    const user = { id: userId } as IUser;
+    const user = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      id: userId,
+    } as IUser;
     mockReq.headers = { authorization: 'Bearer valid-token' };
     mockTokenService.getAuthUser.mockResolvedValue({ id: userId });
     mockUserRepo.findById.mockResolvedValue(user);
@@ -73,13 +89,19 @@ describe('makeAppContextEnrichmentMiddleware', () => {
     });
     expect(mockAppContext.set).toHaveBeenCalledWith({
       user,
+      actor,
     });
     expect(mockNext).toHaveBeenCalledTimes(1);
   });
 
   it('uses the same repo options for user and accounting entity hydration', async () => {
-    const user = { id: userId } as IUser;
+    const user = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      id: userId,
+    } as IUser;
     const accountingEntity = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: accountingEntityId,
       ownerId: userId,
     } as IAccountingEntity;
@@ -105,6 +127,7 @@ describe('makeAppContextEnrichmentMiddleware', () => {
     expect(userRepoOptions).toEqual({ correlationId });
     expect(mockAppContext.set).toHaveBeenCalledWith({
       user,
+      actor,
       accountingEntity,
     });
     expect(mockNext).toHaveBeenCalledTimes(1);
@@ -125,7 +148,11 @@ describe('makeAppContextEnrichmentMiddleware', () => {
   });
 
   it('propagates malformed accounting entity IDs without enriching context', async () => {
-    const user = { id: userId } as IUser;
+    const user = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      id: userId,
+    } as IUser;
     mockReq.headers = {
       authorization: 'Bearer valid-token',
       'x-accounting-entity-id': 'not-a-uuid',
@@ -144,7 +171,11 @@ describe('makeAppContextEnrichmentMiddleware', () => {
 
   it('propagates accounting repository failures without enriching context', async () => {
     const error = new Error('accounting lookup failed');
-    const user = { id: userId } as IUser;
+    const user = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      id: userId,
+    } as IUser;
     mockReq.headers = {
       authorization: 'Bearer valid-token',
       'x-accounting-entity-id': accountingEntityId,
@@ -161,4 +192,43 @@ describe('makeAppContextEnrichmentMiddleware', () => {
     expect(mockAppContext.set).not.toHaveBeenCalled();
     expect(mockNext).not.toHaveBeenCalled();
   });
+  it('uses the resolved identity and ignores client actor/delegation headers', async () => {
+    const [actor] = actorEntity.makeUser({
+      email: 'user@example.com',
+      displayName: 'User',
+    });
+    const user = { id: userId, actorId: actor.id } as IUser;
+    mockReq.headers = {
+      authorization: 'Bearer valid-token',
+      'x-actor-id': 'forged',
+      'x-on-behalf-of': 'forged',
+    };
+    mockTokenService.getAuthUser.mockResolvedValue({ id: userId });
+    mockUserRepo.findById.mockResolvedValue(user);
+    mockActorService.resolveUser.mockResolvedValueOnce(actor);
+    await makeMiddleware()(mockReq as Request, mockRes as Response, mockNext);
+    expect(mockActorService.resolveUser).toHaveBeenCalledWith(user, {
+      correlationId,
+    });
+    expect(mockAppContext.set).toHaveBeenCalledWith({ user, actor });
+  });
+
+  it.each([
+    actorError.Disabled,
+    actorError.NotFound,
+    actorError.InvalidUserLink,
+  ])(
+    'does not populate context when actor resolution fails',
+    async (ActorError) => {
+      mockReq.headers = { authorization: 'Bearer valid-token' };
+      mockTokenService.getAuthUser.mockResolvedValue({ id: userId });
+      mockUserRepo.findById.mockResolvedValue({ id: userId } as IUser);
+      mockActorService.resolveUser.mockRejectedValueOnce(new ActorError());
+      await expect(
+        makeMiddleware()(mockReq as Request, mockRes as Response, mockNext)
+      ).rejects.toThrow(ActorError);
+      expect(mockAppContext.set).not.toHaveBeenCalled();
+      expect(mockNext).not.toHaveBeenCalled();
+    }
+  );
 });

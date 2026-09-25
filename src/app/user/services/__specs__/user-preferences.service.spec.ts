@@ -32,6 +32,7 @@ describe('makeUserPreferencesService', () => {
 
     const result = await service.update(
       {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         userId,
         lastActiveAccountingEntityId: accountingEntityId,
         appPreferences: {
@@ -43,6 +44,7 @@ describe('makeUserPreferencesService', () => {
     );
 
     const expectedPreferences: IUserPreferences = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       userId,
       lastActiveAccountingEntityId: accountingEntityId,
       appPreferences: {
@@ -66,6 +68,7 @@ describe('makeUserPreferencesService', () => {
 
   it('merges supplied app preferences and preserves existing state', async () => {
     const existingPreferences: IUserPreferences = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       userId,
       lastActiveAccountingEntityId: accountingEntityId,
       appPreferences: {
@@ -78,7 +81,11 @@ describe('makeUserPreferencesService', () => {
     mockUserPreferencesRepo.findById.mockResolvedValue(existingPreferences);
 
     const result = await service.update(
-      { userId, appPreferences: { theme: EAppThemePreference.System } },
+      {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        userId,
+        appPreferences: { theme: EAppThemePreference.System },
+      },
       options
     );
 
@@ -98,6 +105,7 @@ describe('makeUserPreferencesService', () => {
 
   it('preserves app preferences and clears the active entity', async () => {
     mockUserPreferencesRepo.findById.mockResolvedValue({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       userId,
       lastActiveAccountingEntityId: accountingEntityId,
       appPreferences: {
@@ -110,6 +118,7 @@ describe('makeUserPreferencesService', () => {
 
     const result = await service.update(
       {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         userId,
         lastActiveAccountingEntityId: null,
       },
@@ -132,6 +141,7 @@ describe('makeUserPreferencesService', () => {
     await expect(
       service.update(
         {
+          createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
           userId,
           appPreferences: {
             appUsageMode: EAppUsageModePreference.NonPowerUser,
@@ -147,7 +157,11 @@ describe('makeUserPreferencesService', () => {
 
     await expect(
       service.update(
-        { userId, appPreferences: { theme: EAppThemePreference.Dark } },
+        {
+          createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+          userId,
+          appPreferences: { theme: EAppThemePreference.Dark },
+        },
         options
       )
     ).rejects.toThrow('app_error_user_preferences_app_usage_mode_invalid');

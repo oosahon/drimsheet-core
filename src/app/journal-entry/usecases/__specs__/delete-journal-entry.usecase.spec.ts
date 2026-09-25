@@ -1,6 +1,7 @@
 import mockEventBus from '@shared/contracts/__mocks__/event-bus.mock';
 import mockRepoService from '@shared/contracts/__mocks__/repo.mock';
 import { ITransactionContext } from '@shared/types/repo.types';
+import { TEntityId } from '@shared/types/uuid';
 import generateUUID from '@shared/utils/uuid-generator';
 import appError from '@shared/values/errors/app.error';
 
@@ -17,7 +18,9 @@ import {
 import { EJournalSide } from '@domain/journal-entry/types/journal-line.types';
 import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
 import moneyValue from '@domain/money/values/money.vo';
+import actorEntity from '@domain/user/entities/actor.entity';
 
+import { mockAccountingEntityService } from '@app/accounting/contracts/__mocks__/accounting.domain.services.mock';
 import mockAppContext, {
   mockClientSession,
 } from '@app/context/contracts/__mocks__/app-context.mock';
@@ -31,6 +34,14 @@ import mockOutboxService from '@app/outbox/contracts/__mocks__/outbox.service.mo
 import mockFxLotCostBasisService from '@app/subledger/fx-cost-basis/contracts/__mocks__/fx-cost-basis-persistence.service.mock';
 import mockFxLotAppService from '@app/subledger/fx-cost-basis/contracts/__mocks__/fx-lot.service.mock';
 
+const actor = {
+  ...actorEntity.makeUser({
+    email: 'actor@example.com',
+    displayName: 'Actor',
+  })[0],
+  id: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+};
+
 describe('makeDeleteJournalEntryUsecase', () => {
   const correlationId = 'delete-journal-entry-correlation-id';
   const idempotencyKey = 'delete-journal-entry-idempotency-key';
@@ -39,6 +50,7 @@ describe('makeDeleteJournalEntryUsecase', () => {
   const now = new Date('2026-09-22T10:00:00.000Z');
   const rectificationService = makeJournalEntryRectificationService();
   const usecase = makeDeleteJournalEntryUsecase({
+    accountingEntityService: mockAccountingEntityService,
     appContext: mockAppContext,
     eventBus: mockEventBus,
     fxCostBasisPersistenceService: mockFxLotCostBasisService.persistence,
@@ -98,7 +110,10 @@ describe('makeDeleteJournalEntryUsecase', () => {
   function prepareReversal(entry: IJournalEntry) {
     return {
       mode: EJournalEntryRemovalMode.Reverse,
-      ...rectificationService.reverse(entry),
+      ...rectificationService.reverse(
+        entry,
+        'a1111111-1111-4111-8111-111111111111' as TEntityId
+      ),
     } as const;
   }
 
@@ -107,9 +122,13 @@ describe('makeDeleteJournalEntryUsecase', () => {
     jest.setSystemTime(now);
     jest.clearAllMocks();
     mockAppContext.get.mockReturnValue({
+      actor,
       correlationId,
       idempotencyKey,
-      user: { id: userId },
+      user: {
+        id: userId,
+        actorId: 'b2222222-2222-4222-8222-222222222222' as TEntityId,
+      },
       accountingEntity: { id: accountingEntityId },
       clientSession: mockClientSession,
     } as unknown as IAppContextData);
@@ -178,7 +197,7 @@ describe('makeDeleteJournalEntryUsecase', () => {
 
     expect(mockFxLotAppService.reverse).toHaveBeenCalledWith(
       entry.id,
-      { type: 'user', userId },
+      'a1111111-1111-4111-8111-111111111111' as TEntityId,
       { correlationId, idempotencyKey }
     );
     expect(mockJournalEntryPersistenceService.rectify).toHaveBeenCalledWith(
@@ -273,9 +292,9 @@ describe('makeDeleteJournalEntryUsecase', () => {
   it.each([
     ['missing', null, appError.ResourceNotFound],
     [
-      'another creator',
-      { ...makeEntry(null), createdBy: generateUUID() },
-      appError.Forbidden,
+      'outside accounting scope',
+      { ...makeEntry(null), accountingEntityId: generateUUID() },
+      appError.ResourceNotFound,
     ],
     ['stale', { ...makeEntry(null), version: 2 }, appError.Conflict],
   ])(

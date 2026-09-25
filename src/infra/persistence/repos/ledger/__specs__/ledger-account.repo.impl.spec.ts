@@ -31,9 +31,17 @@ jest.mock('drizzle-orm', () => {
 });
 
 describe('ledgerAccountRepo strict updates', () => {
-  const account = { id: generateUUID(), version: 2 } as ILedgerAccount;
+  const account = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+    id: generateUUID(),
+    version: 2,
+  } as ILedgerAccount;
   const history = { entityId: account.id, entityVersion: 2 } as never;
-  const repoModel = { id: account.id, version: account.version } as never;
+  const repoModel = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+    id: account.id,
+    version: account.version,
+  } as never;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -85,7 +93,12 @@ describe('ledgerAccountRepo strict updates', () => {
       ledgerAccountRepo.update(account, {
         correlationId: 'correlation-id',
         expectedVersion: 1,
-        history: { entityId: account.id, entityVersion: 3 } as never,
+        history: {
+          actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+          onBehalfOf: null,
+          entityId: account.id,
+          entityVersion: 3,
+        } as never,
       })
     ).rejects.toBeInstanceOf(repoError.VersionMismatch);
 
@@ -127,7 +140,10 @@ describe('ledgerAccountRepoImpl allocation reads', () => {
 
   it('findByCode maps an allocation read', async () => {
     const row = { id: 'account-row' };
-    const account = { id: 'account-domain' } as ILedgerAccount;
+    const account = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      id: 'account-domain',
+    } as ILedgerAccount;
     const awaitable = makeAwaitable([row]);
     const where = jest.fn().mockReturnValue(awaitable);
     const leftJoin = jest.fn().mockReturnValue({ where });
@@ -207,7 +223,11 @@ describe('ledgerAccountRepoImpl allocation reads', () => {
     ],
   ])('%s retains a row without a currency relation', async (_name, read) => {
     const row = { id: 'account-row', currency: null };
-    const account = { id: 'account-domain', currency: null } as ILedgerAccount;
+    const account = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      id: 'account-domain',
+      currency: null,
+    } as ILedgerAccount;
     const where = jest.fn().mockResolvedValue([row]);
     const leftJoin = jest.fn().mockReturnValue({ where });
     const from = jest.fn().mockReturnValue({ leftJoin });
@@ -224,7 +244,11 @@ describe('ledgerAccountRepoImpl allocation reads', () => {
 
   it('findAll retains a paginated row without a currency relation', async () => {
     const row = { id: 'account-row', currency: null };
-    const account = { id: 'account-domain', currency: null } as ILedgerAccount;
+    const account = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      id: 'account-domain',
+      currency: null,
+    } as ILedgerAccount;
     const countWhere = jest.fn().mockResolvedValue([{ count: 1 }]);
     const countFrom = jest.fn().mockReturnValue({ where: countWhere });
     const offset = jest.fn().mockResolvedValue([row]);
@@ -250,7 +274,11 @@ describe('ledgerAccountRepoImpl allocation reads', () => {
 
   it('findAll applies plural posting restrictions and fixed-or-null currency before count and pagination', async () => {
     const row = { id: 'account-row', currency: null };
-    const account = { id: 'account-domain', currency: null } as ILedgerAccount;
+    const account = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      id: 'account-domain',
+      currency: null,
+    } as ILedgerAccount;
     const query = mockFindAllQuery(25, [row]);
     (ledgerAccountMapper.toDomain as jest.Mock).mockReturnValue(account);
 
@@ -345,7 +373,11 @@ describe('ledgerAccountRepoImpl allocation reads', () => {
   it('findAllByMaterializedPath returns exact paths within the accounting entity', async () => {
     const materializedPaths = ['100000', '100000.100001'];
     const row = { id: 'account-row', currency: null };
-    const account = { id: 'account-domain', currency: null } as ILedgerAccount;
+    const account = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      id: 'account-domain',
+      currency: null,
+    } as ILedgerAccount;
     const where = jest.fn().mockResolvedValue([row]);
     const leftJoin = jest.fn().mockReturnValue({ where });
     const from = jest.fn().mockReturnValue({ leftJoin });

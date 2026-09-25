@@ -72,7 +72,7 @@ function makeMissingOfficialRateOutbox(
       effectKind,
       journalEntryId: effect.journalEntryId,
       accountingEntityId: effect.accountingEntityId,
-      createdBy: payload.actor.userId,
+      createdBy: payload.actor,
       effectiveDate: effect.effectiveDate,
     },
   };
@@ -90,6 +90,7 @@ function makeAcquire(deps: IDependencies): IFxLotAppService['acquire'] {
 
     const officialRate = await resolveOfficialRate(deps, payload, repoOptions);
     const domainResult = deps.fxCostBasisLotService.acquire({
+      createdBy: payload.actor,
       journalEntry: payload.journalEntry,
       account: payload.account,
       officialRate,
@@ -142,6 +143,7 @@ function makeDispose(deps: IDependencies): IFxLotAppService['dispose'] {
     const officialRate = await resolveOfficialRate(deps, payload, repoOptions);
     const domainResult = await deps.fxCostBasisLotService.dispose(
       {
+        createdBy: payload.actor,
         journalEntry: payload.journalEntry,
         account: payload.account,
         officialRate,

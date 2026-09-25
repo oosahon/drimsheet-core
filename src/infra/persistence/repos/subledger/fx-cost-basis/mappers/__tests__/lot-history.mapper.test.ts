@@ -1,5 +1,4 @@
 import { TEntityId } from '@shared/types/uuid';
-import { EHistoryActorType } from '@shared/values/history/types/history.types';
 
 import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
 import moneyValue from '@domain/money/values/money.vo';
@@ -24,6 +23,7 @@ describe('FX Cost-Basis Lot History Mapper', () => {
       diff: {
         before: null,
         after: {
+          createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
           id: lotId,
           ledgerAccountId: 'ledger-account-1' as TEntityId,
           accountingEntityId,
@@ -53,19 +53,17 @@ describe('FX Cost-Basis Lot History Mapper', () => {
         },
       },
       occurredAt,
-      actor: {
-        type: EHistoryActorType.User,
-        userId,
-      },
+      actorId: userId,
+      onBehalfOf: null,
       correlationId: 'correlation-id',
     };
 
     expect(fxCostBasisLotHistoryMapper.toRepo(history)).toEqual({
       lotId,
       accountingEntityId,
-      actorType: EHistoryActorType.User,
+      actorId: userId,
+      onBehalfOf: null,
       action: history.action,
-      userId,
       diff: history.diff,
       correlationId: history.correlationId,
       occurredAt: occurredAt.toISOString(),
@@ -81,10 +79,8 @@ describe('FX Cost-Basis Lot History Mapper', () => {
         after: null, // intentionally missing to trigger error
       },
       occurredAt: new Date(),
-      actor: {
-        type: EHistoryActorType.System,
-        userId: null,
-      },
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      onBehalfOf: null,
       correlationId: 'correlation-id',
     } as unknown as IFxCostBasisLotHistory;
 

@@ -1,5 +1,6 @@
 import { ColumnDefinitions, MigrationBuilder } from 'node-pg-migrate';
 
+import { actorsTable } from '../config/actors';
 import {
   currenciesTable,
   currencyExchangeRatesTable,
@@ -17,6 +18,12 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
   ]);
 
   pgm.createTable(currencyExchangeRatesTable, {
+    created_by: {
+      type: 'uuid',
+      notNull: true,
+      references: actorsTable,
+      onDelete: 'RESTRICT',
+    },
     id: {
       type: 'bigserial',
       primaryKey: true,

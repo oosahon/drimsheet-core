@@ -59,11 +59,10 @@ export default function makeCreateBankAccountUseCase(deps: IDependencies) {
   return async (
     payload: IBankAccountCreationReq
   ): Promise<ILedgerAccountDto> => {
-    const { correlationId, user, accountingEntity } = deps.appContext.get([
-      'user',
+    const { correlationId, actor, accountingEntity } = deps.appContext.get([
+      'actor',
       'accountingEntity',
     ]);
-    const actor = historyValue.getUserActor(user.id);
     const repoOptions = { correlationId };
 
     // Validate data
@@ -113,7 +112,7 @@ export default function makeCreateBankAccountUseCase(deps: IDependencies) {
       name: payload.name,
       currency: currencyEntity.getByCode(payload.currencyCode),
       isControlAccount: false,
-      userId: user.id,
+      createdBy: actor.id,
       accountingEntity,
       controlAccountCode: controlAccount.code,
       bankDetails,
@@ -128,13 +127,14 @@ export default function makeCreateBankAccountUseCase(deps: IDependencies) {
       return await finalizeWithoutOpeningBalance(deps, {
         auditedAccount,
         accountingEntity,
-        actor,
+        actor: actor.id,
         repoOptions,
         persistRelatedRecords: async (account, writeRepoOptions) => {
           await deps.bankAccountRepo.create(
             account.id,
             accountingEntity.id,
             bankDetails,
+            actor.id,
             writeRepoOptions
           );
         },
@@ -154,7 +154,7 @@ export default function makeCreateBankAccountUseCase(deps: IDependencies) {
           amount: moneyMapper.fromDto(payload.openingBalance.amount),
           effectiveDate: payload.openingBalance.date,
           exchangeRate,
-          createdBy: user.id,
+          createdBy: actor.id,
         },
         repoOptions
       );
@@ -170,26 +170,26 @@ export default function makeCreateBankAccountUseCase(deps: IDependencies) {
     // Make histories
     const initialAccountHistory = historyValue.make(
       auditedAccount[2],
-      actor,
+      actor.id,
       correlationId
     );
     const updatedAccountHistory = historyValue.make(
       updatedAccountAudit,
-      actor,
+      actor.id,
       correlationId
     );
     const accountHistory = [initialAccountHistory, updatedAccountHistory];
     const journalHeaderHistory = historyValue.make(
       journalAudit.header,
-      actor,
+      actor.id,
       correlationId
     );
     const journalLineHistories = journalAudit.lines.map((lineAudit) =>
-      historyValue.make(lineAudit, actor, correlationId)
+      historyValue.make(lineAudit, actor.id, correlationId)
     );
 
     const fxResult = await deps.fxLotAppService.acquire(
-      { journalEntry, account: updatedAccount, actor },
+      { journalEntry, account: updatedAccount, actor: actor.id },
       repoOptions
     );
 
@@ -207,6 +207,7 @@ export default function makeCreateBankAccountUseCase(deps: IDependencies) {
         updatedAccount.id,
         accountingEntity.id,
         bankDetails,
+        actor.id,
         writeRepoOptions
       );
 

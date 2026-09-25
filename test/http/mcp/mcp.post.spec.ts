@@ -6,6 +6,7 @@ import request from 'supertest';
 import mockHttpMetrics from '@shared/contracts/__mocks__/http-metrics.mock';
 import mockLogger from '@shared/contracts/__mocks__/logger.mock';
 import mockReporter from '@shared/contracts/__mocks__/reporter.mock';
+import { TEntityId } from '@shared/types/uuid';
 import generateUUID from '@shared/utils/uuid-generator';
 
 import accountingEntityEntity from '@domain/accounting/entities/accounting-entity.entity';
@@ -30,6 +31,13 @@ import makeErrorHandlerMiddleware from '@interface/http/middlewares/error-handle
 import makeRequestLoggerMiddleware from '@interface/http/middlewares/request-logger.middleware';
 import createMcpRouter from '@interface/mcp/router';
 import createMcpServer from '@interface/mcp/server';
+
+jest.mock('@infra/ioc/services/user', () => ({
+  ...jest.requireActual('@infra/ioc/services/user'),
+  actorService: jest.requireActual(
+    '@app/user/contracts/__mocks__/actor.services.mock'
+  ).mockActorService,
+}));
 
 jest.mock('@infra/ioc/middlewares/http', () => ({
   __esModule: true,
@@ -56,6 +64,7 @@ jest.mock('../../../generated/routes', () => ({
 }));
 
 const [firstEntity] = accountingEntityEntity.make({
+  createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
   name: 'First',
   type: EAccountingEntityType.Individual,
   ownerId: generateUUID(),
@@ -63,6 +72,7 @@ const [firstEntity] = accountingEntityEntity.make({
   jurisdictionCode: 'US',
 });
 const [secondEntity] = accountingEntityEntity.make({
+  createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
   name: 'Second',
   type: EAccountingEntityType.Individual,
   ownerId: generateUUID(),

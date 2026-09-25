@@ -1,4 +1,5 @@
 import { IReadRepoOptions } from '@shared/types/repo.types';
+import { TEntityId } from '@shared/types/uuid';
 import generateUUID from '@shared/utils/uuid-generator';
 
 import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
@@ -39,6 +40,7 @@ describe('shortTermLoanAccountService', () => {
   });
   const createdBy = generateUUID();
   const accountingEntity = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
     id: generateUUID(),
     ownerId: createdBy,
     functionalCurrencyCode: SYSTEM_CURRENCIES.USD.code,
@@ -67,13 +69,13 @@ describe('shortTermLoanAccountService', () => {
       status: ELedgerAccountStatus.Active,
       contraAccountRule: EContraAccountRule.ContraPermitted,
       adjunctAccountRule: EAdjunctAccountRule.AdjunctPermitted,
-      createdBy,
+      createdBy: createdBy,
       ...overrides,
     })[0];
 
   const shortTermLoanPayload = {
     name: 'Working Capital Loan',
-    createdBy,
+    createdBy: createdBy,
     accountingEntityId: accountingEntity.id,
     currency: SYSTEM_CURRENCIES.USD,
     isControlAccount: false,
@@ -82,7 +84,7 @@ describe('shortTermLoanAccountService', () => {
 
   const creditCardPayload = {
     name: 'Corporate Credit Card',
-    createdBy,
+    createdBy: createdBy,
     accountingEntityId: accountingEntity.id,
     currency: SYSTEM_CURRENCIES.USD,
     isControlAccount: false,
@@ -113,7 +115,7 @@ describe('shortTermLoanAccountService', () => {
           name: 'Short Term Debt',
           userId: createdBy,
           accountingEntity,
-          createdBy,
+          createdBy: createdBy,
         },
         repoOptions
       );
@@ -139,7 +141,7 @@ describe('shortTermLoanAccountService', () => {
         status: ELedgerAccountStatus.Active,
         contraAccountRule: EContraAccountRule.ContraPermitted,
         adjunctAccountRule: EAdjunctAccountRule.AdjunctPermitted,
-        createdBy,
+        createdBy: createdBy,
       });
       expect(Object.isFrozen(account)).toBe(true);
       expect(events).toHaveLength(1);
@@ -156,7 +158,7 @@ describe('shortTermLoanAccountService', () => {
             name: 'Short Term Debt',
             userId: createdBy,
             accountingEntity,
-            createdBy,
+            createdBy: createdBy,
           },
           repoOptions
         )

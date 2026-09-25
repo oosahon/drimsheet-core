@@ -1,5 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 
+import { TEntityId } from '@shared/types/uuid';
+
 import { IUser } from '@domain/user/types/user.types';
 
 import mockAppContext from '@app/context/contracts/__mocks__/app-context.mock';
@@ -11,7 +13,11 @@ import makeFeatureFlagAccessMiddleware from '@interface/http/middlewares/feature
 
 describe('makeFeatureFlagAccessMiddleware', () => {
   const email = 'user@example.com';
-  const user = { email } as IUser;
+  const user = {
+    createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+    actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+    email,
+  } as IUser;
 
   let request: Partial<Request>;
   let response: Partial<Response>;

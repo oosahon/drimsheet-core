@@ -19,7 +19,10 @@ export default function makeSwitchAccountingEntityUsecase(deps: IDependencies) {
   return async (payload: IAccountingEntitySwitchReq) => {
     zodValidationRunner(accountingEntitySwitchReqSchema, payload);
 
-    const { user, correlationId } = deps.appContext.get(['user']);
+    const { user, actor, correlationId } = deps.appContext.get([
+      'user',
+      'actor',
+    ]);
 
     const accountingEntity = await deps.accountingEntityRepo.findByIdAndUserId(
       payload.accountingEntityId as TEntityId,
@@ -33,6 +36,7 @@ export default function makeSwitchAccountingEntityUsecase(deps: IDependencies) {
 
     const updatePayload = {
       userId: user.id,
+      createdBy: actor.id,
       lastActiveAccountingEntityId: accountingEntity.id,
     };
 

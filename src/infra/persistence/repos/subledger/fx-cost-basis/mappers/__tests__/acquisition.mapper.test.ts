@@ -46,6 +46,7 @@ describe('FX Cost-Basis Lot Acquisition Mapper', () => {
       });
 
       const domainAcquisition: IFxCostBasisLotAcquisition = {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         id: 'acquisition-1' as TEntityId,
         ledgerAccountId: 'ledger-account-1' as TEntityId,
         accountingEntityId: 'accounting-entity-1' as TEntityId,
@@ -60,6 +61,7 @@ describe('FX Cost-Basis Lot Acquisition Mapper', () => {
       };
 
       const expectedRepoModel: IFxCostBasisLotAcquisitionModel = {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         id: 'acquisition-1',
         ledgerAccountId: 'ledger-account-1',
         accountingEntityId: 'accounting-entity-1',
@@ -71,7 +73,7 @@ describe('FX Cost-Basis Lot Acquisition Mapper', () => {
         costBasisCurrency: SYSTEM_CURRENCIES.NGN.code,
         acquisitionRate,
         acquisitionDate: '2026-04-09',
-        officialRate: exchangeRateMapper.toRepo(officialRate),
+        officialRate: exchangeRateMapper.toEmbedded(officialRate),
         createdAt: createdAt.toISOString(),
       };
 
@@ -96,6 +98,7 @@ describe('FX Cost-Basis Lot Acquisition Mapper', () => {
       });
 
       const domainAcquisition: IFxCostBasisLotAcquisition = {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         id: 'acquisition-1' as TEntityId,
         ledgerAccountId: 'ledger-account-1' as TEntityId,
         accountingEntityId: 'accounting-entity-1' as TEntityId,
@@ -110,6 +113,7 @@ describe('FX Cost-Basis Lot Acquisition Mapper', () => {
       };
 
       const expectedRepoModel: IFxCostBasisLotAcquisitionModel = {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         id: 'acquisition-1',
         ledgerAccountId: 'ledger-account-1',
         accountingEntityId: 'accounting-entity-1',

@@ -10,6 +10,8 @@ describe('userAudit', () => {
   describe('make', () => {
     it('successfully creates a user audit record for user creation', () => {
       const [user] = userEntity.make({
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         email: 'john.doe@example.com',
         firstName: 'John',
         lastName: 'Doe',
@@ -32,6 +34,8 @@ describe('userAudit', () => {
 
     it('successfully creates a user audit record for user updates', () => {
       const [user] = userEntity.make({
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         email: 'john.doe@example.com',
         firstName: 'John',
         lastName: 'Doe',
@@ -56,6 +60,8 @@ describe('userAudit', () => {
 
     it('throws userError.InvalidId if user ID is invalid', () => {
       const [user] = userEntity.make({
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         email: 'john.doe@example.com',
         firstName: 'John',
         lastName: 'Doe',
@@ -78,6 +84,8 @@ describe('userAudit', () => {
 
     it('throws userError.InvalidAction if action is invalid', () => {
       const [user] = userEntity.make({
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         email: 'john.doe@example.com',
         firstName: 'John',
         lastName: 'Doe',
@@ -95,6 +103,8 @@ describe('userAudit', () => {
 
     it('throws userError.InvalidDate if updatedAt is not a valid Date', () => {
       const [user] = userEntity.make({
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         email: 'john.doe@example.com',
         firstName: 'John',
         lastName: 'Doe',
@@ -117,6 +127,8 @@ describe('userAudit', () => {
 
     it('throws historyError.InvalidDiff if there are no changes between before and after', () => {
       const [user] = userEntity.make({
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         email: 'john.doe@example.com',
         firstName: 'John',
         lastName: 'Doe',

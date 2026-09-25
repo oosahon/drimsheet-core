@@ -20,6 +20,7 @@ describe('fiscalYearEntity', () => {
 
   describe('make', () => {
     const validPayload = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       name: 'FY 2026',
       accountingEntityId: '98402eb7-ec79-436f-b258-00a4fb9a572a' as TEntityId,
       startDate: new Date('2026-01-01T00:00:00.000Z'),
@@ -59,7 +60,10 @@ describe('fiscalYearEntity', () => {
     });
 
     it('derives name if name is not provided', () => {
-      const payloadWithoutName = { ...validPayload, name: undefined };
+      const payloadWithoutName = {
+        ...validPayload,
+        name: undefined,
+      };
       const [entity] = fiscalYearEntity.make(payloadWithoutName);
       // Depending on fiscalYearHelpers.deriveFiscalYearName implementation, it sets a derived name
       expect(entity.name).toBeDefined();
@@ -104,7 +108,10 @@ describe('fiscalYearEntity', () => {
     });
 
     it('throws InvalidPeriodStatusError if status is invalid', () => {
-      const invalidPayload = { ...validPayload, status: 'invalid' };
+      const invalidPayload = {
+        ...validPayload,
+        status: 'invalid',
+      };
       // @ts-expect-error testing invalid status
       expect(() => fiscalYearEntity.make(invalidPayload)).toThrow();
     });

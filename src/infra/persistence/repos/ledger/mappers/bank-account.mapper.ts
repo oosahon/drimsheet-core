@@ -14,9 +14,11 @@ const bankAccountMapper = {
   toRepo(
     ledgerAccountId: TEntityId,
     accountingEntityId: TEntityId,
-    value: IBankDetails
+    value: IBankDetails,
+    createdBy: TEntityId
   ): IBankAccountModel {
     return {
+      createdBy,
       bankName: value.bankName,
       accountNumber: value.accountNumber,
       accountName: value.accountName,

@@ -48,6 +48,9 @@
       },
       "IUserPreferences": {
         "properties": {
+          "createdBy": {
+            "$ref": "#/components/schemas/TEntityId"
+          },
           "userId": {
             "$ref": "#/components/schemas/TEntityId"
           },
@@ -72,6 +75,7 @@
           }
         },
         "required": [
+          "createdBy",
           "userId",
           "lastActiveAccountingEntityId",
           "appPreferences",
@@ -702,7 +706,7 @@
             "format": "double"
           },
           "createdBy": {
-            "type": "string"
+            "$ref": "#/components/schemas/TEntityId"
           },
           "createdAt": {
             "type": "string",
@@ -778,6 +782,9 @@
       },
       "IAccountTransactionRes": {
         "properties": {
+          "createdBy": {
+            "$ref": "#/components/schemas/TEntityId"
+          },
           "id": {
             "type": "string"
           },
@@ -836,6 +843,7 @@
           }
         },
         "required": [
+          "createdBy",
           "id",
           "entryId",
           "accountId",
@@ -1038,7 +1046,7 @@
             "format": "double"
           },
           "createdBy": {
-            "type": "string"
+            "$ref": "#/components/schemas/TEntityId"
           },
           "createdAt": {
             "type": "string",
@@ -1142,6 +1150,9 @@
       },
       "IJournalLineDto": {
         "properties": {
+          "createdBy": {
+            "$ref": "#/components/schemas/TEntityId"
+          },
           "id": {
             "type": "string"
           },
@@ -1194,6 +1205,7 @@
           }
         },
         "required": [
+          "createdBy",
           "id",
           "entryId",
           "accountId",
@@ -1246,7 +1258,7 @@
             "format": "double"
           },
           "createdBy": {
-            "type": "string"
+            "$ref": "#/components/schemas/TEntityId"
           },
           "createdAt": {
             "type": "string",
@@ -2155,6 +2167,9 @@
       },
       "ICounterpartyDto": {
         "properties": {
+          "createdBy": {
+            "type": "string"
+          },
           "id": {
             "type": "string"
           },
@@ -2189,6 +2204,7 @@
           }
         },
         "required": [
+          "createdBy",
           "id",
           "accountingEntityId",
           "name",
@@ -2608,6 +2624,9 @@
       },
       "IAccountingEntity": {
         "properties": {
+          "createdBy": {
+            "$ref": "#/components/schemas/TEntityId"
+          },
           "id": {
             "$ref": "#/components/schemas/TEntityId"
           },
@@ -2636,6 +2655,7 @@
           }
         },
         "required": [
+          "createdBy",
           "id",
           "name",
           "type",

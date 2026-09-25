@@ -48,6 +48,7 @@ describe('UserPreferencesRepoImpl', () => {
     const userId = '123e4567-e89b-12d3-a456-426614174000' as TEntityId;
     const options = { correlationId: 'corr-id' };
     const repoResult = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: userId,
       lastActiveAccountingEntityId: null,
       appPreferences: { theme: 'dark', appUsageMode: 'non_power_user' },
@@ -55,6 +56,7 @@ describe('UserPreferencesRepoImpl', () => {
       updatedAt: '2026-03-13T00:00:00.000Z',
     };
     const preferences: IUserPreferences = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       userId,
       lastActiveAccountingEntityId: null,
       appPreferences: { theme: 'dark', appUsageMode: 'non_power_user' },
@@ -82,6 +84,7 @@ describe('UserPreferencesRepoImpl', () => {
       '123e4567-e89b-12d3-a456-426614174001' as TEntityId;
     const options = { correlationId: 'corr-id' };
     const preferences: IUserPreferences = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       userId,
       lastActiveAccountingEntityId: accountingEntityId,
       appPreferences: { appUsageMode: 'non_power_user' },
@@ -89,6 +92,7 @@ describe('UserPreferencesRepoImpl', () => {
       updatedAt: new Date('2026-08-19T12:00:00.000Z'),
     };
     const preferenceValues = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: userId,
       lastActiveAccountingEntityId: accountingEntityId,
       appPreferences: { appUsageMode: 'non_power_user' },

@@ -59,7 +59,11 @@ describe('getAuthUserFromRequest', () => {
   });
 
   it('accepts additional spacing around a valid bearer token', async () => {
-    const user = { id: userId } as IUser;
+    const user = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      id: userId,
+    } as IUser;
     mockReq.headers = { authorization: '  Bearer   valid-token  ' };
     mockTokenService.getAuthUser.mockResolvedValue({ id: userId });
     mockUserRepo.findById.mockResolvedValue(user);
@@ -77,7 +81,11 @@ describe('getAuthUserFromRequest', () => {
   });
 
   it('forwards the supplied repo options when loading the user', async () => {
-    const user = { id: userId } as IUser;
+    const user = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      id: userId,
+    } as IUser;
     mockReq.headers = { authorization: 'Bearer valid-token' };
     mockTokenService.getAuthUser.mockResolvedValue({ id: userId });
     mockUserRepo.findById.mockResolvedValue(user);

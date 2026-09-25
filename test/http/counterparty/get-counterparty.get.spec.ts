@@ -17,6 +17,13 @@ import accountingRepos from '@infra/persistence/repos/accounting';
 import userRepos from '@infra/persistence/repos/user';
 import { createApplication } from '@infra/server';
 
+jest.mock('@infra/ioc/services/user', () => ({
+  ...jest.requireActual('@infra/ioc/services/user'),
+  actorService: jest.requireActual(
+    '@app/user/contracts/__mocks__/actor.services.mock'
+  ).mockActorService,
+}));
+
 jest.mock(
   '@infra/integrations/launchdarkly/launchdarkly-feature-flag.service',
   () => ({
@@ -59,6 +66,7 @@ const counterpartyId = '123e4567-e89b-12d3-a456-426614174003' as TEntityId;
 const ENDPOINT = `/api/v1/counterparties/${counterpartyId}`;
 
 const accountingEntity = {
+  createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
   id: accountingEntityId,
   ownerId: userId,
   functionalCurrencyCode: 'NGN',
@@ -66,6 +74,7 @@ const accountingEntity = {
 } as IAccountingEntity;
 
 const counterparty: ICounterpartyDto = {
+  createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
   id: counterpartyId,
   accountingEntityId,
   name: 'Acme Corp',
@@ -90,7 +99,11 @@ describe('GET /counterparties/{id}', () => {
     jest.clearAllMocks();
     mockFeatureFlagService.canAccessAlpha1.mockResolvedValue(true);
     mockGetAuthUser.mockResolvedValue({ id: userId });
-    mockFindUser.mockResolvedValue({ id: userId } as IUser);
+    mockFindUser.mockResolvedValue({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      id: userId,
+    } as IUser);
     mockFindAccountingEntity.mockResolvedValue(accountingEntity);
     mockGetCounterparty.mockResolvedValue(counterparty);
     app = createApplication();

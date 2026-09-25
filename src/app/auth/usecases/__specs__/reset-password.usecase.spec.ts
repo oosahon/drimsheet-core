@@ -23,6 +23,7 @@ import mockAppContext, {
   mockClientSession,
 } from '@app/context/contracts/__mocks__/app-context.mock';
 import { IAppContextData } from '@app/context/contracts/app-context.contract';
+import { mockActorService } from '@app/user/contracts/__mocks__/actor.services.mock';
 import { mockUserRepo } from '@app/user/contracts/__mocks__/user.repos.mock';
 
 describe('makeResetPasswordUseCase', () => {
@@ -49,6 +50,7 @@ describe('makeResetPasswordUseCase', () => {
     mockUserAuthService.replacePassword
       .mockReset()
       .mockImplementation((userAuth, password) => ({
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         userId: userAuth.userId,
         password,
         failedLoginAttempts: 0,
@@ -65,6 +67,7 @@ describe('makeResetPasswordUseCase', () => {
         accessToken: 'mock-auth-token',
         refreshToken: 'mock-refresh-token',
         userSession: {
+          createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
           id: generateUUID(),
           userId: user.id,
           refreshToken: 'mock-refresh-token',
@@ -94,6 +97,7 @@ describe('makeResetPasswordUseCase', () => {
 
   const getUseCase = () =>
     makeResetPasswordUseCase({
+      actorService: mockActorService,
       appContext: mockAppContext,
       userRepo: mockUserRepo,
       passwordService: mockPasswordService,
@@ -153,7 +157,11 @@ describe('makeResetPasswordUseCase', () => {
       id: 'internal-id' as TEntityId,
       owner: 'claim-owner',
     });
-    mockUserRepo.findById.mockResolvedValue({ id: 'internal-id' } as IUser);
+    mockUserRepo.findById.mockResolvedValue({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      id: 'internal-id',
+    } as IUser);
     mockUserAuthRepo.findByUserId.mockResolvedValue(null);
 
     const usecase = getUseCase();
@@ -164,6 +172,8 @@ describe('makeResetPasswordUseCase', () => {
 
   it('should successfully update the password and broadcast the event', async () => {
     const mockUser: IUser = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: generateUUID(),
       email: emailValue.make('found@example.com'),
       emailVerified: true,
@@ -181,6 +191,7 @@ describe('makeResetPasswordUseCase', () => {
     });
     mockUserRepo.findById.mockResolvedValue(mockUser);
     const existingUserAuth = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       userId: mockUser.id,
       password: 'old-hash',
       failedLoginAttempts: 0,
@@ -249,6 +260,8 @@ describe('makeResetPasswordUseCase', () => {
 
   it('adds the email strategy when a Google-only user creates a password', async () => {
     const mockUser: IUser = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: generateUUID(),
       email: emailValue.make('google-user@example.com'),
       emailVerified: true,
@@ -260,6 +273,7 @@ describe('makeResetPasswordUseCase', () => {
       deletedAt: null,
     };
     const existingUserAuth = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       userId: mockUser.id,
       password: null,
       failedLoginAttempts: 0,
@@ -292,6 +306,8 @@ describe('makeResetPasswordUseCase', () => {
 
   it('returns committed success and reports token finalization failure', async () => {
     const mockUser = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: generateUUID(),
       email: emailValue.make('committed@example.com'),
       emailVerified: true,
@@ -302,6 +318,7 @@ describe('makeResetPasswordUseCase', () => {
     });
     mockUserRepo.findById.mockResolvedValue(mockUser);
     mockUserAuthRepo.findByUserId.mockResolvedValue({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       userId: mockUser.id,
       password: 'old-hash',
       failedLoginAttempts: 0,
@@ -315,6 +332,7 @@ describe('makeResetPasswordUseCase', () => {
       accessToken: 'access-token',
       refreshToken: 'refresh-token',
       userSession: {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         id: generateUUID(),
         userId: mockUser.id,
         refreshToken: 'refresh-token',
@@ -343,6 +361,8 @@ describe('makeResetPasswordUseCase', () => {
 
   it('reports claim release failure when cleanup fails during error handling', async () => {
     const mockUser = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: generateUUID(),
       email: emailValue.make('cleanup-failure@example.com'),
       emailVerified: true,
@@ -375,6 +395,8 @@ describe('makeResetPasswordUseCase', () => {
 
   it('does not release claim if error is thrown after commit', async () => {
     const mockUser = {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: generateUUID(),
       email: emailValue.make('after-commit-failure@example.com'),
       emailVerified: true,
@@ -388,6 +410,7 @@ describe('makeResetPasswordUseCase', () => {
     mockAuthService.claimPasswordResetToken.mockResolvedValue(tokenPayload);
     mockUserRepo.findById.mockResolvedValue(mockUser);
     mockUserAuthRepo.findByUserId.mockResolvedValue({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       userId: mockUser.id,
       password: 'old-hash',
       failedLoginAttempts: 0,
@@ -401,6 +424,7 @@ describe('makeResetPasswordUseCase', () => {
       accessToken: 'access-token',
       refreshToken: 'refresh-token',
       userSession: {
+        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         id: generateUUID(),
         userId: mockUser.id,
         refreshToken: 'refresh-token',

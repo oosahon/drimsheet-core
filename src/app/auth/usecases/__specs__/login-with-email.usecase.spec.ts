@@ -2,6 +2,7 @@ import mockEventBus from '@shared/contracts/__mocks__/event-bus.mock';
 import { TEntityId } from '@shared/types/uuid';
 import appError from '@shared/values/errors/app.error';
 
+import actorError from '@domain/user/errors/actor.error';
 import { IUser } from '@domain/user/types/user.types';
 import emailValue from '@domain/user/values/email.vo';
 
@@ -18,6 +19,7 @@ import mockAppContext, {
   mockClientSession,
 } from '@app/context/contracts/__mocks__/app-context.mock';
 import { IAppContextData } from '@app/context/contracts/app-context.contract';
+import { mockActorService } from '@app/user/contracts/__mocks__/actor.services.mock';
 import { mockUserRepo } from '@app/user/contracts/__mocks__/user.repos.mock';
 
 describe('makeLoginWithEmailUseCase', () => {
@@ -59,6 +61,7 @@ describe('makeLoginWithEmailUseCase', () => {
 
   const getMockUserAuth = (overrides = {}) =>
     ({
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       userId: 'existing-user-id',
       password: 'hashed-password',
       failedLoginAttempts: 0,
@@ -75,6 +78,7 @@ describe('makeLoginWithEmailUseCase', () => {
     accessToken: 'auth-token',
     refreshToken: 'refresh-token',
     userSession: {
+      createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
       id: 'session-id' as TEntityId,
       userId: 'existing-user-id' as TEntityId,
       refreshToken: 'refresh-token',
@@ -86,6 +90,7 @@ describe('makeLoginWithEmailUseCase', () => {
 
   const getUseCase = () =>
     makeLoginWithEmailUseCase({
+      actorService: mockActorService,
       reqContext: mockAppContext,
       userRepo: mockUserRepo,
       passwordService: mockPasswordService,
@@ -280,4 +285,24 @@ describe('makeLoginWithEmailUseCase', () => {
       { correlationId }
     );
   });
+  it.each([actorError.Disabled, actorError.NotFound])(
+    'refuses new sessions when actor resolution fails',
+    async (ActorError) => {
+      const user = getMockUser();
+      mockUserRepo.findByEmail.mockResolvedValue(user);
+      mockUserAuthRepo.findByUserId.mockResolvedValue(getMockUserAuth());
+      mockPasswordService.compare.mockResolvedValue(true);
+      mockActorService.resolveUser.mockRejectedValueOnce(new ActorError());
+      await expect(getUseCase()(validPayload)).rejects.toThrow(ActorError);
+      expect(mockActorService.resolveUser).toHaveBeenCalledWith(user, {
+        correlationId,
+      });
+      expect(mockUserSessionService.prepare).not.toHaveBeenCalled();
+      expect(
+        mockUserSessionPersistenceService.replaceClientSession
+      ).not.toHaveBeenCalled();
+      expect(mockClientSession.setRefreshToken).not.toHaveBeenCalled();
+      expect(mockEventBus.publish).not.toHaveBeenCalled();
+    }
+  );
 });
